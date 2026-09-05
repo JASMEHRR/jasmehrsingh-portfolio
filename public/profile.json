@@ -1,0 +1,141 @@
+{
+  "_readme": "Single source of truth for jasmehrsingh.netlify.app and /arcade. Edit this file, redeploy, both pages update. Keep the structure; add/remove items freely.",
+
+  "name": "JasMehr Singh",
+  "headline": "Digital marketing × AI builder",
+  "location": "Chandigarh, India",
+  "email": "jasmehr2005@gmail.com",
+  "phone": "+91 81464 69107",
+  "linkedin": "https://www.linkedin.com/in/jasmehr-singh",
+  "github": "JASMEHRR",
+
+  "stats": [
+    { "value": 2,   "suffix": "+", "label": "Years experience" },
+    { "value": 1,   "suffix": "M+", "label": "Content views" },
+    { "value": 10,  "suffix": "M+", "label": "Pinterest impressions" },
+    { "value": 1.5, "suffix": "k+", "label": "Audience reached", "decimals": 1 }
+  ],
+
+  "facts": [
+    ["Based in", "Chandigarh, India"],
+    ["Currently", "MBA, LM Thapar (2026–28)"],
+    ["Background", "BBA Digital Marketing, 8.89 CGPA"],
+    ["Strongest in", "Content, growth, AI workflows"],
+    ["Open to", "Growth · Brand · AI product"]
+  ],
+
+  "jobs": [
+    {
+      "role": "Sales & Marketing Intern",
+      "org": "ChainCode Consulting LLP",
+      "detail": "MyMints · Chandigarh",
+      "when": "Jan 2026 — Mar 2026",
+      "bullets": [
+        "Onboarded 10+ local vendor partners through field outreach and training during the platform's launch phase.",
+        "Produced reels and digital content generating 1M+ combined views across partner locations.",
+        "Planned and executed three seasonal campaigns end-to-end — Ambassador Program, Valentine's Day, Holi."
+      ],
+      "inputs": ["Field Outreach", "Reels", "Campaigns"],
+      "result": "10+ vendors onboarded · 1M+ views · 3 seasonal campaigns"
+    },
+    {
+      "role": "Founder",
+      "org": "Glood.co & PawHow.in",
+      "detail": "independent ventures · Chandigarh / Remote",
+      "when": "Jan 2025 — Present",
+      "bullets": [
+        "Launched Glood.co, a custom merchandise brand — 1,000+ units sold through campus stalls and online channels; built 3–4 cross-brand partnerships.",
+        "Founded PawHow.in, a pet-products content and affiliate platform; grew owned channels to 10M+ Pinterest impressions."
+      ],
+      "inputs": ["Brand", "Content", "Partners"],
+      "result": "1,000+ units sold · 10M+ Pinterest impressions"
+    },
+    {
+      "role": "Event Coordinator Head",
+      "org": "Ecolution Club",
+      "detail": "Chitkara University · Rajpura",
+      "when": "Apr 2025 — Mar 2026",
+      "bullets": [
+        "Coordinated sustainability programmes and standardised newsletter, social and event templates across the club.",
+        "Promoted from Content Writer after a year of consistent content output and event delivery."
+      ],
+      "inputs": ["Events", "Templates", "Comms"],
+      "result": "Promoted from Content Writer"
+    },
+    {
+      "role": "Marketing Intern",
+      "org": "Contensify",
+      "detail": "Remote",
+      "when": "Jun 2025 — Jul 2025",
+      "bullets": [
+        "Owned the company LinkedIn page and produced content for a brand-awareness campaign that lifted engagement.",
+        "Collaborated cross-functionally on a new product feature while managing multiple deadlines."
+      ],
+      "inputs": ["LinkedIn", "Content", "Product"],
+      "result": "Owned company LinkedIn page"
+    },
+    {
+      "role": "On-Ground Operations Head",
+      "org": "Piccolo Events & Agahi Events",
+      "detail": "Chandigarh, Haridwar, Dehradun, Ludhiana",
+      "when": "Jun 2023 — Jun 2025",
+      "bullets": [
+        "Delivered multi-day debate events reaching 1,500+ students, coordinating venue logistics, staffing, sponsors and schedules.",
+        "Ran structured post-event reviews and converted findings into action plans for the next edition."
+      ],
+      "inputs": ["Logistics", "Sponsors", "Staffing"],
+      "result": "1,500+ students · 4 cities"
+    },
+    {
+      "role": "Marketing & Sales Manager",
+      "org": "Mount'EM",
+      "detail": "JA Student Company Program · Mohali",
+      "when": "2021 — 2022",
+      "bullets": [
+        "Handled marketing and door-to-door sales for a wall-mount product line in a school entrepreneurship programme; ran market research to inform strategy."
+      ],
+      "inputs": ["D2D Sales", "Research", "Strategy"],
+      "result": "School venture programme"
+    }
+  ],
+
+  "skills": {
+    "Marketing":    ["Content & Copywriting", "SEO & Growth", "Short-Form Video & Reels", "Social Media (Instagram, LinkedIn, Pinterest)", "Influencer & Brand Partnerships", "Event Coordination", "Campaign Planning"],
+    "AI tools":     ["Claude", "Claude Code", "ChatGPT", "Gemini", "Google AI Studio"],
+    "Technical":    ["Python", "TypeScript", "React", "Firebase", "Supabase", "MS Excel", "Semrush", "Google Analytics"],
+    "Design & ops": ["Canva", "Prezi", "Notion", "MS Office"]
+  },
+
+  "certs": [
+    ["Technical SEO & AI Search Essentials", "Semrush"],
+    ["AI Visibility Essentials", "Semrush"],
+    ["Off-Page SEO & AI Search Essentials", "Semrush"],
+    ["Social Media Marketing", "HubSpot Academy"],
+    ["Content Marketing", "HubSpot Academy"],
+    ["Digital Marketing", "Google Digital Unlocked"],
+    ["Claude 101", "Anthropic"],
+    ["Claude Code 101", "Anthropic"],
+    ["Search Engine Marketing", "BlueVector & CBS, 2024"],
+    ["Web Design & SEO", "Chitkara University, 2024"],
+    ["AI Tools Workshop", "Be10x"],
+    ["SEBI (NISM) Investor Certification", "2025"]
+  ],
+
+  "achievements": [
+    ["Gold Medal — Debate", "World Scholar's Cup, Global Round qualifier (2022)"],
+    ["1st Place", "Tech Jagran Business Conclave (2022)"],
+    ["Finalist", "Code to Learn Contest — Google India (2019)"],
+    ["2nd — Articulate Toast", "Chitkara Toastmasters (2024)"]
+  ],
+
+  "manualProjects": [
+    {
+      "name": "ventureadda",
+      "label": "Venture Adda",
+      "lang": "TypeScript",
+      "desc": "Startup and venture discovery platform — in active development.",
+      "url": "",
+      "img": "ventureadda.png"
+    }
+  ]
+}

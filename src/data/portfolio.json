@@ -1,0 +1,301 @@
+{
+  "profile": {
+    "name": "JasMehr Singh",
+    "shortName": "JasMehr",
+    "tagline": "Marketer who actually builds.",
+    "role": "Digital Marketing & AI Automation",
+    "specialization": "Content · Growth · Brand Partnerships",
+    "location": "Chandigarh, India",
+    "yearsOfExperience": "2+",
+    "bio": "I run campaigns, content and brand partnerships by day, and ship AI tools with Claude Code by night. I have driven 1M+ views on short-form video I wrote and shot myself, grown owned channels to 10M+ Pinterest impressions, and founded two independent brands from zero. Currently pursuing an MBA at LM Thapar School of Management, specialising in Marketing.",
+    "avatarSvg": "/avatar.png",
+    "social": {
+      "github": "https://github.com/JASMEHRR",
+      "instagram": "",
+      "linkedin": "https://www.linkedin.com/in/jasmehr-singh",
+      "email": "jasmehr2005@gmail.com",
+      "phone": "+91 8146469107",
+      "website": "https://jasmehrsingh.netlify.app"
+    }
+  },
+  "skills": {
+    "categories": [
+      {
+        "name": "Marketing",
+        "items": [
+          "Content & Copywriting",
+          "SEO & Growth",
+          "Short-Form Video & Reels",
+          "Social Media",
+          "Influencer & Brand Partnerships",
+          "Event Coordination",
+          "Campaign Planning"
+        ]
+      },
+      {
+        "name": "AI Tools",
+        "items": [
+          "Claude",
+          "Claude Code",
+          "ChatGPT",
+          "Gemini",
+          "Google AI Studio"
+        ]
+      },
+      {
+        "name": "Technical",
+        "items": [
+          "Python",
+          "TypeScript",
+          "React",
+          "Firebase",
+          "Supabase",
+          "MS Excel",
+          "Semrush",
+          "Google Analytics"
+        ]
+      },
+      {
+        "name": "Design & Ops",
+        "items": [
+          "Canva",
+          "Prezi",
+          "Notion",
+          "MS Office"
+        ]
+      }
+    ]
+  },
+  "experience": [
+    {
+      "company": "ChainCode Consulting LLP",
+      "role": "Sales & Marketing Intern — MyMints",
+      "period": "Jan 2026 — Mar 2026",
+      "location": "Chandigarh",
+      "summary": "Launch-phase growth for MyMints, a hyperlocal commerce platform.",
+      "highlights": [
+        "Onboarded 10+ local vendor partners through field outreach and training during the platform's launch phase.",
+        "Produced reels and digital content generating 1M+ combined views across partner locations.",
+        "Planned and executed three seasonal campaigns end-to-end — Ambassador Program, Valentine's Day, Holi."
+      ]
+    },
+    {
+      "company": "Glood.co & PawHow.in",
+      "role": "Founder",
+      "period": "Jan 2025 — Present",
+      "location": "Chandigarh / Remote",
+      "summary": "Two independent ventures built and run from zero.",
+      "highlights": [
+        "Launched Glood.co, a custom merchandise brand — 1,000+ units sold through campus stalls and online channels.",
+        "Built 3–4 cross-brand partnerships to expand distribution and audience reach.",
+        "Founded PawHow.in, a pet-products content and affiliate platform; grew owned channels to 10M+ Pinterest impressions."
+      ]
+    },
+    {
+      "company": "Ecolution Club, Chitkara University",
+      "role": "Event Coordinator Head",
+      "period": "Apr 2025 — Mar 2026",
+      "location": "Rajpura",
+      "summary": "Owned communications and event delivery for the university sustainability club.",
+      "highlights": [
+        "Coordinated sustainability programmes across the university community.",
+        "Standardised newsletter, social and event collateral templates to hold brand consistency.",
+        "Promoted from Content Writer after a year of consistent output and event delivery."
+      ]
+    },
+    {
+      "company": "Contensify",
+      "role": "Marketing Intern",
+      "period": "Jun 2025 — Jul 2025",
+      "location": "Remote",
+      "summary": "Content and social ownership for a SaaS content platform.",
+      "highlights": [
+        "Owned the company LinkedIn page and produced content for a brand-awareness campaign that lifted engagement.",
+        "Collaborated cross-functionally on a new product feature while managing multiple deadlines."
+      ]
+    },
+    {
+      "company": "Piccolo Events & Agahi Events",
+      "role": "On-Ground Operations Head",
+      "period": "Jun 2023 — Jun 2025",
+      "location": "Chandigarh · Haridwar · Dehradun · Ludhiana",
+      "summary": "Multi-city event operations for large student debate circuits.",
+      "highlights": [
+        "Delivered multi-day debate events reaching 1,500+ students across four cities.",
+        "Coordinated venue logistics, staffing, sponsors and schedules end-to-end.",
+        "Ran structured post-event reviews and converted findings into action plans for the next edition."
+      ]
+    },
+    {
+      "company": "Mount'EM — JA Student Company Program",
+      "role": "Marketing & Sales Manager",
+      "period": "2021 — 2022",
+      "location": "Mohali",
+      "summary": "School entrepreneurship programme running a real product line.",
+      "highlights": [
+        "Handled marketing and door-to-door sales for a wall-mount product line.",
+        "Ran market research to identify opportunities and inform strategy."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "clipforge",
+      "title": "ClipForge",
+      "subtitle": "AI video repurposing pipeline",
+      "description": "Turns long videos into captioned short clips automatically using LLM-based highlight detection, transcription and vertical reframing. Directed and iterated end-to-end with Claude Code.",
+      "stack": [
+        "Python",
+        "LLM",
+        "FFmpeg",
+        "Claude Code"
+      ],
+      "role": "Product direction, testing, iteration",
+      "year": "2026",
+      "link": "https://github.com/JASMEHRR/clipforge",
+      "image": "",
+      "highlight": true
+    },
+    {
+      "id": "ventureadda",
+      "title": "Venture Adda",
+      "subtitle": "Startup & venture discovery platform",
+      "description": "A platform for discovering and tracking early-stage ventures. Currently in active development and private while the core loop is being built.",
+      "stack": [
+        "TypeScript",
+        "React",
+        "Supabase"
+      ],
+      "role": "Founder, product direction",
+      "year": "2026",
+      "link": "",
+      "image": "",
+      "highlight": true
+    },
+    {
+      "id": "ascend",
+      "title": "ASCEND",
+      "subtitle": "Life-management dashboard with an AI coach",
+      "description": "Habit stacking, discipline scoring and an AI coaching layer in a liquid-glass UI. Built in React and Firebase to run a full personal operating system in one place.",
+      "stack": [
+        "TypeScript",
+        "React",
+        "Firebase",
+        "Claude Code"
+      ],
+      "role": "Product direction, testing, iteration",
+      "year": "2026",
+      "link": "https://github.com/JASMEHRR/ASCEND",
+      "image": "",
+      "highlight": false
+    },
+    {
+      "id": "habit-arena",
+      "title": "Habit Arena",
+      "subtitle": "Multiplayer habit-tracking game",
+      "description": "Gamified habit tracker with streaks, arenas and competitive self-improvement mechanics. Turns consistency into something you play rather than something you endure.",
+      "stack": [
+        "JavaScript",
+        "React",
+        "Firebase"
+      ],
+      "role": "Product direction, testing, iteration",
+      "year": "2026",
+      "link": "https://github.com/JASMEHRR/habit-arena",
+      "image": "",
+      "highlight": false
+    },
+    {
+      "id": "content-os",
+      "title": "Content-OS",
+      "subtitle": "An operating system for creators",
+      "description": "Pipeline management, scheduling and asset organisation for a multi-channel content operation. Built to stop losing ideas between the note app and the upload.",
+      "stack": [
+        "Python",
+        "Claude Code"
+      ],
+      "role": "Product direction, testing, iteration",
+      "year": "2026",
+      "link": "https://github.com/JASMEHRR/Content-OS",
+      "image": "",
+      "highlight": false
+    },
+    {
+      "id": "rezclips",
+      "title": "RezClips",
+      "subtitle": "Smart video clipping & summarisation",
+      "description": "Pulls highlights and key moments out of long-form content automatically. An earlier exploration of the problem ClipForge now solves end-to-end.",
+      "stack": [
+        "Python",
+        "LLM"
+      ],
+      "role": "Product direction, testing, iteration",
+      "year": "2025",
+      "link": "https://github.com/JASMEHRR/rezclips",
+      "image": "",
+      "highlight": false
+    }
+  ],
+  "education": [
+    {
+      "institution": "LM Thapar School of Management, Thapar Institute of Engineering & Technology",
+      "degree": "Master of Business Administration (MBA), Marketing",
+      "period": "2026 — 2028",
+      "location": "Patiala",
+      "result": ""
+    },
+    {
+      "institution": "Chitkara University",
+      "degree": "Bachelor of Business Administration (BBA), Digital Marketing",
+      "period": "2023 — 2026",
+      "location": "Rajpura",
+      "result": "CGPA 8.89 / 10"
+    },
+    {
+      "institution": "Learning Paths School",
+      "degree": "Class XII, CBSE — Commerce with Informatics Practices",
+      "period": "2023",
+      "location": "Mohali",
+      "result": "70%"
+    }
+  ],
+  "testimonials": [],
+  "services": [
+    {
+      "title": "Content & Copywriting",
+      "body": "Short-form video scripts, landing copy, blog and social content built around hooks that actually hold attention — not filler written to fill a calendar.",
+      "tags": [
+        "Scripting",
+        "Hooks",
+        "Editorial"
+      ]
+    },
+    {
+      "title": "Growth & SEO",
+      "body": "Organic growth from keyword research through publishing and iteration. Semrush-certified, with 10M+ Pinterest impressions on channels I ran myself.",
+      "tags": [
+        "SEO",
+        "Analytics",
+        "Distribution"
+      ]
+    },
+    {
+      "title": "AI Automation",
+      "body": "Custom internal tools built with Claude Code — video repurposing pipelines, content dashboards, workflow automation. I direct the product; the AI writes the code.",
+      "tags": [
+        "Claude Code",
+        "Pipelines",
+        "Tooling"
+      ]
+    },
+    {
+      "title": "Brand Partnerships",
+      "body": "Influencer and vendor outreach end-to-end: list building, cold outreach, negotiation and activation. 10+ vendor partners onboarded at launch stage.",
+      "tags": [
+        "Outreach",
+        "Negotiation",
+        "Activation"
+      ]
+    }
+  ]
+}

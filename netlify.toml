@@ -1,0 +1,25 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# The standalone arcade page and the JSON it fetches must resolve as real
+# files. They are listed before the SPA catch-all because Netlify applies
+# the first matching rule, so these shadow it.
+[[redirects]]
+  from = "/arcade/*"
+  to = "/arcade/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/profile.json"
+  to = "/profile.json"
+  status = 200
+
+# SPA fallback for the React app.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

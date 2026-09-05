@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: #0C0C0C;
+  color: #E8EAED;
+  font-family: 'Kanit', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Doc §02 — chrome/silver gradient display headline */
+.hero-heading {
+  background: linear-gradient(180deg, #646973 0%, #BBCCD7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Doc §04 prompt 01 — headline never clips.
+   The doc's flat clamp(3rem, 13vw, 14rem) overflows once the name is long
+   (15 chars overflows at 375/768/1280/1920). --hero-ch is set from the JSON
+   in HeroSection, so the 13vw ceiling and 14rem cap are kept but the size
+   also yields to the available width for any name length. */
+.hero-heading-size {
+  --hero-ch: 15;
+  font-size: clamp(
+    2rem,
+    min(13vw, (100vw - 2.5rem) / (var(--hero-ch) * 0.63)),
+    14rem
+  );
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* The clamp bottoms out at the 2rem floor, so a long name on a narrow screen
+   would still outgrow the line and get cropped by the hero's overflow-hidden.
+   Below 640px the headline is allowed to wrap instead; .no-break rules keep it
+   from ever splitting mid-word. */
+@media (max-width: 640px) {
+  .hero-heading-size {
+    white-space: normal;
+    text-wrap: balance;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+}
+
+/* Doc §04 — anchor offset for smooth scroll nav */
+section[id] { scroll-margin-top: 80px; }
+
+/* Doc §02 §03 — no mid-word wrapping in body copy */
+.no-break {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.accent-gradient {
+  background: linear-gradient(90deg, #A855F7 0%, #E1306C 50%, #F97316 100%);
+}
+
+/* Doc §02 §7 — CSS-only infinite marquee, right to left */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+.marquee-viewport:hover .marquee-track { animation-play-state: paused; }
+
+/* Doc §02 §7 — reduced-motion falls back to scroll-snap */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .marquee-track {
+    animation: none;
+    width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .marquee-track > * { scroll-snap-align: start; }
+}
