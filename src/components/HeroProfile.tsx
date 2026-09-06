@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { usePointer } from '../hooks/usePointer';
-import { Panel, Hearts, XpBar, Block } from './mc/Gui';
+import { Panel, Hearts, XpBar } from './mc/Gui';
 
 /**
- * The player screen: stats on the left, character on the right.
+ * The player screen.
  *
- * The avatar is the real skin render at public/avatar.png. If it is missing
- * the <img> removes itself and the armour-stand plinth stays, so the layout
- * never collapses into a broken icon.
+ * The character is the subject, not an accessory: it runs the full height of
+ * the viewport on the right and overlaps the text column, so at any window
+ * size it reads as a person standing in a world rather than a portrait pasted
+ * beside a card.
  */
 export default function HeroProfile() {
   const { profile, game } = usePortfolio();
@@ -25,117 +26,111 @@ export default function HeroProfile() {
     <section
       id="home"
       data-biome="overworld"
-      className="relative z-10 mx-auto grid min-h-[100svh] max-w-6xl items-center gap-8 px-4 py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:gap-12"
+      className="relative z-10 flex min-h-[100svh] items-center overflow-hidden"
     >
-      {/* ---------- left: identity + stats ---------- */}
-      <div>
-        <p
-          className="mc-out mb-3 text-[color:var(--gold)]"
-          style={{ fontFamily: 'var(--px)', fontSize: 10 }}
-        >
-          SINGLEPLAYER
-        </p>
-
-        <h1
-          className="mc-out-lg text-white"
-          style={{ fontFamily: 'var(--px)', fontSize: 'clamp(22px,4.4vw,44px)', lineHeight: 1.35 }}
-        >
-          JasMehr <span style={{ color: 'var(--gold)' }}>Singh</span>
-        </h1>
-
-        {splash && (
-          <p
-            className="mc-float mt-3 inline-block -rotate-3 text-[color:var(--gold)]"
-            style={{ fontFamily: 'var(--px)', fontSize: 10, textShadow: '2px 2px 0 #3e3000' }}
-          >
-            {splash}
-          </p>
-        )}
-
-        <p className="mc-out no-break mt-5 max-w-xl text-[22px] leading-snug text-white">
-          {profile.tagline}
-        </p>
-
-        <div className="mt-7 max-w-md">
-          <Panel>
-            <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-[19px] leading-tight">
-              <dt className="text-[color:var(--ink-soft)]">Class</dt>
-              <dd className="text-[color:var(--ink)]">{game.className}</dd>
-              <dt className="text-[color:var(--ink-soft)]">Level</dt>
-              <dd className="text-[color:var(--ink)]">
-                {game.level} — {profile.yearsOfExperience} years played
-              </dd>
-              <dt className="text-[color:var(--ink-soft)]">Spawn</dt>
-              <dd className="text-[color:var(--ink)]">{game.spawn}</dd>
-              <dt className="text-[color:var(--ink-soft)]">Status</dt>
-              <dd className="text-[color:var(--ink)]">{game.status}</dd>
-            </dl>
-
-            <div className="mt-5 grid gap-3">
-              <Hearts count={game.hearts} />
-              <XpBar level={game.level} percent={72} />
-            </div>
-          </Panel>
-        </div>
-
-        <div className="mt-7 flex flex-wrap gap-3">
-          <a href="#projects" className="mc-btn px-5 py-3 text-[10px]">
-            Open Projects Chest
-          </a>
-          <a href="#skills" className="mc-btn px-5 py-3 text-[10px]">
-            Enchant with Skills
-          </a>
-          <a href="/arcade/" className="mc-btn px-5 py-3 text-[10px]">
-            Play Arcade
-          </a>
-        </div>
-      </div>
-
-      {/* ---------- right: the character on a plinth ---------- */}
-      <div className="relative grid place-items-center">
+      {/* ---------- the character, full height ---------- */}
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[62%] lg:w-[52%]">
         <div
           aria-hidden
-          className="absolute h-[260px] w-[260px] rounded-full blur-2xl transition-transform duration-500 ease-out sm:h-[320px] sm:w-[320px]"
+          className="absolute bottom-[30%] left-1/2 h-[42vh] w-[42vh] -translate-x-1/2 rounded-full blur-3xl transition-transform duration-500 ease-out"
           style={{
             background:
-              'radial-gradient(circle, rgba(255,216,61,.22) 0%, rgba(176,108,247,.14) 45%, transparent 70%)',
+              'radial-gradient(circle, rgba(255,216,61,.26) 0%, rgba(176,108,247,.16) 45%, transparent 70%)',
             transform: `translate(${pointer.x * 8}px, ${pointer.y * 5}px)`,
           }}
         />
 
-        {hasSkin ? (
+        {hasSkin && (
           /* pointer parallax lives on the wrapper so it cannot fight the
              bob animation's own transform on the image */
+          /* feet land on the horizon (--hz is 64%), so the character stands
+             in the world rather than hovering over it */
           <div
-            className="relative transition-transform duration-300 ease-out"
-            style={{ transform: `translate(${pointer.x * 20}px, ${pointer.y * 12}px)` }}
+            className="absolute bottom-[34%] left-1/2 transition-transform duration-300 ease-out"
+            style={{
+              transform: `translate(calc(-50% + ${pointer.x * 22}px), ${pointer.y * 12}px)`,
+            }}
           >
             <img
               src={profile.avatarSvg}
               alt={`${profile.name}, rendered as a Minecraft character`}
               onError={() => setHasSkin(false)}
-              className="mc-float h-[clamp(240px,42vh,420px)] w-auto select-none"
+              className="mc-float h-[clamp(260px,54vh,620px)] w-auto max-w-none select-none"
               style={{
                 imageRendering: 'pixelated',
-                filter: 'drop-shadow(0 18px 0 rgba(0,0,0,.32))',
+                filter: 'drop-shadow(0 24px 0 rgba(0,0,0,.3))',
               }}
             />
           </div>
-        ) : (
-          <div className="relative grid h-[260px] w-[160px] place-items-end" aria-hidden>
-            <Block color="#6b4a3a" size={120} />
-          </div>
         )}
+      </div>
 
-        {/* the block the character stands on */}
-        <div
-          aria-hidden
-          className="relative mt-2 h-4 w-[210px]"
-          style={{
-            background: 'repeating-linear-gradient(90deg,#4caf3f 0 14px,#43a037 14px 28px)',
-            boxShadow: 'inset 0 3px 0 rgba(255,255,255,.2), 0 6px 0 rgba(0,0,0,.35)',
-          }}
-        />
+      {/* ---------- identity + stats, over the top ---------- */}
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-24">
+        <div className="max-w-[min(560px,64%)]">
+          <p
+            className="mc-out mb-3 text-[color:var(--gold)]"
+            style={{ fontFamily: 'var(--px)', fontSize: 10 }}
+          >
+            SINGLEPLAYER
+          </p>
+
+          <h1
+            className="mc-out-lg text-white"
+            style={{
+              fontFamily: 'var(--px)',
+              fontSize: 'clamp(20px,3.6vw,42px)',
+              lineHeight: 1.35,
+            }}
+          >
+            JasMehr <span style={{ color: 'var(--gold)' }}>Singh</span>
+          </h1>
+
+          {splash && (
+            <p
+              className="mc-float mt-3 inline-block -rotate-3 text-[color:var(--gold)]"
+              style={{ fontFamily: 'var(--px)', fontSize: 9, textShadow: '2px 2px 0 #3e3000' }}
+            >
+              {splash}
+            </p>
+          )}
+
+          <p className="mc-out no-break mt-5 text-[22px] leading-snug text-white">
+            {profile.tagline}
+          </p>
+
+          <div className="mt-7 max-w-md">
+            <Panel>
+              <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-[19px] leading-tight">
+                <dt className="text-[color:var(--ink-soft)]">Class</dt>
+                <dd className="text-[color:var(--ink)]">{game.className}</dd>
+                <dt className="text-[color:var(--ink-soft)]">{game.levelLabel}</dt>
+                <dd className="text-[color:var(--ink)]">{profile.yearsOfExperience}</dd>
+                <dt className="text-[color:var(--ink-soft)]">Spawn</dt>
+                <dd className="text-[color:var(--ink)]">{game.spawn}</dd>
+                <dt className="text-[color:var(--ink-soft)]">Status</dt>
+                <dd className="text-[color:var(--ink)]">{game.status}</dd>
+              </dl>
+
+              <div className="mt-5 grid gap-3">
+                <Hearts count={game.hearts} />
+                <XpBar level={game.level} percent={72} />
+              </div>
+            </Panel>
+          </div>
+
+          <div className="mt-7 flex flex-wrap gap-3">
+            <a href="#projects" className="mc-btn px-5 py-3 text-[10px]">
+              Open Chest
+            </a>
+            <a href="#skills" className="mc-btn px-5 py-3 text-[10px]">
+              Enchant
+            </a>
+            <a href="/arcade/" className="mc-btn px-5 py-3 text-[10px]">
+              Play Arcade
+            </a>
+          </div>
+        </div>
       </div>
     </section>
   );

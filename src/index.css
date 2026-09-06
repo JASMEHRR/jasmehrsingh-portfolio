@@ -48,6 +48,7 @@
   --l-cave: 0;
   --l-ench: 0;
   --l-torch: 0;
+  --l-planks: 0;
   --l-dim: 0;
 }
 
@@ -83,6 +84,7 @@ section[id] { scroll-margin-top: 24px; }
   --l-cherry: 0; --l-ground: 0; --l-cave: 0.55; --l-ench: 1; --l-torch: 0.5; --l-dim: 0.35;
 }
 [data-biome='craft'] {
+  --l-planks: 1;
   --ground: #4a3118;
   --sky1: #6b4a24; --sky2: #8a6032; --sky3: #a9793f;
   --l-stars: 0; --l-clouds: 0; --l-hills: 0; --l-trees: 0;
@@ -206,45 +208,49 @@ section[id] { scroll-margin-top: 24px; }
 }
 
 .w-grass {
-  top: calc(var(--hz) - 2px);
-  height: 26px;
+  top: calc(var(--hz) - 6px);
+  height: 48px;
   opacity: var(--l-ground);
-  background: repeating-linear-gradient(90deg, #4caf3f 0 16px, #43a037 16px 32px, #52b846 32px 48px, #3e9a34 48px 64px);
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.18);
+  background: url('/tex/grass_side.png') repeat-x 0 0 / 48px 48px;
 }
 .w-dirt {
-  top: calc(var(--hz) + 24px);
+  top: calc(var(--hz) + 42px);
   bottom: 0;
   opacity: var(--l-ground);
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0, rgba(0, 0, 0, 0) 34px),
-    linear-gradient(180deg, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.5) 100%),
-    repeating-linear-gradient(90deg, #7a4a23 0 32px, #6b3f1d 32px 64px);
+    linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0, rgba(0, 0, 0, 0) 40px),
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%),
+    url('/tex/dirt.png') repeat 0 0 / 48px 48px;
 }
 
 /* cave / stone mass — also the floor for enchant and craft biomes */
 .w-stone {
-  top: calc(var(--hz) - 2px);
+  top: 0;
+  bottom: 0;
+  opacity: var(--l-cave);
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0, rgba(0, 0, 0, 0.15) 30%, rgba(0, 0, 0, 0.7) 100%),
+    url('/tex/stone.png') repeat 0 0 / 48px 48px;
+}
+.w-deepslate {
+  top: calc(var(--hz) - 6px);
   bottom: 0;
   opacity: var(--l-cave);
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0, rgba(0, 0, 0, 0) 60px),
-    radial-gradient(3px 3px at 10px 14px, #5c5c5c 100%, transparent 0),
-    radial-gradient(3px 3px at 44px 40px, #9a9a9a 100%, transparent 0),
-    repeating-linear-gradient(90deg, #7c7c7c 0 32px, #6e6e6e 32px 64px),
-    repeating-linear-gradient(180deg, transparent 0 30px, rgba(0, 0, 0, 0.14) 30px 32px);
-  background-size: 100% 100%, 64px 64px, 64px 64px, 64px 64px, 64px 64px;
+    url('/tex/deepslate.png') repeat 0 0 / 48px 48px;
 }
 .w-ores {
-  top: calc(var(--hz) + 120px);
-  height: 200px;
+  top: calc(var(--hz) + 60px);
+  height: 280px;
   opacity: var(--l-cave);
   background:
-    linear-gradient(#5ff3ff, #5ff3ff) 12% 30%/10px 10px no-repeat,
-    linear-gradient(#5ff3ff, #5ff3ff) calc(12% + 10px) calc(30% + 10px)/10px 10px no-repeat,
-    linear-gradient(#ffd83d, #ffd83d) 58% 60%/10px 10px no-repeat,
-    linear-gradient(#66d36e, #66d36e) 84% 22%/10px 10px no-repeat,
-    linear-gradient(#222, #222) 34% 70%/10px 10px no-repeat;
+    url('/tex/ore_diamond.png') 11% 22% / 48px 48px no-repeat,
+    url('/tex/ore_gold.png') 27% 62% / 48px 48px no-repeat,
+    url('/tex/ore_emerald.png') 46% 30% / 48px 48px no-repeat,
+    url('/tex/ore_coal.png') 63% 70% / 48px 48px no-repeat,
+    url('/tex/ore_copper.png') 79% 24% / 48px 48px no-repeat,
+    url('/tex/ore_amethyst.png') 92% 58% / 48px 48px no-repeat;
   animation: glint 4s steps(2) infinite;
 }
 @keyframes glint { 50% { filter: brightness(1.8); } }
@@ -255,10 +261,11 @@ section[id] { scroll-margin-top: 24px; }
   bottom: 0;
   opacity: var(--l-ench);
   background:
-    linear-gradient(#150c28, #150c28) 6% calc(var(--hz) - 260px)/54px 260px no-repeat,
-    linear-gradient(#150c28, #150c28) 22% calc(var(--hz) - 190px)/40px 190px no-repeat,
-    linear-gradient(#150c28, #150c28) 78% calc(var(--hz) - 230px)/46px 230px no-repeat,
-    linear-gradient(#150c28, #150c28) 92% calc(var(--hz) - 170px)/38px 170px no-repeat;
+    url('/tex/obsidian.png') 6% calc(var(--hz) - 288px) / 48px 288px repeat-y,
+    url('/tex/obsidian.png') 22% calc(var(--hz) - 192px) / 48px 192px repeat-y,
+    url('/tex/obsidian.png') 78% calc(var(--hz) - 240px) / 48px 240px repeat-y,
+    url('/tex/obsidian.png') 92% calc(var(--hz) - 144px) / 48px 144px repeat-y,
+    url('/tex/bookshelf.png') 50% calc(var(--hz) - 96px) / 48px 96px repeat-x;
   filter: drop-shadow(0 0 30px rgba(176, 108, 247, 0.45));
 }
 .w-glyphs {
@@ -274,6 +281,16 @@ section[id] { scroll-margin-top: 24px; }
   animation: rise 7s linear infinite;
 }
 @keyframes rise { to { transform: translateY(-46px); opacity: 0; } }
+
+/* workshop floor — oak planks, only lit for the crafting biome */
+.w-planks {
+  top: calc(var(--hz) - 6px);
+  bottom: 0;
+  opacity: var(--l-planks);
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0, rgba(0, 0, 0, 0) 50px),
+    url('/tex/planks.png') repeat 0 0 / 48px 48px;
+}
 
 /* torch sprites — the stick, the flame, and the pool of light it throws */
 .w-torches {

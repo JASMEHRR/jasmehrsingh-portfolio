@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { usePortfolio } from '../hooks/usePortfolio';
-import { Hearts } from './mc/Gui';
 
 const BIOME_LABEL: Record<string, string> = {
   overworld: 'Plains',
@@ -12,14 +10,15 @@ const BIOME_LABEL: Record<string, string> = {
 };
 
 /**
- * The fixed game HUD.
+ * A deliberately quiet HUD: coordinates on the left, biome and depth bar on
+ * the right.
  *
- * Left is the player's condition, right is the world readout. The XP bar
- * doubles as a scroll progress indicator, which is the one place where the
- * game metaphor and a genuinely useful control happen to be the same thing.
+ * The hearts used to live here and made the top of the page look busy without
+ * saying anything — health is a decorative stat, so it belongs in the profile
+ * panel where it is read once, not pinned over every section. What stays is
+ * the one readout that earns its place: the bar doubles as scroll progress.
  */
 export default function Hud() {
-  const { game } = usePortfolio();
   const [progress, setProgress] = useState(0);
   const [biome, setBiome] = useState('overworld');
   const [depth, setDepth] = useState(0);
@@ -40,40 +39,28 @@ export default function Hud() {
     };
   }, []);
 
-  // Y counts down as you descend, the way a real coordinate readout would
-  const y = 64 - depth;
-
   return (
     <div
       aria-hidden
       className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-start justify-between gap-4 px-4 py-3"
     >
-      <div className="grid gap-2">
-        <Hearts count={game.hearts} />
-        <p
-          className="mc-out text-white/85"
-          style={{ fontFamily: 'var(--px)', fontSize: 7, lineHeight: 1.8 }}
-        >
-          XYZ: 0 / {y} / 0
-        </p>
-      </div>
+      <p
+        className="mc-out text-white/75"
+        style={{ fontFamily: 'var(--px)', fontSize: 7, lineHeight: 1.8 }}
+      >
+        XYZ: 0 / {64 - depth} / 0
+      </p>
 
-      <div className="grid w-[min(240px,42vw)] gap-1 justify-items-end">
+      <div className="grid w-[min(200px,40vw)] justify-items-end gap-1">
         <p
-          className="mc-out text-[color:var(--xp)]"
-          style={{ fontFamily: 'var(--px)', fontSize: 10 }}
-        >
-          {game.level}
-        </p>
-        <div className="mc-xp w-full">
-          <i style={{ width: `${progress}%` }} />
-        </div>
-        <p
-          className="mc-out mt-1 text-white/85"
+          className="mc-out text-white/75"
           style={{ fontFamily: 'var(--px)', fontSize: 7, lineHeight: 1.8 }}
         >
           {BIOME_LABEL[biome] ?? biome}
         </p>
+        <div className="mc-xp w-full">
+          <i style={{ width: `${progress}%` }} />
+        </div>
       </div>
     </div>
   );

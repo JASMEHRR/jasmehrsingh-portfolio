@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Block } from './mc/Gui';
+import { Item } from './mc/Gui';
 
-type Dest = { label: string; href: string; color: string; external?: boolean };
+type Dest = { label: string; href: string; icon: string; external?: boolean };
 
 /**
  * Bottom hotbar navigation.
@@ -11,14 +11,14 @@ type Dest = { label: string; href: string; color: string; external?: boolean };
  * biome engine has selected, so the highlight and the world always agree.
  */
 const DESTS: Dest[] = [
-  { label: 'Profile', href: '#home', color: '#4caf3f' },
-  { label: 'Skills', href: '#skills', color: '#b06cf7' },
-  { label: 'Journey', href: '#experience', color: '#a9793f' },
-  { label: 'Projects', href: '#projects', color: '#4fc3f7' },
-  { label: 'The Mine', href: '#mine', color: '#5ff3ff' },
-  { label: 'Advancements', href: '#about', color: '#ffd83d' },
-  { label: 'Contact', href: '#contact', color: '#66d36e' },
-  { label: 'Arcade', href: '/arcade/', color: '#ff5555', external: true },
+  { label: 'Profile', href: '#home', icon: '/tex/grass_top.png' },
+  { label: 'Skills', href: '#skills', icon: '/tex/bookshelf.png' },
+  { label: 'Journey', href: '#experience', icon: '/tex/planks.png' },
+  { label: 'Projects', href: '#projects', icon: '/tex/item_chest.png' },
+  { label: 'The Mine', href: '#mine', icon: '/tex/ore_diamond.png' },
+  { label: 'Advancements', href: '#about', icon: '/tex/item_gold.png' },
+  { label: 'Contact', href: '#contact', icon: '/tex/item_book.png' },
+  { label: 'Arcade', href: '/arcade/', icon: '/tex/item_amethyst.png', external: true },
 ];
 
 export default function Hotbar() {
@@ -105,7 +105,7 @@ export default function Hotbar() {
                     : undefined
                 }
               >
-                <Block color={d.color} size={24} />
+                <Item src={d.icon} size={28} />
                 <span className="sr-only">{d.label}</span>
                 <span
                   aria-hidden

@@ -193,7 +193,8 @@
       "highlight": true,
       "color": "#7b4fd8",
       "rarity": "legendary",
-      "material": "Netherite"
+      "material": "Netherite",
+      "icon": "/tex/item_netherite.png"
     },
     {
       "id": "ventureadda",
@@ -212,7 +213,8 @@
       "highlight": true,
       "color": "#4fc3f7",
       "rarity": "rare",
-      "material": "Diamond"
+      "material": "Diamond",
+      "icon": "/tex/item_diamond.png"
     },
     {
       "id": "ascend",
@@ -232,7 +234,8 @@
       "highlight": false,
       "color": "#66d36e",
       "rarity": "rare",
-      "material": "Emerald"
+      "material": "Emerald",
+      "icon": "/tex/item_emerald.png"
     },
     {
       "id": "habit-arena",
@@ -251,7 +254,8 @@
       "highlight": false,
       "color": "#ffd83d",
       "rarity": "uncommon",
-      "material": "Gold"
+      "material": "Gold",
+      "icon": "/tex/item_gold.png"
     },
     {
       "id": "content-os",
@@ -269,7 +273,8 @@
       "highlight": false,
       "color": "#d8a37a",
       "rarity": "uncommon",
-      "material": "Copper"
+      "material": "Copper",
+      "icon": "/tex/item_copper.png"
     },
     {
       "id": "rezclips",
@@ -287,7 +292,8 @@
       "highlight": false,
       "color": "#b0b0b0",
       "rarity": "common",
-      "material": "Iron"
+      "material": "Iron",
+      "icon": "/tex/item_iron.png"
     }
   ],
   "education": [
@@ -353,12 +359,12 @@
     }
   ],
   "game": {
-    "className": "Full-Stack Marketer",
-    "level": 27,
+    "className": "Digital Marketing & AI Automation",
+    "level": 2,
     "hearts": 10,
     "hunger": 9,
     "spawn": "Chandigarh, India",
-    "status": "Online — accepting quests",
+    "status": "Online — open to work",
     "splashes": [
       "Also try the normal site!",
       "Marketer who actually builds!",
@@ -372,38 +378,45 @@
         "label": "Short-form views written & shot",
         "value": "1M+",
         "color": "#5ff3ff",
-        "material": "Diamond"
+        "material": "Diamond",
+        "icon": "/tex/ore_diamond.png"
       },
       {
         "label": "Pinterest impressions on owned channels",
         "value": "10M+",
         "color": "#66d36e",
-        "material": "Emerald"
+        "material": "Emerald",
+        "icon": "/tex/ore_emerald.png"
       },
       {
         "label": "Students reached across four cities",
         "value": "1,500+",
         "color": "#ffd83d",
-        "material": "Gold"
+        "material": "Gold",
+        "icon": "/tex/ore_gold.png"
       },
       {
         "label": "Vendor partners onboarded at launch",
         "value": "10+",
         "color": "#d8a37a",
-        "material": "Copper"
+        "material": "Copper",
+        "icon": "/tex/ore_copper.png"
       },
       {
         "label": "Units sold through Glood.co",
         "value": "1,000+",
         "color": "#b0b0b0",
-        "material": "Iron"
+        "material": "Iron",
+        "icon": "/tex/ore_iron.png"
       },
       {
         "label": "Independent brands founded from zero",
         "value": "2",
         "color": "#b06cf7",
-        "material": "Amethyst"
+        "material": "Amethyst",
+        "icon": "/tex/ore_amethyst.png"
       }
-    ]
+    ],
+    "levelLabel": "Years played"
   }
 }

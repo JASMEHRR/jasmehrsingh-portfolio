@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { usePortfolio } from '../hooks/usePortfolio';
-import { Panel, Block } from './mc/Gui';
+import { Panel, Item } from './mc/Gui';
 
 const COLS = 8;
 const ROWS = 4;
@@ -113,16 +113,14 @@ export default function MiniMine() {
                       : undefined
                   }
                 >
-                  {isBroken && hasOre && (
-                    <Block color={game.ores[oreIndex].color} size={20} />
-                  )}
+                  {isBroken && hasOre && <Item src={game.ores[oreIndex].icon} size={28} />}
                   {!isBroken && (
                     <span
                       aria-hidden
-                      className="h-[18px] w-[18px]"
+                      className="block h-full w-full"
                       style={{
-                        background:
-                          'repeating-linear-gradient(90deg,#7c7c7c 0 6px,#6e6e6e 6px 12px)',
+                        background: "url('/tex/stone.png') center / cover",
+                        imageRendering: 'pixelated',
                       }}
                     />
                   )}
@@ -146,11 +144,12 @@ export default function MiniMine() {
         >
           {ore ? (
             <>
-              <p
-                style={{ fontFamily: 'var(--px)', fontSize: 8, color: ore.color, lineHeight: 2 }}
-              >
-                {ore.material} Ore
-              </p>
+              <div className="flex items-center gap-3">
+                <Item src={ore.icon} size={36} />
+                <p style={{ fontFamily: 'var(--px)', fontSize: 8, color: ore.color, lineHeight: 2 }}>
+                  {ore.material} Ore
+                </p>
+              </div>
               <p
                 className="mc-out mt-3 text-white"
                 style={{ fontFamily: 'var(--px)', fontSize: 22, lineHeight: 1.4 }}

@@ -47,7 +47,22 @@ export function Slot({
   );
 }
 
-/** A flat coloured cube standing in for a block or item icon. */
+/** A pixel-art item sprite from /public/tex. */
+export function Item({ src, alt = '', size = 32 }: { src: string; alt?: string; size?: number }) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width={size}
+      height={size}
+      loading="lazy"
+      decoding="async"
+      style={{ imageRendering: 'pixelated', filter: 'drop-shadow(2px 2px 0 rgba(0,0,0,.45))' }}
+    />
+  );
+}
+
+/** A flat coloured cube, for decoration where no sprite exists. */
 export function Block({ color, size = 28 }: { color: string; size?: number }) {
   return (
     <span

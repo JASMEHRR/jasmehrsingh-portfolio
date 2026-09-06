@@ -26,12 +26,15 @@ export interface Ore {
   value: string;
   color: string;
   material: string;
+  /** path to the ore block sprite in /public/tex */
+  icon: string;
 }
 
 /** Stats panel, hotbar and splash text all read from here. */
 export interface Game {
   className: string;
   level: number;
+  levelLabel: string;
   hearts: number;
   hunger: number;
   spawn: string;
@@ -88,6 +91,8 @@ export interface Project {
   rarity: Rarity;
   /** material name shown in the item tooltip */
   material: string;
+  /** path to the item sprite in /public/tex */
+  icon: string;
 }
 
 export interface Education {

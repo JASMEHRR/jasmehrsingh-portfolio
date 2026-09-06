@@ -1,6 +1,7 @@
 import { useBiome } from './hooks/useBiome';
 import { useReveal } from './hooks/useReveal';
 import World from './components/World';
+import Editor from './components/Editor';
 import Hud from './components/Hud';
 import Hotbar from './components/Hotbar';
 import HeroProfile from './components/HeroProfile';
@@ -14,6 +15,17 @@ import ContactSign from './components/ContactSign';
 export default function App() {
   useBiome();
   useReveal();
+
+  // one route, checked directly: a router would be a dependency for a single
+  // extra page, and Netlify's SPA fallback already serves /edit as index.html
+  if (window.location.pathname.replace(/\/$/, '') === '/edit') {
+    return (
+      <>
+        <World />
+        <Editor />
+      </>
+    );
+  }
 
   return (
     <>

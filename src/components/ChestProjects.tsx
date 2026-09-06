@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { usePortfolio } from '../hooks/usePortfolio';
-import { Panel, Slot, Block } from './mc/Gui';
+import { Panel, Slot, Item } from './mc/Gui';
 import type { Project } from '../types/portfolio';
 
 const RARITY_LABEL: Record<Project['rarity'], string> = {
@@ -81,7 +81,7 @@ export default function ChestProjects() {
                       : undefined
                   }
                 >
-                  <Block color={p.color} size={24} />
+                  <Item src={p.icon} size={30} />
                   <span className="sr-only">{p.title}</span>
                   {p.highlight && (
                     <span
@@ -108,6 +108,15 @@ export default function ChestProjects() {
             boxShadow: 'inset 0 0 0 2px #2b1a3f, 10px 10px 0 rgba(0,0,0,.35)',
           }}
         >
+          <div className="mb-3 flex items-center gap-3">
+            <Item src={item.icon} size={38} />
+            <span
+              className="text-[#8a7aa8]"
+              style={{ fontFamily: 'var(--px)', fontSize: 7, lineHeight: 2 }}
+            >
+              {item.material}
+            </span>
+          </div>
           <h3
             className={`rarity-${item.rarity} mc-out`}
             style={{ fontFamily: 'var(--px)', fontSize: 12, color: 'var(--rc)', lineHeight: 1.5 }}
