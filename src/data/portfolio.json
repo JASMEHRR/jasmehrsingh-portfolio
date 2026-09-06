@@ -23,45 +23,81 @@
       {
         "name": "Marketing",
         "items": [
-          "Content & Copywriting",
-          "SEO & Growth",
-          "Short-Form Video & Reels",
-          "Social Media",
-          "Influencer & Brand Partnerships",
-          "Event Coordination",
-          "Campaign Planning"
+          {
+            "name": "Content & Copywriting",
+            "level": 5
+          },
+          {
+            "name": "SEO & Growth",
+            "level": 4
+          },
+          {
+            "name": "Short-Form Video",
+            "level": 5
+          },
+          {
+            "name": "Brand Partnerships",
+            "level": 4
+          },
+          {
+            "name": "Campaign Planning",
+            "level": 4
+          }
         ]
       },
       {
-        "name": "AI Tools",
+        "name": "AI & Automation",
         "items": [
-          "Claude",
-          "Claude Code",
-          "ChatGPT",
-          "Gemini",
-          "Google AI Studio"
+          {
+            "name": "Claude Code",
+            "level": 5
+          },
+          {
+            "name": "Prompt Engineering",
+            "level": 4
+          },
+          {
+            "name": "Workflow Automation",
+            "level": 4
+          }
         ]
       },
       {
         "name": "Technical",
         "items": [
-          "Python",
-          "TypeScript",
-          "React",
-          "Firebase",
-          "Supabase",
-          "MS Excel",
-          "Semrush",
-          "Google Analytics"
+          {
+            "name": "TypeScript / React",
+            "level": 3
+          },
+          {
+            "name": "Python",
+            "level": 3
+          },
+          {
+            "name": "Firebase / Supabase",
+            "level": 3
+          },
+          {
+            "name": "Analytics & Semrush",
+            "level": 4
+          }
         ]
       },
       {
         "name": "Design & Ops",
         "items": [
-          "Canva",
-          "Prezi",
-          "Notion",
-          "MS Office"
+          {
+            "name": "Canva / Prezi",
+            "level": 4
+          },
+          {
+            "name": "Event Coordination",
+            "level": 5
+          },
+          {
+            "name": "Notion / MS Office",
+            "level": 4
+          }
         ]
       }
     ]
@@ -154,7 +190,10 @@
       "year": "2026",
       "link": "https://github.com/JASMEHRR/clipforge",
       "image": "",
-      "highlight": true
+      "highlight": true,
+      "color": "#7b4fd8",
+      "rarity": "legendary",
+      "material": "Netherite"
     },
     {
       "id": "ventureadda",
@@ -170,7 +209,10 @@
       "year": "2026",
       "link": "",
       "image": "",
-      "highlight": true
+      "highlight": true,
+      "color": "#4fc3f7",
+      "rarity": "rare",
+      "material": "Diamond"
     },
     {
       "id": "ascend",
@@ -187,7 +229,10 @@
       "year": "2026",
       "link": "https://github.com/JASMEHRR/ASCEND",
       "image": "",
-      "highlight": false
+      "highlight": false,
+      "color": "#66d36e",
+      "rarity": "rare",
+      "material": "Emerald"
     },
     {
       "id": "habit-arena",
@@ -203,7 +248,10 @@
       "year": "2026",
       "link": "https://github.com/JASMEHRR/habit-arena",
       "image": "",
-      "highlight": false
+      "highlight": false,
+      "color": "#ffd83d",
+      "rarity": "uncommon",
+      "material": "Gold"
     },
     {
       "id": "content-os",
@@ -218,7 +266,10 @@
       "year": "2026",
       "link": "https://github.com/JASMEHRR/Content-OS",
       "image": "",
-      "highlight": false
+      "highlight": false,
+      "color": "#d8a37a",
+      "rarity": "uncommon",
+      "material": "Copper"
     },
     {
       "id": "rezclips",
@@ -233,7 +284,10 @@
       "year": "2025",
       "link": "https://github.com/JASMEHRR/rezclips",
       "image": "",
-      "highlight": false
+      "highlight": false,
+      "color": "#b0b0b0",
+      "rarity": "common",
+      "material": "Iron"
     }
   ],
   "education": [
@@ -297,5 +351,59 @@
         "Activation"
       ]
     }
-  ]
+  ],
+  "game": {
+    "className": "Full-Stack Marketer",
+    "level": 27,
+    "hearts": 10,
+    "hunger": 9,
+    "spawn": "Chandigarh, India",
+    "status": "Online — accepting quests",
+    "splashes": [
+      "Also try the normal site!",
+      "Marketer who actually builds!",
+      "1M+ views!",
+      "Built with Claude Code!",
+      "10M+ Pinterest impressions!",
+      "Now with 100% more hotbar!"
+    ],
+    "ores": [
+      {
+        "label": "Short-form views written & shot",
+        "value": "1M+",
+        "color": "#5ff3ff",
+        "material": "Diamond"
+      },
+      {
+        "label": "Pinterest impressions on owned channels",
+        "value": "10M+",
+        "color": "#66d36e",
+        "material": "Emerald"
+      },
+      {
+        "label": "Students reached across four cities",
+        "value": "1,500+",
+        "color": "#ffd83d",
+        "material": "Gold"
+      },
+      {
+        "label": "Vendor partners onboarded at launch",
+        "value": "10+",
+        "color": "#d8a37a",
+        "material": "Copper"
+      },
+      {
+        "label": "Units sold through Glood.co",
+        "value": "1,000+",
+        "color": "#b0b0b0",
+        "material": "Iron"
+      },
+      {
+        "label": "Independent brands founded from zero",
+        "value": "2",
+        "color": "#b06cf7",
+        "material": "Amethyst"
+      }
+    ]
+  }
 }

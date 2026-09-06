@@ -201,12 +201,14 @@ a{color:inherit;text-decoration:none}
 .gui .muted{color:#6a6a6a;font-size:13px}
 
 .hero{text-align:center;position:relative}
+.skin{display:block;margin:0 auto -18px;height:clamp(150px,26vh,260px);width:auto;image-rendering:pixelated;filter:drop-shadow(0 14px 0 rgba(0,0,0,.28));animation:bob 2.4s ease-in-out infinite}
 .blocks{display:flex;justify-content:center;gap:6px;margin-bottom:18px}
 .blocks .ico{width:40px;height:40px;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.5))}
 .hero .title{font-family:var(--px);font-size:clamp(24px,5.6vw,50px);line-height:1.35;color:#fff;text-shadow:4px 4px 0 #2b2b2b,0 0 24px rgba(255,216,61,.35);animation:bob 2.4s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-6px)}}
 .hero .title span{color:var(--gold)}
-.splash{position:absolute;font-family:var(--px);font-size:12px;color:var(--gold);text-shadow:2px 2px 0 #3e3000;transform:rotate(-14deg);animation:pulse .5s ease-in-out infinite alternate;right:0;top:96px}
+.splash{position:absolute;font-family:var(--px);font-size:12px;color:var(--gold);text-shadow:2px 2px 0 #3e3000;transform:rotate(-14deg);animation:pulse .5s ease-in-out infinite alternate;right:-310px;top:96px;pointer-events:none;white-space:nowrap}
+@media (max-width:1540px){.splash{right:auto;left:50%;top:-34px;transform:translateX(-50%) rotate(-6deg);font-size:10px}}
 @keyframes pulse{from{transform:rotate(-14deg) scale(1)}to{transform:rotate(-14deg) scale(1.08)}}
 .hero .sub{font-family:var(--px);font-size:11px;line-height:2;color:#e6e6e6;text-shadow:2px 2px 0 #000;margin:26px auto 30px;max-width:640px}
 .menu{display:grid;gap:10px;width:min(420px,100%);margin:0 auto}
@@ -312,7 +314,7 @@ a{color:inherit;text-decoration:none}
   .splash{font-size:8px;top:80px;right:0}
 }
 @media (prefers-reduced-motion:reduce){
-  .clouds,.clouds2,.stars,.ores,.water,.torch::before,.hero .title,.splash,.screen{animation:none}.toast{transition:none}#fx{display:none}
+  .clouds,.clouds2,.stars,.ores,.water,.torch::before,.hero .title,.splash,.screen,.skin{animation:none}.toast{transition:none}#fx{display:none}
 }
 </style>
 </head>
@@ -350,6 +352,7 @@ a{color:inherit;text-decoration:none}
   <section class="screen hero on" data-screen="1">
     <div class="splash" id="splash">Also try the normal site!</div>
     <div class="blocks" id="blocks"></div>
+    <img class="skin" src="../avatar.png" alt="JasMehr's Minecraft skin" onerror="this.remove()">
     <div class="title">JasMehr <span>Singh</span></div>
     <p class="sub">Marketer who actually builds.<br>1M+ views · 10M+ Pinterest impressions · 2 brands founded · AI tools shipped with Claude Code.</p>
     <div class="menu">

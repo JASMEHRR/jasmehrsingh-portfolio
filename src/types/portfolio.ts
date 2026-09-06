@@ -20,9 +20,35 @@ export interface Profile {
   social: Social;
 }
 
+/** One buried statistic, revealed by mining its block. */
+export interface Ore {
+  label: string;
+  value: string;
+  color: string;
+  material: string;
+}
+
+/** Stats panel, hotbar and splash text all read from here. */
+export interface Game {
+  className: string;
+  level: number;
+  hearts: number;
+  hunger: number;
+  spawn: string;
+  status: string;
+  splashes: string[];
+  ores: Ore[];
+}
+
+/** A skill rendered as an enchantment: level is 1-5, shown in roman numerals. */
+export interface Skill {
+  name: string;
+  level: number;
+}
+
 export interface SkillCategory {
   name: string;
-  items: string[];
+  items: Skill[];
 }
 
 export interface Skills {
@@ -44,6 +70,8 @@ export interface Experience {
   highlights: string[];
 }
 
+export type Rarity = 'common' | 'uncommon' | 'rare' | 'legendary';
+
 export interface Project {
   id: string;
   title: string;
@@ -55,6 +83,11 @@ export interface Project {
   link: string;
   image: string;
   highlight: boolean;
+  /** block colour for the chest slot */
+  color: string;
+  rarity: Rarity;
+  /** material name shown in the item tooltip */
+  material: string;
 }
 
 export interface Education {
@@ -75,9 +108,10 @@ export interface Testimonial {
 
 export interface Portfolio {
   profile: Profile;
+  game: Game;
   skills: Skills;
-  experience: Experience[];
   services: Service[];
+  experience: Experience[];
   projects: Project[];
   education: Education[];
   testimonials: Testimonial[];
