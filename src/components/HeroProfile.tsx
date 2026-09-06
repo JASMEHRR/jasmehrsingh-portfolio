@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { usePointer } from '../hooks/usePointer';
+import { is3DWorld } from '../three/mode';
 import { Panel, Hearts, XpBar } from './mc/Gui';
 
 /**
@@ -13,7 +14,10 @@ import { Panel, Hearts, XpBar } from './mc/Gui';
  */
 export default function HeroProfile() {
   const { profile, game } = usePortfolio();
-  const [hasSkin, setHasSkin] = useState(Boolean(profile.avatarSvg));
+  // when the 3D world runs, the character is a real model standing in the
+  // scene, so the flat cut-out would be a second copy of him
+  const in3D = is3DWorld();
+  const [hasSkin, setHasSkin] = useState(Boolean(profile.avatarSvg) && !is3DWorld());
   const pointer = usePointer();
 
   // one random splash per load, like the title screen. Picked in a lazy
@@ -30,7 +34,7 @@ export default function HeroProfile() {
     >
       {/* ---------- the character, full height ---------- */}
       <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[62%] lg:w-[52%]">
-        <div
+        {!in3D && <div
           aria-hidden
           className="absolute bottom-[30%] left-1/2 h-[42vh] w-[42vh] -translate-x-1/2 rounded-full blur-3xl transition-transform duration-500 ease-out"
           style={{
@@ -38,7 +42,7 @@ export default function HeroProfile() {
               'radial-gradient(circle, rgba(255,216,61,.26) 0%, rgba(176,108,247,.16) 45%, transparent 70%)',
             transform: `translate(${pointer.x * 8}px, ${pointer.y * 5}px)`,
           }}
-        />
+        />}
 
         {hasSkin && (
           /* pointer parallax lives on the wrapper so it cannot fight the

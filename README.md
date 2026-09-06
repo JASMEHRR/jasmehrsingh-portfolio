@@ -90,7 +90,8 @@ src/
     ContactSign.tsx        <- contact, on an oak sign
     mc/Gui.tsx             <- Panel, Slot, Block, Hearts, XpBar, EnchantRow
 public/
-  avatar.png               <- the skin render used in the hero
+  character.glb            <- the voxel character, modelled in Blender
+  avatar.png               <- flat render, used only by the 2D fallback
   arcade/index.html        <- the standalone playable arcade, served at /arcade
   profile.json             <- content source for the arcade page only
 ```
@@ -138,6 +139,11 @@ runtime and a catch-all would otherwise hand it `index.html`.
 
 ## Notes
 
+- `public/character.glb` is a voxel figure built in Blender: cube body, and an
+  afro made of ~240 small cubes on a lumpy shell. A single scaled cube reads as
+  a helmet; only a cluster reads as curls. He is placed in the home zone and
+  turns to face the camera. `three/mode.ts` decides 3D-vs-2D once so the hero
+  knows to leave the flat cut-out out of the HTML rather than showing him twice.
 - `three` is loaded in its own lazy chunk (~125KB gzip) so anyone who gets the
   2D fallback never downloads it.
 - Textures are generated, not extracted: run `python tools/make_textures.py` to

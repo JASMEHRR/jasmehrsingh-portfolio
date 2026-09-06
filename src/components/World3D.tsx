@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { buildWorld, ZONE_X, type ZoneKey } from '../three/buildWorld';
 import { groupById, materialsFor } from '../three/blocks';
 
@@ -106,6 +107,35 @@ export default function World3D() {
     const moteCloud = new THREE.Points(moteGeo, moteMat);
     scene.add(moteCloud);
 
+    // ---- the character ----
+    // Modelled in Blender as a voxel figure (tools note: project 3D Jutsu,
+    // exported to /character.glb). He stands on the terrain in the home zone
+    // and turns to face the camera, so the hero shows a person in a world
+    // rather than a cut-out pasted over one.
+    let hero: THREE.Group | null = null;
+    // close to the camera and large: he is the subject of the hero, not set
+    // dressing. Feet sit on the block top (blocks are centred on their height)
+    const heroX = ZONE_X.home + 5;
+    const heroZ = 11;
+    new GLTFLoader().load(
+      '/character.glb',
+      (gltf) => {
+        hero = gltf.scene;
+        hero.scale.setScalar(3.0);
+        hero.position.set(heroX, heightAt(heroX) + 0.5, heroZ);
+        hero.traverse((o) => {
+          const m = o as THREE.Mesh;
+          if (m.isMesh) m.castShadow = false;
+        });
+        scene.add(hero);
+      },
+      undefined,
+      () => {
+        // the world is still worth showing without him
+        hero = null;
+      },
+    );
+
     // ---- camera path, driven by which section is on screen ----
     type Stop = { top: number; x: number };
     let stops: Stop[] = [];
@@ -193,6 +223,15 @@ export default function World3D() {
       if (!reduced) {
         moteCloud.rotation.y = t * 0.04;
         moteMat.opacity = 0.55 + Math.sin(t * 1.6) * 0.25;
+      }
+
+      if (hero) {
+        // face the camera, and breathe, unless motion is unwelcome
+        const dx = camera.position.x - hero.position.x;
+        const dz = camera.position.z - hero.position.z;
+        hero.rotation.y = Math.atan2(dx, dz);
+        hero.position.y =
+          heightAt(heroX) + 0.5 + (reduced ? 0 : Math.sin(t * 1.5) * 0.06);
       }
 
       renderer.render(scene, camera);
