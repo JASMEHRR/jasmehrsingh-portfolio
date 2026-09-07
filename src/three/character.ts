@@ -86,6 +86,24 @@ function limbPivot(root: THREE.Object3D, names: string[]) {
  * and the black afro came out brown. Matching the material model matters more
  * here than keeping PBR, because a voxel character has no reflections to lose.
  */
+/**
+ * Drop the lighting rig Blender exported alongside the mesh.
+ *
+ * The .glb carries the studio setup the model was lit with: a directional key
+ * at intensity 4, two point lights at 17 and 14, and the delivery camera. glTF
+ * makes no distinction between "the character" and "how the character was
+ * photographed", so adding the file to the scene added all of it - and those
+ * lights do not stop at his edges, they light the entire town from wherever he
+ * happens to be standing. That is what was washing the world flat and
+ * overriding the sun. The scene brings its own light; he only owes it a mesh.
+ */
+function stripRig(root: THREE.Object3D) {
+  for (const o of [...root.children]) {
+    const node = o as THREE.Object3D & { isLight?: boolean; isCamera?: boolean };
+    if (node.isLight || node.isCamera) o.removeFromParent();
+  }
+}
+
 function flatten(root: THREE.Object3D) {
   root.traverse((o) => {
     const mesh = o as THREE.Mesh;
@@ -147,6 +165,7 @@ export function loadCharacter(): Promise<Character> {
       '/character.glb',
       (gltf) => {
         const group = gltf.scene;
+        stripRig(group);
         flatten(group);
         applyFace(group);
 

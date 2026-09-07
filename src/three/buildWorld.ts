@@ -396,5 +396,15 @@ export function buildWorld(): { blocks: Placement[]; heightAt: (x: number) => nu
     if (clearOfHero(x, z) && noise(x, z, 13) > 0.45) tree(out, x, surfaceAt(x, z), z, false);
   }
 
-  return { blocks: out, heightAt: surfaceHeight };
+  // ---- one block per cell ----
+  // Terrain is laid first and everything built on top of it comes after, so
+  // where two placements share a coordinate the later one is the one that was
+  // meant to be there: a wall standing where grass was, an ore in the stone,
+  // the harbour water in place of the field it flooded. Keeping both is not
+  // merely wasteful, it z-fights - and the docks were drawing 165 transparent
+  // water blocks inside opaque grass, which is why the harbour looked wrong.
+  const cell = new Map<string, Placement>();
+  for (const b of out) cell.set(`${b.x},${b.y},${b.z}`, b);
+
+  return { blocks: [...cell.values()], heightAt: surfaceHeight };
 }
