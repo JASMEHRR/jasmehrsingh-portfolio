@@ -11,25 +11,27 @@ const KEY = 'character-motion';
  * can be switched off here, so someone who wants the site calm can have it
  * without the preference silently removing a feature they came to see.
  */
+function stored(): boolean {
+  try {
+    return localStorage.getItem(KEY) !== 'off';
+  } catch {
+    // storage blocked; the default stands
+    return true;
+  }
+}
+
 export default function MotionToggle() {
-  const [on, setOn] = useState(true);
+  // read once during render rather than in an effect, so the first paint
+  // already matches the saved choice instead of flipping a frame later
+  const [on, setOn] = useState(stored);
 
   useEffect(() => {
-    let saved: string | null = null;
-    try {
-      saved = localStorage.getItem(KEY);
-    } catch {
-      // storage blocked; the default stands
-    }
-    const initial = saved !== 'off';
-    setOn(initial);
-    document.documentElement.dataset.motion = initial ? 'on' : 'off';
-  }, []);
+    document.documentElement.dataset.motion = on ? 'on' : 'off';
+  }, [on]);
 
   const toggle = () => {
     const next = !on;
     setOn(next);
-    document.documentElement.dataset.motion = next ? 'on' : 'off';
     try {
       localStorage.setItem(KEY, next ? 'on' : 'off');
     } catch {
