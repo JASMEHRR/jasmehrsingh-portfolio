@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { buildWorld, ZONE_X, HERO_SPOT, type ZoneKey } from '../three/buildWorld';
+import { buildWorld, ZONE_X, type ZoneKey } from '../three/buildWorld';
 import { groupById, materialsFor } from '../three/blocks';
-import { loadCharacter, type Character } from '../three/character';
 
 /**
  * Sky, fog and light per district.
@@ -37,7 +36,13 @@ const ZONE_FOR_SECTION: Record<string, ZoneKey> = {
 };
 
 /**
- * The 3D world.
+ * The 3D backdrop.
+ *
+ * Scenery, and nothing else. It used to have the character standing in it,
+ * which quietly asked the reader to treat it as a real place they were looking
+ * into - so it had to be consistent, and he had to be found in it rather than
+ * showing you around. He now lives in his own canvas beside the page (see
+ * Guide.tsx) and this is free to be purely decorative.
  *
  * Terrain is one InstancedMesh per block type, so ~9k cubes cost a handful of
  * draw calls rather than thousands. The camera does not orbit or free-fly: it
@@ -111,9 +116,12 @@ export default function World3D() {
     const lamp = new THREE.PointLight(0xffd9a0, 90, 70, 1.8);
     scene.add(lamp);
 
-    // near and far are close together on purpose: a short fog ramp is what
-    // makes distance read as haze rather than as blocks simply getting smaller
-    scene.fog = new THREE.Fog(0xdcefff, 34, 128);
+    // Near and far are close together on purpose: a short fog ramp is what
+    // makes distance read as haze rather than as blocks simply getting
+    // smaller. Pulled in further now that this is only ever scenery - the
+    // page is what should hold the eye, and a backdrop that stays crisp to the
+    // horizon competes with the words in front of it.
+    scene.fog = new THREE.Fog(0xdcefff, 24, 96);
 
     // ---- terrain ----
     const { blocks, heightAt } = buildWorld();
@@ -151,70 +159,6 @@ export default function World3D() {
     const moteMat = new THREE.PointsMaterial({ color: 0xd4a6ff, size: 0.28, transparent: true, opacity: 0.9 });
     const moteCloud = new THREE.Points(moteGeo, moteMat);
     scene.add(moteCloud);
-
-    // ---- the character ----
-    // Modelled in Blender and rigged on load; see three/character.ts. He
-    // stands at HERO_SPOT, which the terrain generator keeps inside the world
-    // strip and clear of trees.
-    let hero: Character | null = null;
-    const heroX = HERO_SPOT.x;
-    const heroZ = HERO_SPOT.z;
-    loadCharacter()
-      .then((c) => {
-        hero = c;
-        hero.group.scale.setScalar(5.2);
-        hero.group.position.set(heroX, heightAt(heroX) + 0.5, heroZ);
-        hero.group.traverse((o) => {
-          o.castShadow = true;
-        });
-        scene.add(hero.group);
-      })
-      .catch(() => {
-        // the world is still worth showing without him
-        hero = null;
-      });
-
-    // ---- drag to turn the character ----
-    // Mouse only, and horizontal only: on a touch screen a drag is how you
-    // scroll the page, and stealing that to spin a model would trap the
-    // reader. Arrow keys do the same thing for anyone not using a mouse.
-    let dragging = false;
-    let lastX = 0;
-    const canvas = renderer.domElement;
-    canvas.style.touchAction = 'pan-y';
-
-    const onDown = (e: PointerEvent) => {
-      if (e.pointerType !== 'mouse' || !hero) return;
-      dragging = true;
-      lastX = e.clientX;
-      canvas.setPointerCapture(e.pointerId);
-      canvas.style.cursor = 'grabbing';
-    };
-    const onMove = (e: PointerEvent) => {
-      if (!dragging || !hero) return;
-      hero.turn((e.clientX - lastX) * 0.012);
-      lastX = e.clientX;
-    };
-    const onUp = (e: PointerEvent) => {
-      if (!dragging) return;
-      dragging = false;
-      if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
-      canvas.style.cursor = 'grab';
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (!hero) return;
-      const target = e.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
-      if (e.key === 'ArrowLeft') hero.turn(-0.35);
-      else if (e.key === 'ArrowRight') hero.turn(0.35);
-    };
-
-    canvas.style.cursor = 'grab';
-    canvas.addEventListener('pointerdown', onDown);
-    canvas.addEventListener('pointermove', onMove);
-    canvas.addEventListener('pointerup', onUp);
-    canvas.addEventListener('pointercancel', onUp);
-    window.addEventListener('keydown', onKey);
 
     // ---- camera path, driven by which section is on screen ----
     type Stop = { top: number; x: number };
@@ -377,9 +321,6 @@ export default function World3D() {
         moteMat.opacity = 0.55 + Math.sin(t * 1.6) * 0.25;
       }
 
-      // eases toward whatever angle the reader has dragged him to
-      hero?.update();
-
       renderer.render(scene, camera);
     };
     tick();
@@ -388,11 +329,6 @@ export default function World3D() {
       cancelAnimationFrame(raf);
       window.clearInterval(moodTimer);
       window.removeEventListener('resize', resize);
-      window.removeEventListener('keydown', onKey);
-      canvas.removeEventListener('pointerdown', onDown);
-      canvas.removeEventListener('pointermove', onMove);
-      canvas.removeEventListener('pointerup', onUp);
-      canvas.removeEventListener('pointercancel', onUp);
       renderer.dispose();
       geo.dispose();
       sky.geometry.dispose();

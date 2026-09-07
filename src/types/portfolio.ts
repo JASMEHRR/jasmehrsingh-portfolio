@@ -41,6 +41,8 @@ export interface Game {
   status: string;
   splashes: string[];
   ores: Ore[];
+  /** What the guide says in each biome, keyed by the section's data-biome. */
+  guide: Record<string, string>;
 }
 
 /** A skill rendered as an enchantment: level is 1-5, shown in roman numerals. */

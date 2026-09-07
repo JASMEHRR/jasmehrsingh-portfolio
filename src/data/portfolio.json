@@ -417,6 +417,14 @@
         "icon": "/tex/ore_amethyst.png"
       }
     ],
-    "levelLabel": "Years played"
+    "levelLabel": "Years played",
+    "guide": {
+      "overworld": "Hey, I'm JasMehr. Keep scrolling and I'll walk you through it.",
+      "enchant": "These are the things I actually know how to do.",
+      "craft": "The road so far. Every stop taught me something.",
+      "cave": "Things I've built. Have a dig around.",
+      "cherry": "A little about me, away from the work.",
+      "night": "That's the tour. Say hello whenever you like."
+    }
   }
 }

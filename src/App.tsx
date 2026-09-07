@@ -1,6 +1,7 @@
 import { useBiome } from './hooks/useBiome';
 import { useReveal } from './hooks/useReveal';
 import World from './components/World';
+import Guide from './components/Guide';
 import Editor from './components/Editor';
 import Hud from './components/Hud';
 import Hotbar from './components/Hotbar';
@@ -37,6 +38,7 @@ export default function App() {
         Skip to content
       </a>
       <Hud />
+      <Guide />
       <main className="relative z-10 pb-28">
         <HeroProfile />
         <EnchantSkills />
