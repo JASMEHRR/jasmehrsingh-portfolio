@@ -48,7 +48,14 @@ export type BlockId =
   | 'cherry_leaves'
   | 'cherry_log'
   | 'leaves'
-  | 'log';
+  | 'log'
+  | 'plaster'
+  | 'roof'
+  | 'glass'
+  | 'lantern'
+  | 'gravel'
+  | 'path'
+  | 'water';
 
 /**
  * Materials per block. A cube's six groups are ordered +x, -x, +y, -y, +z, -z,
@@ -61,6 +68,26 @@ export function materialsFor(id: BlockId): THREE.Material | THREE.Material[] {
       const side = mat('grass_side');
       return [side, side, mat('grass_top'), mat('dirt'), side, side];
     }
+    case 'lantern':
+      // emissive so it reads as a light source rather than a yellow cube; the
+      // scene has no per-block lighting, so the glow has to come from here
+      return new THREE.MeshLambertMaterial({
+        map: tex('lantern'),
+        emissive: new THREE.Color(0xffb84d),
+        emissiveIntensity: 0.9,
+      });
+    case 'glass':
+      return new THREE.MeshLambertMaterial({
+        map: tex('glass'),
+        emissive: new THREE.Color(0xffd9a0),
+        emissiveIntensity: 0.35,
+      });
+    case 'water':
+      return new THREE.MeshLambertMaterial({
+        map: tex('water'),
+        transparent: true,
+        opacity: 0.86,
+      });
     case 'cherry_leaves':
       return new THREE.MeshLambertMaterial({ color: 0xf0a0c0 });
     case 'cherry_log':

@@ -147,6 +147,63 @@ def main():
     ore('ore_coal', (40, 40, 40, 255), 16)
     ore('ore_amethyst', (166, 106, 232, 255), 17)
 
+    # ---------- town blocks ----------
+    # A village needs more than terrain: walls, roofs, windows and light.
+    save('plaster', noisy((222, 210, 190, 255),
+                          [(232, 221, 202, 255), (208, 195, 176, 255)], 21, 0.35))
+
+    # terracotta roof, laid in rows so a stepped roof reads as tiles
+    rnd = random.Random(22)
+    r = blank((166, 74, 56, 255))
+    for y in range(S):
+        if y % 4 == 0:
+            for x in range(S):
+                r[y][x] = [128, 54, 40, 255]
+        else:
+            for x in range(S):
+                if rnd.random() < 0.25:
+                    r[y][x] = list(rnd.choice([(180, 86, 64, 255), (150, 66, 50, 255)]))
+    save('roof', r)
+
+    # glass: a pale pane with a bright frame, so windows read at a distance
+    g = blank((150, 205, 225, 255))
+    for i in range(S):
+        g[0][i] = g[S - 1][i] = [226, 240, 246, 255]
+        g[i][0] = g[i][S - 1] = [226, 240, 246, 255]
+    for i in range(2, S - 2):
+        g[i][i] = [236, 248, 252, 255]
+    save('glass', g)
+
+    # lantern: warm core in an iron cage, the town's light source
+    ln = blank((72, 60, 44, 255))
+    for y in range(3, 13):
+        for x in range(3, 13):
+            ln[y][x] = [255, 206, 110, 255]
+    for y in range(5, 11):
+        for x in range(5, 11):
+            ln[y][x] = [255, 238, 190, 255]
+    for x in range(2, 14):
+        ln[2][x] = ln[13][x] = [96, 82, 60, 255]
+    save('lantern', ln)
+
+    save('gravel', noisy((136, 130, 126, 255),
+                         [(112, 106, 102, 255), (158, 152, 148, 255),
+                          (96, 92, 88, 255)], 23, 0.75))
+
+    # path: packed dirt, lighter and smoother than the surrounding ground
+    save('path', noisy((164, 132, 88, 255),
+                       [(152, 122, 80, 255), (176, 144, 98, 255)], 24, 0.5))
+
+    # water, with a highlight band so a flat plane still reads as a surface
+    w = noisy((58, 118, 196, 255),
+              [(48, 104, 180, 255), (72, 136, 214, 255)], 25, 0.6)
+    for x in range(S):
+        if (x + 3) % 7 < 2:
+            w[4][x] = [148, 196, 236, 255]
+        if (x + 5) % 9 < 2:
+            w[11][x] = [128, 178, 226, 255]
+    save('water', w)
+
     # ---------- item sprites ----------
     def gem(name, color):
         """A cut gem: bright core, darker facets, transparent surround."""

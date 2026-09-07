@@ -31,7 +31,7 @@ OUT = os.path.join(HERE, '..', 'public', 'face.png')
 # part is hair, which is correct - in the reference the cube's forehead is
 # covered by curls, and the afro geometry sits over it in the model too.
 BOX = (296, 137, 614, 455)
-SIZE = 128
+SIZE = 256
 
 
 def main():

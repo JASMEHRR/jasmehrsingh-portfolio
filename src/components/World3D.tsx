@@ -4,14 +4,26 @@ import { buildWorld, ZONE_X, HERO_SPOT, type ZoneKey } from '../three/buildWorld
 import { groupById, materialsFor } from '../three/blocks';
 import { loadCharacter, type Character } from '../three/character';
 
-/** Sky, fog and light per biome, matched to the 2D palette. */
+/**
+ * Sky, fog and light per district.
+ *
+ * The hours run forward as you travel: morning over the square, noon at the
+ * library, a golden afternoon at the workshops, dusk in the market, lamplight
+ * at the mine, blossom-pink evening in the gardens, and night at the docks.
+ * Tying the palette to a time of day rather than picking pretty colours per
+ * section is what keeps seven very different moods feeling like one place.
+ *
+ * Fog is deliberately close and strongly tinted. It is doing the heavy lifting
+ * for the dreaminess: distant blocks wash toward the sky colour, which softens
+ * the grid without blurring anything up close.
+ */
 const MOOD: Record<string, { sky: number; fog: number; sun: number; ambient: number; intensity: number }> = {
-  overworld: { sky: 0x6fa6ea, fog: 0xbfe0ff, sun: 0xfff4d6, ambient: 0x8fb7ee, intensity: 2.1 },
-  enchant: { sky: 0x2b1a52, fog: 0x3a2270, sun: 0xd9b3ff, ambient: 0x6a4aa8, intensity: 2.6 },
-  craft: { sky: 0x8a6032, fog: 0xa9793f, sun: 0xffc98a, ambient: 0x6b4a24, intensity: 1.9 },
-  cave: { sky: 0x1b1b24, fog: 0x15151d, sun: 0xffc891, ambient: 0x4a4a5c, intensity: 1.9 },
-  cherry: { sky: 0x8fb7ee, fog: 0xf3cfe4, sun: 0xfff0f6, ambient: 0xf3cfe4, intensity: 2.1 },
-  night: { sky: 0x16204a, fog: 0x1e2a5c, sun: 0xc3d0ff, ambient: 0x46568f, intensity: 1.5 },
+  overworld: { sky: 0x8ec6f0, fog: 0xdcefff, sun: 0xfff0cf, ambient: 0xa8d2f5, intensity: 2.3 },
+  enchant: { sky: 0x5b8fe0, fog: 0xc9e2ff, sun: 0xffffff, ambient: 0x9dc4f2, intensity: 2.6 },
+  craft: { sky: 0xf0a95e, fog: 0xffd9a8, sun: 0xffc477, ambient: 0xe0a070, intensity: 2.4 },
+  cave: { sky: 0xd97a58, fog: 0xf0a878, sun: 0xffb066, ambient: 0xc07a5c, intensity: 2.0 },
+  cherry: { sky: 0xf6b8d4, fog: 0xffd9e8, sun: 0xfff0f6, ambient: 0xf2c0d8, intensity: 2.2 },
+  night: { sky: 0x1e2a5e, fog: 0x2b3a76, sun: 0xa8bcff, ambient: 0x5a6ba8, intensity: 1.4 },
 };
 
 const ZONE_FOR_SECTION: Record<string, ZoneKey> = {
@@ -72,7 +84,9 @@ export default function World3D() {
     const lamp = new THREE.PointLight(0xffd9a0, 90, 70, 1.8);
     scene.add(lamp);
 
-    scene.fog = new THREE.Fog(0xbfe0ff, 40, 150);
+    // near and far are close together on purpose: a short fog ramp is what
+    // makes distance read as haze rather than as blocks simply getting smaller
+    scene.fog = new THREE.Fog(0xdcefff, 34, 128);
 
     // ---- terrain ----
     const { blocks, heightAt } = buildWorld();
@@ -125,6 +139,48 @@ export default function World3D() {
         // the world is still worth showing without him
         hero = null;
       });
+
+    // ---- drag to turn the character ----
+    // Mouse only, and horizontal only: on a touch screen a drag is how you
+    // scroll the page, and stealing that to spin a model would trap the
+    // reader. Arrow keys do the same thing for anyone not using a mouse.
+    let dragging = false;
+    let lastX = 0;
+    const canvas = renderer.domElement;
+    canvas.style.touchAction = 'pan-y';
+
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse' || !hero) return;
+      dragging = true;
+      lastX = e.clientX;
+      canvas.setPointerCapture(e.pointerId);
+      canvas.style.cursor = 'grabbing';
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!dragging || !hero) return;
+      hero.turn((e.clientX - lastX) * 0.012);
+      lastX = e.clientX;
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!dragging) return;
+      dragging = false;
+      if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+      canvas.style.cursor = 'grab';
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (!hero) return;
+      const target = e.target as HTMLElement | null;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      if (e.key === 'ArrowLeft') hero.turn(-0.35);
+      else if (e.key === 'ArrowRight') hero.turn(0.35);
+    };
+
+    canvas.style.cursor = 'grab';
+    canvas.addEventListener('pointerdown', onDown);
+    canvas.addEventListener('pointermove', onMove);
+    canvas.addEventListener('pointerup', onUp);
+    canvas.addEventListener('pointercancel', onUp);
+    window.addEventListener('keydown', onKey);
 
     // ---- camera path, driven by which section is on screen ----
     type Stop = { top: number; x: number };
@@ -215,14 +271,8 @@ export default function World3D() {
         moteMat.opacity = 0.55 + Math.sin(t * 1.6) * 0.25;
       }
 
-      if (hero) {
-        // The character's idle is opt-out rather than reduced-motion-gated. It
-        // is a small, local, non-scroll-linked movement, and gating it on the
-        // OS setting hid the feature from the person who asked for it. The
-        // scroll-driven camera above stays gated, because that is the motion
-        // the preference actually exists to prevent.
-        hero.update(t, document.documentElement.dataset.motion === 'off');
-      }
+      // eases toward whatever angle the reader has dragged him to
+      hero?.update();
 
       renderer.render(scene, camera);
     };
@@ -232,6 +282,11 @@ export default function World3D() {
       cancelAnimationFrame(raf);
       window.clearInterval(moodTimer);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('keydown', onKey);
+      canvas.removeEventListener('pointerdown', onDown);
+      canvas.removeEventListener('pointermove', onMove);
+      canvas.removeEventListener('pointerup', onUp);
+      canvas.removeEventListener('pointercancel', onUp);
       renderer.dispose();
       geo.dispose();
       moteGeo.dispose();

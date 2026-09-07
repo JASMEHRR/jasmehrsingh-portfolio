@@ -24,8 +24,10 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export interface Character {
   group: THREE.Group;
-  /** Advance the idle. `still` parks him facing forward. */
-  update(time: number, still: boolean): void;
+  /** Turn him by this many radians; the reader drives this, nothing else. */
+  turn(deltaY: number): void;
+  /** Ease toward the reader's chosen angle. Call once per frame. */
+  update(): void;
 }
 
 const HEAD_PARTS = ['HeadTextured', 'AfroDeep', 'AfroMid', 'AfroLit'];
@@ -149,54 +151,31 @@ export function loadCharacter(): Promise<Character> {
         applyFace(group);
 
         const head = pivotFrom(group, HEAD_PARTS, HEAD_Y);
-        const torso = pivotFrom(group, TORSO_PARTS, 0);
+        pivotFrom(group, TORSO_PARTS, 0);
         const armL = limbPivot(group, ['ArmL_skin', 'ArmL_sleeve']);
         const armR = limbPivot(group, ['ArmR_skin', 'ArmR_sleeve']);
-        const legL = limbPivot(group, ['LegL_trousers', 'LegL_pocket', 'LegL_shoe']);
-        const legR = limbPivot(group, ['LegR_trousers', 'LegR_pocket', 'LegR_shoe']);
+        // legs are grouped for the same reason as the arms even though the
+        // pose is static: it keeps the rig complete if a walk is ever wanted
+        limbPivot(group, ['LegL_trousers', 'LegL_pocket', 'LegL_shoe']);
+        limbPivot(group, ['LegR_trousers', 'LegR_pocket', 'LegR_shoe']);
 
+        // A relaxed standing pose, set once. He does not animate on his own:
+        // an idle loop in the corner of the eye competes with the page for
+        // attention, and the reader can turn him themselves if they want to
+        // see the model, which is the part worth showing.
+        armL?.rotation.set(0, 0, 0.06);
+        armR?.rotation.set(0, 0, -0.06);
+        head.rotation.set(0, 0, 0);
+
+        let wanted = 0;
         resolve({
           group,
-          update(t, still) {
-            if (still) {
-              group.rotation.y = 0;
-              group.position.y = 0;
-              head.rotation.set(0, 0, 0);
-              torso.rotation.set(0, 0, 0);
-              [armL, armR].forEach((a, i) => a?.rotation.set(0, 0, i ? -0.05 : 0.05));
-              [legL, legR].forEach((l) => l?.rotation.set(0, 0, 0));
-              return;
-            }
-
-            // A turn, not a spin: the model is only detailed on the front, so a
-            // full revolution would park a plain back toward the reader for
-            // half of every cycle.
-            const turn = Math.sin(t * 0.4);
-            group.rotation.y = turn * 0.95;
-
-            // breathing, and the weight shift that comes with it
-            torso.rotation.z = turn * 0.02;
-            torso.position.y = Math.sin(t * 1.6) * 0.018;
-
-            // arms swing out of phase, with a little shoulder roll
-            const swing = Math.sin(t * 1.3);
-            if (armL) {
-              armL.rotation.x = swing * 0.2;
-              armL.rotation.z = 0.05 + Math.sin(t * 1.6) * 0.03;
-            }
-            if (armR) {
-              armR.rotation.x = -swing * 0.2;
-              armR.rotation.z = -0.05 - Math.sin(t * 1.6) * 0.03;
-            }
-
-            // barely any leg movement: he is standing, not walking
-            if (legL) legL.rotation.x = swing * 0.04;
-            if (legR) legR.rotation.x = -swing * 0.04;
-
-            // the head leads the turn and nods, which is what stops the whole
-            // figure reading as one rigid object on a turntable
-            head.rotation.y = Math.sin(t * 0.4 + 0.55) * 0.18;
-            head.rotation.x = Math.sin(t * 1.1) * 0.05;
+          turn(deltaY) {
+            wanted += deltaY;
+          },
+          update() {
+            // eased rather than snapped, so a flick of the mouse glides to rest
+            group.rotation.y += (wanted - group.rotation.y) * 0.18;
           },
         });
       },

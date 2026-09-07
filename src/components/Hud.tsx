@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 
+/** Districts, named as a coordinate readout would name them. */
 const BIOME_LABEL: Record<string, string> = {
-  overworld: 'Plains',
-  enchant: 'Stronghold',
-  craft: 'Workshop',
-  cave: 'Deepslate Cave',
-  cherry: 'Cherry Grove',
-  night: 'Plains — Night',
+  overworld: 'Town Square',
+  enchant: 'Library Quarter',
+  craft: 'Workshop Row',
+  cave: 'Market',
+  cherry: 'Gardens',
+  night: 'Docks',
 };
 
 /**

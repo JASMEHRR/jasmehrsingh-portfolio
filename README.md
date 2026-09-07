@@ -18,48 +18,62 @@ npm run preview  # serve the built output
 
 ## The world
 
-The backdrop is a real 3D voxel landscape rendered with three.js
-(`components/World3D.tsx`). Terrain is one `InstancedMesh` per block type —
-about 15,000 cubes in 19 draw calls — textured with the same 16x16 pixel-art
-PNGs the flat version uses, sampled with `NearestFilter` so they stay blocky
-rather than smeared. That filter setting is the single most important detail
-for making WebGL look like Minecraft instead of a low-res render.
+The backdrop is a 3D voxel **town** rendered with three.js
+(`components/World3D.tsx`). Terrain and buildings are one `InstancedMesh` per
+block type — about 17,000 cubes in ~25 draw calls — textured with original
+16x16 pixel art (`tools/make_textures.py`) sampled with `NearestFilter`, which
+is the single most important setting for making WebGL look like the game rather
+than a low-res render of something else.
 
-The camera never free-flies. It tracks scroll along a fixed path through one
-continuous landscape, so the site stays navigable with a wheel, a swipe or Page
-Down, and nobody gets trapped in a viewport they cannot leave. Zones are laid
-out along X (`three/buildWorld.ts`) with a landmark each: a stronghold ringed
-with bookshelves, a plank workshop, ore seams in a sunken basin, a cherry grove.
+It is one continuous settlement, not a set of dioramas. A road runs the whole
+length at z=0 and every building addresses it; that is what makes it read as a
+town rather than as structures scattered on a field. You can see the next
+district approaching before you arrive.
+
+| Section | District | Hour |
+| --- | --- | --- |
+| Profile | Town Square — well, lamps, houses | morning |
+| Skills | Library Quarter — walls of bookshelves | noon |
+| Journey | Workshop Row — chimneys, timber frames | golden afternoon |
+| Projects | Market — stalls under awnings | dusk |
+| The Mine | Mine head — timbered portal in a quarry | lamplight |
+| Advancements | Gardens — cherry trees and a pond | blossom evening |
+| Contact | Docks — a jetty over water | night |
+
+The palette follows the hours rather than picking pretty colours per section,
+which is what keeps seven different moods feeling like one place. Fog is close
+and strongly tinted on purpose: it does the work of the dreaminess, washing
+distant blocks toward the sky colour so the grid softens with depth without
+anything up close going blurry.
+
+Roofs are stepped rather than sloped because every block is a cube — each
+course inset by one and raised by one reads as a pitch at a distance, which is
+how the game does it too.
 
 `components/World2D.tsx` is the CSS-gradient fallback, used when WebGL is
-missing or on screens under 768px. It is a genuine fallback: same biomes, same
-palette, same textures, just flat.
+missing or on screens under 768px. It is a genuine fallback: same districts,
+same palette, same textures, just flat.
 
-Reduced motion does **not** drop to 2D. The preference asks for less movement,
-not less world, so the 3D scene still renders — the camera cuts between zones
-instead of gliding and the particles stop drifting. Dropping the scene entirely
-would hide the site's main idea from exactly the people who have the preference
-switched on.
+## The character
 
-Layer visibility in the 2D world is driven by `--l-*` custom properties.
+He stands still. The reader turns him by dragging with the mouse, or with the
+left and right arrow keys; nothing rotates him on its own. An idle loop in the
+corner of the eye competes with the page for attention, and the model is worth
+looking at when you choose to look at it.
 
-Each `<section>` carries a `data-biome`. `hooks/useBiome.ts` finds whichever
-section is nearest the middle of the viewport and copies its biome onto `<html>`,
-where `index.css` swaps the sky, the ground and every layer opacity. Scrolling
-therefore walks you through the world rather than past a static picture.
+Dragging is mouse-only and horizontal-only by design: on a touch screen a drag
+is how you scroll, and stealing that to spin a model would trap the reader.
 
-| Section | Biome | What you see |
-| --- | --- | --- |
-| Profile | `overworld` | Day sky, grass, trees |
-| Skills | `enchant` | Stronghold, obsidian pillars, rising glyphs |
-| Journey | `craft` | Warm workshop light, torches |
-| Projects | `cave` | Deepslate, ore glints, torchlight |
-| The Mine | `cave` | Same |
-| Advancements | `cherry` | Cherry grove, pink canopy |
-| Contact | `night` | Night sky, stars, torches |
+His face is not modelled. `tools/make_face.py` cuts it out of the reference
+render and it is mapped onto the head cube's front, because a 16x16 pixel face
+could never match a high-res render — the gap was structural, not a matter of
+getting the map right. Everything else is Blender-built
+(`public/character.glb`) and rigged on load in `three/character.ts`.
 
-To add a biome: add a `[data-biome='name']` block in `index.css` setting the sky,
-`--ground` and the layer opacities, then put that name on a section.
+`HERO_SPOT` in `three/buildWorld.ts` fixes where he stands. It lives with the
+terrain because the terrain has to know: z must be inside the strip or he
+stands on nothing, and the scenery pass has to leave him a clearing rather than
+putting a tree or a house through him.
 
 ## Structure
 
