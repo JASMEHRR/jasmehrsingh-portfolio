@@ -147,9 +147,9 @@ export default function Guide() {
   if (!is3DWorld()) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-0 left-4 z-20 hidden select-none xl:block">
+    <div className="pointer-events-none fixed bottom-0 right-4 z-20 hidden select-none xl:block">
       <div
-        className={`mb-2 max-w-[17rem] rounded-md border-2 border-black/70 bg-black/75 px-3 py-2 font-mono text-[0.8rem] leading-snug text-white shadow-lg transition-opacity duration-300 ${
+        className={`mb-2 ml-auto max-w-[17rem] rounded-md border-2 border-black/70 bg-black/75 px-3 py-2 font-mono text-[0.8rem] leading-snug text-white shadow-lg transition-opacity duration-300 ${
           ready ? 'opacity-100' : 'opacity-0'
         }`}
       >
