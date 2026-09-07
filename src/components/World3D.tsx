@@ -117,7 +117,7 @@ export default function World3D() {
     loadCharacter()
       .then((c) => {
         hero = c;
-        hero.group.scale.setScalar(4.2);
+        hero.group.scale.setScalar(5.2);
         hero.group.position.set(heroX, heightAt(heroX) + 0.5, heroZ);
         scene.add(hero.group);
       })

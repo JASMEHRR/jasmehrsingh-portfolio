@@ -31,7 +31,7 @@ export type ZoneKey = keyof typeof ZONE_X;
  * be inside the strip (|z| <= HALF_Z) or he stands on nothing, and the scenery
  * pass has to leave him a clearing instead of growing a tree through him.
  */
-export const HERO_SPOT = { x: 10, z: 6 } as const;
+export const HERO_SPOT = { x: 12, z: 7 } as const;
 
 const HALF_Z = 8; // world runs 17 blocks deep, enough to fill a wide viewport
 

@@ -28,10 +28,14 @@ export interface Character {
   update(time: number, still: boolean): void;
 }
 
-const HEAD_PARTS = [
-  'Head', 'FaceHair', 'Spectacles', 'SpectaclesLit', 'EyeWhites',
-  'Pupils', 'Beard', 'Mouth', 'Nose', 'AfroDeep', 'AfroMid', 'AfroLit',
+const HEAD_PARTS = ['HeadTextured', 'AfroDeep', 'AfroMid', 'AfroLit'];
+
+/** Modelled face features, replaced by the photographed one. */
+const MODELLED_FACE = [
+  'Head', 'FaceHair', 'Spectacles', 'SpectaclesLit',
+  'EyeWhites', 'Pupils', 'Beard', 'Mouth', 'Nose',
 ];
+const SKIN = 0xf4995d;
 const TORSO_PARTS = ['Torso', 'LogoBand', 'LogoEyes', 'LogoHat', 'LogoSkull'];
 const HEAD_Y = 1.75;
 
@@ -71,12 +75,78 @@ function limbPivot(root: THREE.Object3D, names: string[]) {
   return pivot;
 }
 
+/**
+ * Swap the glTF's PBR materials for the same Lambert shading the terrain uses.
+ *
+ * Blender exports Principled BSDF as metallic-roughness, which three.js loads
+ * as MeshStandardMaterial. Lit by the same lamps as the Lambert world blocks,
+ * that reads several stops brighter: the skin washed from orange to pale cream
+ * and the black afro came out brown. Matching the material model matters more
+ * here than keeping PBR, because a voxel character has no reflections to lose.
+ */
+function flatten(root: THREE.Object3D) {
+  root.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const from = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    const to = from.map((m) => {
+      const src = m as THREE.MeshStandardMaterial;
+      const flat = new THREE.MeshLambertMaterial({
+        color: src.color ? src.color.clone() : new THREE.Color(0xffffff),
+        map: src.map ?? null,
+        transparent: src.transparent,
+        opacity: src.opacity,
+      });
+      src.dispose();
+      return flat;
+    });
+    mesh.material = Array.isArray(mesh.material) ? to : to[0];
+  });
+}
+
+/**
+ * Replace the modelled face with the reference render's own pixels.
+ *
+ * The face was a 16x16 pixel map extruded a voxel deep, and repeated rounds of
+ * tuning never matched: the reference carries far more detail than 16x16 can
+ * hold, and its glasses are a solid object with thickness rather than a few
+ * flat cells. Cutting the face out of the render and mapping it onto the
+ * cube's front settles it, because it stops being an approximation.
+ *
+ * Only the face is treated this way. Texturing the whole figure from crops was
+ * tried and failed - a perspective render does not project onto flat cube
+ * faces, so limbs arrived stretched. The face survives it by being nearly
+ * frontal and nearly planar; everything else stays modelled.
+ *
+ * Blender's -Y is glTF's +Z, so the photographed side is material index 4.
+ */
+function applyFace(root: THREE.Object3D) {
+  for (const name of MODELLED_FACE) {
+    root.getObjectByName(name)?.removeFromParent();
+  }
+
+  const tex = new THREE.TextureLoader().load('/face.png');
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestMipmapNearestFilter;
+  tex.colorSpace = THREE.SRGBColorSpace;
+
+  const skin = new THREE.MeshLambertMaterial({ color: SKIN });
+  const face = new THREE.MeshLambertMaterial({ map: tex });
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5),
+    [skin, skin, skin, skin, face, skin]);
+  head.name = 'HeadTextured';
+  head.position.set(0, 1.75, 0);
+  root.add(head);
+}
+
 export function loadCharacter(): Promise<Character> {
   return new Promise((resolve, reject) => {
     new GLTFLoader().load(
       '/character.glb',
       (gltf) => {
         const group = gltf.scene;
+        flatten(group);
+        applyFace(group);
 
         const head = pivotFrom(group, HEAD_PARTS, HEAD_Y);
         const torso = pivotFrom(group, TORSO_PARTS, 0);
