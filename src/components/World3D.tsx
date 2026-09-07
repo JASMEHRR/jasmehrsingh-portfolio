@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { buildWorld, ZONE_X, type ZoneKey } from '../three/buildWorld';
+import { buildWorld, ZONE_X, HERO_SPOT, type ZoneKey } from '../three/buildWorld';
 import { groupById, materialsFor } from '../three/blocks';
-import { buildCharacter, type HairMask } from '../three/character';
+import { buildCharacter, type Character, type HairMask } from '../three/character';
 
 /** Sky, fog and light per biome, matched to the 2D palette. */
 const MOOD: Record<string, { sky: number; fog: number; sun: number; ambient: number; intensity: number }> = {
@@ -109,19 +109,18 @@ export default function World3D() {
 
     // ---- the character ----
     // Built in code from the reference render's own pixels rather than loaded
-    // as a model: see three/character.ts. The face is a crop of avatar.png and
-    // the afro is placed from that image's hair mask, which is what makes it
-    // match rather than merely resemble.
-    let hero: THREE.Group | null = null;
-    const heroX = ZONE_X.home + 5;
-    const heroZ = 11;
+    // as a model: see three/character.ts. He stands at HERO_SPOT, which the
+    // terrain generator keeps inside the world strip and clear of trees.
+    let hero: Character | null = null;
+    const heroX = HERO_SPOT.x;
+    const heroZ = HERO_SPOT.z;
     fetch('/char/hair.json')
       .then((r) => r.json())
       .then((mask: HairMask) => {
         hero = buildCharacter(mask);
-        hero.scale.setScalar(3.2);
-        hero.position.set(heroX, heightAt(heroX) + 0.5, heroZ);
-        scene.add(hero);
+        hero.group.scale.setScalar(4.2);
+        hero.group.position.set(heroX, heightAt(heroX) + 0.5, heroZ);
+        scene.add(hero.group);
       })
       .catch(() => {
         // the world is still worth showing without him
@@ -218,12 +217,12 @@ export default function World3D() {
       }
 
       if (hero) {
-        // face the camera, and breathe, unless motion is unwelcome
-        const dx = camera.position.x - hero.position.x;
-        const dz = camera.position.z - hero.position.z;
-        hero.rotation.y = Math.atan2(dx, dz);
-        hero.position.y =
-          heightAt(heroX) + 0.5 + (reduced ? 0 : Math.sin(t * 1.5) * 0.06);
+        // The character's idle is opt-out rather than reduced-motion-gated. It
+        // is a small, local, non-scroll-linked movement, and gating it on the
+        // OS setting hid the feature from the person who asked for it. The
+        // scroll-driven camera above stays gated, because that is the motion
+        // the preference actually exists to prevent.
+        hero.update(t, document.documentElement.dataset.motion === 'off');
       }
 
       renderer.render(scene, camera);

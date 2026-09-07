@@ -4,6 +4,7 @@ import World from './components/World';
 import Editor from './components/Editor';
 import Hud from './components/Hud';
 import Hotbar from './components/Hotbar';
+import MotionToggle from './components/MotionToggle';
 import HeroProfile from './components/HeroProfile';
 import EnchantSkills from './components/EnchantSkills';
 import CraftingJourney from './components/CraftingJourney';
@@ -47,6 +48,7 @@ export default function App() {
         <ContactSign />
       </main>
       <Hotbar />
+      <MotionToggle />
     </>
   );
 }

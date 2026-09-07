@@ -124,6 +124,28 @@ This is a game-themed site, not a game, so it has to stay usable:
   hiding class when motion is welcome, so the failure mode is "no animation",
   never "no content".
 
+## The character's idle
+
+He turns, breathes and swings his arms, driven by `Character.update` in
+`three/character.ts`. Limbs hang from their own pivots: the geometry is shifted
+so each mesh's origin sits at the shoulder or hip, because rotating a centred
+box swings it around its middle and scissors an arm through the shoulder.
+
+The turn is +-52 degrees rather than a full revolution. He is only textured on
+the front, so a full spin would park a blank back toward the reader for half of
+every cycle.
+
+This idle is **opt-out, not reduced-motion-gated** — see the Motion toggle,
+bottom right. Gating it on the OS preference hid the feature from the person
+who asked for it. Everything tied to scrolling (camera travel, reveals,
+parallax) stays gated, because that is the motion the preference exists to
+prevent.
+
+`HERO_SPOT` in `three/buildWorld.ts` fixes where he stands. It lives with the
+terrain because the terrain has to know: z must be inside the strip or he
+stands on nothing, and the scenery pass has to leave him a clearing rather than
+growing a tree through him.
+
 ## Motion
 
 Do not reach for Framer's `MotionConfig reducedMotion="user"` here. It disables

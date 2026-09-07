@@ -24,6 +24,15 @@ export const ZONE_X = {
 
 export type ZoneKey = keyof typeof ZONE_X;
 
+/**
+ * Where the character stands.
+ *
+ * Kept here rather than in the renderer because the terrain has to know: z must
+ * be inside the strip (|z| <= HALF_Z) or he stands on nothing, and the scenery
+ * pass has to leave him a clearing instead of growing a tree through him.
+ */
+export const HERO_SPOT = { x: 10, z: 6 } as const;
+
 const HALF_Z = 8; // world runs 17 blocks deep, enough to fill a wide viewport
 
 /** Deterministic value noise, so the terrain is identical on every load. */
@@ -199,9 +208,17 @@ export function buildWorld(): { blocks: Placement[]; heightAt: (x: number) => nu
   }
 
   // ---- scenery per zone ----
+  // Trees keep clear of the character: a canopy is 5 blocks across, so anything
+  // rooted within that of him grows straight through his head.
+  const clearOfHero = (x: number, z: number) =>
+    Math.hypot(x - HERO_SPOT.x, z - HERO_SPOT.z) > 7;
+
   for (let i = 0; i < 7; i++) {
     const x = -14 + i * 5;
-    if (Math.abs(x - ZONE_X.home) > 5) tree(out, x, surfaceHeight(x), i % 2 ? 6 : -6, false);
+    const z = i % 2 ? 6 : -6;
+    if (Math.abs(x - ZONE_X.home) > 4 && clearOfHero(x, z)) {
+      tree(out, x, surfaceHeight(x), z, false);
+    }
   }
   stronghold(out, ZONE_X.skills, surfaceHeight(ZONE_X.skills));
   workshop(out, ZONE_X.experience, surfaceHeight(ZONE_X.experience));
