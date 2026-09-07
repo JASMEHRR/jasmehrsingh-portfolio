@@ -28,6 +28,22 @@ export type ZoneKey = keyof typeof ZONE_X;
 const HALF_Z = 9;
 const ROAD_HALF = 2; // the street is five blocks wide
 
+/**
+ * How far the plain outskirts reach past the detailed strip.
+ *
+ * Chosen against the fog, not against the buildings: the fog is opaque by 128
+ * units, so ground that reaches 26 across and 60 past either end of the town
+ * is never seen to stop.
+ */
+const SKIRT_Z = 26;
+const SKIRT_PAD_X = 60;
+
+/** The detailed strip, and the plain apron that surrounds it. */
+const WORLD_MIN_X = -20;
+const WORLD_MAX_X = ZONE_X.contact + 24;
+const SKIRT_MIN_X = WORLD_MIN_X - SKIRT_PAD_X;
+const SKIRT_MAX_X = WORLD_MAX_X + SKIRT_PAD_X;
+
 /** Where the character stands: on the terrain, and clear of the buildings. */
 export const HERO_SPOT = { x: 12, z: 7 } as const;
 
@@ -64,6 +80,20 @@ function surfaceAt(x: number, z: number): number {
   const falloff = Math.min(1, (Math.abs(z) - ROAD_HALF - 1) / 4);
   const across = (Math.sin(z * 0.5 + x * 0.11) * 0.7 + Math.sin(z * 0.2 - x * 0.06) * 0.6) * falloff;
   return Math.round(baseHeight(x) + across);
+}
+
+/**
+ * Height for the plain apron outside the town.
+ *
+ * Deliberately unvaried across z: it simply follows the same profile the town
+ * sits on. Rolling hills were tried out here and looked far worse, because a
+ * one-block step viewed at this grazing angle shows the *side* of a grass
+ * block, which is mostly brown - so gentle relief rendered as brown
+ * corrugation striped across the fields. Following the town's own contour
+ * means the only steps are ones the street already has.
+ */
+function outskirtHeight(x: number): number {
+  return surfaceHeight(Math.max(SKIRT_MIN_X + 1, Math.min(SKIRT_MAX_X - 1, x)));
 }
 
 function zoneAt(x: number): ZoneKey {
@@ -258,8 +288,8 @@ function docks(out: Placement[], cx: number, groundY: number) {
 
 export function buildWorld(): { blocks: Placement[]; heightAt: (x: number) => number } {
   const out: Placement[] = [];
-  const minX = -20;
-  const maxX = ZONE_X.contact + 24;
+  const minX = WORLD_MIN_X;
+  const maxX = WORLD_MAX_X;
 
   for (let x = minX; x <= maxX; x++) {
     const zone = zoneAt(x);
@@ -276,6 +306,26 @@ export function buildWorld(): { blocks: Placement[]; heightAt: (x: number) => nu
       const floor = Math.min(y, lowest) - (Math.abs(z) === HALF_Z ? 4 : 1);
       for (let y2 = y - 1; y2 >= floor; y2--) {
         out.push({ id: y2 <= y - 3 ? 'stone' : 'dirt', x, y: y2, z });
+      }
+    }
+  }
+
+  // ---- outskirts ----
+  // The detailed strip is only 19 blocks deep, and the camera sits at z=20
+  // looking across it, so without this you see straight past the far edge into
+  // the sky and the whole town reads as a slab floating in a void. This lays a
+  // plain grass apron either side, out far enough that fog swallows it before
+  // it ends. Surface plus one course only: nothing out here is ever approached,
+  // so anything more is instances spent on blocks no one will look at.
+  for (let x = SKIRT_MIN_X; x <= SKIRT_MAX_X; x++) {
+    for (let z = -SKIRT_Z; z <= SKIRT_Z; z++) {
+      const inner = Math.abs(z) <= HALF_Z && x >= minX && x <= maxX;
+      if (inner) continue;
+      const y = outskirtHeight(x);
+      out.push({ id: 'grass', x, y, z });
+      const lowest = Math.min(outskirtHeight(x - 1), outskirtHeight(x + 1));
+      for (let y2 = y - 1; y2 >= Math.min(y - 1, lowest); y2--) {
+        out.push({ id: 'dirt', x, y: y2, z });
       }
     }
   }

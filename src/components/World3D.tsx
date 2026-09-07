@@ -67,16 +67,43 @@ export default function World3D() {
     // single biggest cost on a high-DPI laptop
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    // Shadows are the single largest thing separating this from a flat
+    // diorama: without them nothing sits on the ground, buildings look pasted
+    // on, and the character floats. One extra depth pass buys all of it.
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     host.appendChild(renderer.domElement);
 
     // ---- lighting ----
-    const hemi = new THREE.HemisphereLight(0xbfe0ff, 0x4a3a2a, 1.0);
+    // Ambient is deliberately low. It was 1.0, which lit every face of every
+    // cube to nearly the same value and flattened the whole scene; the sun
+    // now does most of the work so faces separate and shadows have somewhere
+    // dark to fall.
+    const hemi = new THREE.HemisphereLight(0xbfe0ff, 0x4a3a2a, 0.55);
     scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xfff4d6, 2.1);
-    sun.position.set(-40, 70, 40);
+    const sun = new THREE.DirectionalLight(0xfff4d6, 2.6);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    // The shadow camera is a tight box that travels with the view rather than
+    // one big enough for the whole town: a 400-unit-wide map would give each
+    // block a handful of texels and the shadows would be mush.
+    const shadowSpan = 46;
+    sun.shadow.camera.left = -shadowSpan;
+    sun.shadow.camera.right = shadowSpan;
+    sun.shadow.camera.top = shadowSpan;
+    sun.shadow.camera.bottom = -shadowSpan;
+    sun.shadow.camera.near = 1;
+    sun.shadow.camera.far = 220;
+    sun.shadow.bias = -0.0015;
+    sun.shadow.normalBias = 0.05;
+    // Required. three.js never rebuilds an ortho shadow camera's projection
+    // after its bounds are set, so without this the map covers the default
+    // two-unit box and the scene renders with shadows on and none visible.
+    sun.shadow.camera.updateProjectionMatrix();
     scene.add(sun);
-    const fill = new THREE.DirectionalLight(0xffffff, 0.35);
-    fill.position.set(30, 20, -40);
+    scene.add(sun.target);
+    const fill = new THREE.DirectionalLight(0xffffff, 0.28);
+    fill.position.set(-30, 20, 40);
     scene.add(fill);
 
     // travels with the camera so interiors and cave walls are never a void;
@@ -103,6 +130,10 @@ export default function World3D() {
       });
       mesh.instanceMatrix.needsUpdate = true;
       mesh.frustumCulled = false;
+      // water casting a shadow reads as a hole in the ground, and glass and
+      // lantern are the light sources, so none of the three should occlude
+      mesh.castShadow = id !== 'water' && id !== 'glass' && id !== 'lantern';
+      mesh.receiveShadow = true;
       scene.add(mesh);
       meshes.push(mesh);
     }
@@ -133,6 +164,9 @@ export default function World3D() {
         hero = c;
         hero.group.scale.setScalar(5.2);
         hero.group.position.set(heroX, heightAt(heroX) + 0.5, heroZ);
+        hero.group.traverse((o) => {
+          o.castShadow = true;
+        });
         scene.add(hero.group);
       })
       .catch(() => {
@@ -239,7 +273,58 @@ export default function World3D() {
     applyMood();
     const moodTimer = window.setInterval(applyMood, 200);
 
-    scene.background = new THREE.Color(0x6fa6ea);
+    // ---- sky ----
+    // A flat background colour meets the ground in a hard line and gives the
+    // horizon nothing to be. This is a dome shaded from the fog colour at the
+    // horizon to the sky colour overhead: because the bottom of the gradient
+    // *is* the fog colour, distant ground dissolves into the sky instead of
+    // stopping against it, which is the whole trick behind the haze.
+    const skyMat = new THREE.ShaderMaterial({
+      side: THREE.BackSide,
+      depthWrite: false,
+      fog: false,
+      uniforms: {
+        top: { value: new THREE.Color(0x6fa6ea) },
+        bottom: { value: new THREE.Color(0xbfe0ff) },
+      },
+      vertexShader: `
+        varying float vH;
+        void main() {
+          vH = normalize(position).y;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 top;
+        uniform vec3 bottom;
+        varying float vH;
+        void main() {
+          gl_FragColor = vec4(mix(bottom, top, smoothstep(-0.05, 0.6, vH)), 1.0);
+          #include <colorspace_fragment>
+        }
+      `,
+    });
+    const sky = new THREE.Mesh(new THREE.SphereGeometry(300, 24, 16), skyMat);
+    sky.frustumCulled = false;
+    scene.add(sky);
+
+    // A disc for the sun and a soft halo around it. The scene has a key light
+    // coming from somewhere; showing where anchors the whole lighting scheme
+    // and gives the empty half of the frame something to be.
+    const sunDisc = new THREE.Group();
+    const discMat = new THREE.MeshBasicMaterial({ color: 0xfff4d6, fog: false });
+    sunDisc.add(new THREE.Mesh(new THREE.CircleGeometry(9, 24), discMat));
+    const haloMat = new THREE.MeshBasicMaterial({
+      color: 0xfff0cf,
+      transparent: true,
+      opacity: 0.22,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      fog: false,
+    });
+    sunDisc.add(new THREE.Mesh(new THREE.CircleGeometry(26, 24), haloMat));
+    sunDisc.renderOrder = -1;
+    scene.add(sunDisc);
 
     // ---- render loop ----
     let raf = 0;
@@ -258,9 +343,30 @@ export default function World3D() {
       camera.lookAt(camX + 4, groundY + 2.5, 0);
       lamp.position.set(camX - 2, groundY + 10, 12);
 
+      // The key light and its shadow box travel with the view, so the tight
+      // high-resolution shadow map is always spent on what is actually on
+      // screen rather than on the far end of the town.
+      // Behind and to the right of the view, never behind the camera. Lit from
+      // over the reader's shoulder every shadow falls away from them and hides
+      // behind the thing casting it, which is how the scene managed to have a
+      // shadow map and still look completely flat.
+      sun.position.set(camX + 52, groundY + 64, -38);
+      sun.target.position.set(camX + 2, groundY, 2);
+      sun.target.updateMatrixWorld();
+
+      // the dome and the sun disc are backdrop, not scenery: they ride with
+      // the camera so neither is ever approached or passed
+      sky.position.copy(camera.position);
+      sunDisc.position.copy(camera.position).addScaledVector(
+        sun.position.clone().sub(sun.target.position).normalize(), 240,
+      );
+      sunDisc.lookAt(camera.position);
+
       const blend = reduced ? 1 : 0.04;
-      const bg = scene.background as THREE.Color;
-      bg.lerp(target.sky, blend);
+      skyMat.uniforms.top.value.lerp(target.sky, blend);
+      skyMat.uniforms.bottom.value.lerp(target.fog, blend);
+      discMat.color.lerp(target.sun, blend);
+      haloMat.color.lerp(target.sun, blend);
       (scene.fog as THREE.Fog).color.lerp(target.fog, blend);
       sun.color.lerp(target.sun, blend);
       hemi.color.lerp(target.ambient, blend);
@@ -289,6 +395,11 @@ export default function World3D() {
       canvas.removeEventListener('pointercancel', onUp);
       renderer.dispose();
       geo.dispose();
+      sky.geometry.dispose();
+      skyMat.dispose();
+      sunDisc.children.forEach((c) => (c as THREE.Mesh).geometry.dispose());
+      discMat.dispose();
+      haloMat.dispose();
       moteGeo.dispose();
       moteMat.dispose();
       meshes.forEach((m) => {
