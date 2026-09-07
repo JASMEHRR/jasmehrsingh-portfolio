@@ -139,11 +139,15 @@ runtime and a catch-all would otherwise hand it `index.html`.
 
 ## Notes
 
-- `public/character.glb` is a voxel figure built in Blender: cube body, and an
-  afro made of ~240 small cubes on a lumpy shell. A single scaled cube reads as
-  a helmet; only a cluster reads as curls. He is placed in the home zone and
-  turns to face the camera. `three/mode.ts` decides 3D-vs-2D once so the hero
-  knows to leave the flat cut-out out of the HTML rather than showing him twice.
+- The character is built in code from the reference render itself
+  (`three/character.ts`), not modelled by hand and not loaded as a GLB. Run
+  `python tools/extract_character.py` to regenerate `public/char/` — it crops
+  the face, torso, arms and legs straight out of `public/avatar.png` and samples
+  that image's hair mask into `hair.json`. The face on the model is therefore
+  the face in the render, and the afro's outline is the outline that was drawn.
+  Four rounds of hand-tuning cube colours never matched it; reading the pixels
+  did, first try. `three/mode.ts` decides 3D-vs-2D once so the hero knows to
+  leave the flat cut-out out of the HTML rather than showing him twice.
 - `three` is loaded in its own lazy chunk (~125KB gzip) so anyone who gets the
   2D fallback never downloads it.
 - Textures are generated, not extracted: run `python tools/make_textures.py` to

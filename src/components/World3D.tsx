@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { buildWorld, ZONE_X, type ZoneKey } from '../three/buildWorld';
 import { groupById, materialsFor } from '../three/blocks';
+import { buildCharacter, type HairMask } from '../three/character';
 
 /** Sky, fog and light per biome, matched to the 2D palette. */
 const MOOD: Record<string, { sky: number; fog: number; sun: number; ambient: number; intensity: number }> = {
@@ -108,33 +108,25 @@ export default function World3D() {
     scene.add(moteCloud);
 
     // ---- the character ----
-    // Modelled in Blender as a voxel figure (tools note: project 3D Jutsu,
-    // exported to /character.glb). He stands on the terrain in the home zone
-    // and turns to face the camera, so the hero shows a person in a world
-    // rather than a cut-out pasted over one.
+    // Built in code from the reference render's own pixels rather than loaded
+    // as a model: see three/character.ts. The face is a crop of avatar.png and
+    // the afro is placed from that image's hair mask, which is what makes it
+    // match rather than merely resemble.
     let hero: THREE.Group | null = null;
-    // close to the camera and large: he is the subject of the hero, not set
-    // dressing. Feet sit on the block top (blocks are centred on their height)
     const heroX = ZONE_X.home + 5;
     const heroZ = 11;
-    new GLTFLoader().load(
-      '/character.glb',
-      (gltf) => {
-        hero = gltf.scene;
-        hero.scale.setScalar(3.0);
+    fetch('/char/hair.json')
+      .then((r) => r.json())
+      .then((mask: HairMask) => {
+        hero = buildCharacter(mask);
+        hero.scale.setScalar(3.2);
         hero.position.set(heroX, heightAt(heroX) + 0.5, heroZ);
-        hero.traverse((o) => {
-          const m = o as THREE.Mesh;
-          if (m.isMesh) m.castShadow = false;
-        });
         scene.add(hero);
-      },
-      undefined,
-      () => {
+      })
+      .catch(() => {
         // the world is still worth showing without him
         hero = null;
-      },
-    );
+      });
 
     // ---- camera path, driven by which section is on screen ----
     type Stop = { top: number; x: number };
