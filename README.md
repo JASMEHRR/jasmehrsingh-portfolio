@@ -127,9 +127,20 @@ This is a game-themed site, not a game, so it has to stay usable:
 ## The character's idle
 
 He turns, breathes and swings his arms, driven by `Character.update` in
-`three/character.ts`. Limbs hang from their own pivots: the geometry is shifted
-so each mesh's origin sits at the shoulder or hip, because rotating a centred
-box swings it around its middle and scissors an arm through the shoulder.
+`three/character.ts`.
+
+The model is Blender-built (`public/character.glb`) and rigged on load. glTF
+carries each object's origin as its node translation, and the limbs were
+exported with their origins already at the shoulder and hip, so rotating those
+nodes is correct with no further work. Only the head needs a pivot built for
+it, because it is a dozen separate meshes.
+
+There was an attempt to replace the model with a character assembled in code
+from crops of the reference image, on the theory that real pixels would match
+it exactly. It did not work: a perspective render does not project onto flat
+cube faces, so the crops arrived stretched and misaligned, and the result was
+far worse than the model it replaced. Don't retry that without solving the
+projection first.
 
 The turn is +-52 degrees rather than a full revolution. He is only textured on
 the front, so a full spin would park a blank back toward the reader for half of
