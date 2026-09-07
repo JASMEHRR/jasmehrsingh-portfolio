@@ -33,6 +33,21 @@ export default function Guide() {
   const [biome, setBiome] = useState('overworld');
   const [ready, setReady] = useState(false);
 
+  // He is shown from xl up, and this is the same threshold as a query rather
+  // than a Tailwind `hidden xl:block`. With the class doing the hiding the
+  // element still exists between 769 and 1279px, so the effect below would
+  // fetch the model, take a second WebGL context and drive a render loop
+  // forever for something with display:none.
+  const [wide, setWide] = useState(
+    () => window.matchMedia('(min-width: 1280px)').matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1280px)');
+    const sync = () => setWide(mq.matches);
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
   // The line he says follows the same attribute the backdrop reads, so his
   // commentary and the scenery can never disagree about where you are.
   useEffect(() => {
@@ -140,20 +155,20 @@ export default function Guide() {
       renderer.dispose();
       host.removeChild(canvas);
     };
-  }, []);
+  }, [wide]);
 
   // He needs WebGL and room to stand in; below that the page is the point and
   // a 300px figure beside a single column would simply be in the way.
-  if (!is3DWorld()) return null;
+  if (!is3DWorld() || !wide) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-0 right-4 z-20 hidden select-none xl:block">
+    <div className="pointer-events-none fixed bottom-0 right-4 z-20 select-none">
       <div
         className={`mb-2 ml-auto max-w-[17rem] rounded-md border-2 border-black/70 bg-black/75 px-3 py-2 font-mono text-[0.8rem] leading-snug text-white shadow-lg transition-opacity duration-300 ${
           ready ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        {game.guide[biome] ?? game.guide.overworld}
+        {game.guide?.[biome] ?? game.guide?.overworld ?? ''}
       </div>
       <div
         ref={hostRef}

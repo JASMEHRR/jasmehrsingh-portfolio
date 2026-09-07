@@ -44,9 +44,6 @@ const WORLD_MAX_X = ZONE_X.contact + 24;
 const SKIRT_MIN_X = WORLD_MIN_X - SKIRT_PAD_X;
 const SKIRT_MAX_X = WORLD_MAX_X + SKIRT_PAD_X;
 
-/** Where the character stands: on the terrain, and clear of the buildings. */
-export const HERO_SPOT = { x: 12, z: 7 } as const;
-
 /** Deterministic value noise, so the town is identical on every load. */
 function noise(x: number, z: number, seed = 1) {
   const n = Math.sin(x * 12.9898 + z * 78.233 + seed * 37.719) * 43758.5453;
@@ -330,16 +327,12 @@ export function buildWorld(): { blocks: Placement[]; heightAt: (x: number) => nu
     }
   }
 
-  const clearOfHero = (x: number, z: number) =>
-    Math.hypot(x - HERO_SPOT.x, z - HERO_SPOT.z) > 7;
   const h = surfaceHeight;
 
   // ---- the square: a well, lamps, and houses facing the street ----
   well(out, ZONE_X.home - 8, 0, h(ZONE_X.home - 8));
   house(out, ZONE_X.home - 2, -7, h(ZONE_X.home - 2), 7, 5, 'plaster', false);
-  if (clearOfHero(ZONE_X.home + 10, 7)) {
-    house(out, ZONE_X.home + 10, 7, h(ZONE_X.home + 10), 7, 5, 'plaster', true);
-  }
+  house(out, ZONE_X.home + 10, 7, h(ZONE_X.home + 10), 7, 5, 'plaster', true);
   house(out, ZONE_X.home + 20, -7, h(ZONE_X.home + 20), 9, 5, 'planks', false);
 
   // ---- the library: one tall building, walls of books ----
@@ -385,7 +378,7 @@ export function buildWorld(): { blocks: Placement[]; heightAt: (x: number) => nu
   // ---- street furniture the whole way along ----
   for (let x = minX + 6; x <= maxX - 6; x += 11) {
     const z = (x / 11) % 2 < 1 ? ROAD_HALF + 1 : -(ROAD_HALF + 1);
-    if (clearOfHero(x, z)) lamp(out, x, z, surfaceAt(x, z));
+    lamp(out, x, z, surfaceAt(x, z));
   }
 
   // scattered trees on the outskirts, away from the buildings and the street
@@ -393,7 +386,7 @@ export function buildWorld(): { blocks: Placement[]; heightAt: (x: number) => nu
     const zone = zoneAt(x);
     if (zone === 'mine' || zone === 'about' || zone === 'contact') continue;
     const z = noise(x, 0, 12) > 0.5 ? HALF_Z - 1 : -(HALF_Z - 1);
-    if (clearOfHero(x, z) && noise(x, z, 13) > 0.45) tree(out, x, surfaceAt(x, z), z, false);
+    if (noise(x, z, 13) > 0.45) tree(out, x, surfaceAt(x, z), z, false);
   }
 
   // ---- one block per cell ----

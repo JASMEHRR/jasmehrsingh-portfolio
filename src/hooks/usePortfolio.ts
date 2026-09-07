@@ -11,7 +11,17 @@ function read(): Portfolio {
   try {
     const raw = localStorage.getItem(OVERRIDE_KEY);
     if (!raw) return base;
-    return { ...base, ...(JSON.parse(raw) as Partial<Portfolio>) };
+    const over = JSON.parse(raw) as Partial<Portfolio>;
+
+    // `game` is merged a level deeper than everything else. The draft holds a
+    // whole Portfolio, so a plain spread lets an old draft's `game` replace the
+    // file's outright - and every field added to game after that draft was
+    // saved then reads as undefined. That is not hypothetical: adding
+    // game.guide did exactly this, and a component reading game.guide[biome]
+    // took the whole page down with it. Layering game over the file's copy
+    // means new fields keep their committed values until the draft has an
+    // opinion about them.
+    return { ...base, ...over, game: { ...base.game, ...(over.game ?? {}) } };
   } catch {
     // private mode, blocked storage, or malformed JSON — fall back to the file
     return base;
