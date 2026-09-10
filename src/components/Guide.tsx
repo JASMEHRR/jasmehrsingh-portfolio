@@ -44,8 +44,16 @@ export default function Guide() {
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1280px)');
     const sync = () => setWide(mq.matches);
+    // synced once on mount as well as on change: the initial state above is
+    // read during the first render, which can land before layout, when every
+    // width query answers against a viewport of 0
+    sync();
     mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
+    window.addEventListener('resize', sync);
+    return () => {
+      mq.removeEventListener('change', sync);
+      window.removeEventListener('resize', sync);
+    };
   }, []);
 
   // The line he says follows the same attribute the backdrop reads, so his
@@ -63,14 +71,23 @@ export default function Guide() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, WIDTH / HEIGHT, 0.1, 100);
+    // He stands from y=0 to about y=2.1 in his own space. At fov 30 and this
+    // distance the frame is ~3.3 units tall, so aiming at his middle rather
+    // than his chest leaves headroom above and keeps his feet in shot - the
+    // camera used to look at 0.95 with him sunk to -1.05, which cut him off at
+    // the shins.
     camera.position.set(0, 1.05, 6.2);
-    camera.lookAt(0, 0.95, 0);
+    camera.lookAt(0, 1.05, 0);
 
     // alpha, and no background: the page and the world show through around
     // him, which is what stops this reading as a picture pasted on top
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(WIDTH, HEIGHT, false);
+    // updateStyle left on. With it off the drawing buffer is set but the CSS
+    // size is not, so the element falls back to its buffer dimensions - which
+    // are multiplied by devicePixelRatio, and he rendered at twice the size
+    // and hung off the bottom of the screen.
+    renderer.setSize(WIDTH, HEIGHT);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     host.appendChild(renderer.domElement);
 
@@ -89,8 +106,8 @@ export default function Guide() {
     loadCharacter()
       .then((c) => {
         hero = c;
-        // framed head-to-foot: he is about 2 units tall in his own space
-        hero.group.position.set(0, -1.05, 0);
+        // left at the origin; the camera does the framing
+        hero.group.position.set(0, 0, 0);
         scene.add(hero.group);
         setReady(true);
       })
