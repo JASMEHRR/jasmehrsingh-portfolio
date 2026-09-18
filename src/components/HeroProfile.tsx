@@ -130,9 +130,14 @@ export default function HeroProfile() {
             <a href="#skills" className="mc-btn px-5 py-3 text-[10px]">
               Enchant
             </a>
-            <a href="/arcade/" className="mc-btn px-5 py-3 text-[10px]">
-              Play Arcade
-            </a>
+            {/* the arcade is still being built: shown, so it is known to be
+                coming, but not a link until it is worth landing on */}
+            <span
+              aria-disabled="true"
+              className="mc-btn cursor-not-allowed px-5 py-3 text-[10px] opacity-60"
+            >
+              Arcade: in progress
+            </span>
           </div>
         </div>
       </div>

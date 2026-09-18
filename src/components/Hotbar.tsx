@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Item } from './mc/Gui';
 
-type Dest = { label: string; href: string; icon: string; external?: boolean };
+// soon: shown so people know it is coming, but not yet somewhere to go
+type Dest = { label: string; href: string; icon: string; external?: boolean; soon?: boolean };
 
 /**
  * Bottom hotbar navigation.
@@ -18,7 +19,7 @@ const DESTS: Dest[] = [
   { label: 'The Mine', href: '#mine', icon: '/tex/ore_diamond.png' },
   { label: 'Advancements', href: '#about', icon: '/tex/item_gold.png' },
   { label: 'Contact', href: '#contact', icon: '/tex/item_book.png' },
-  { label: 'Arcade', href: '/arcade/', icon: '/tex/item_amethyst.png', external: true },
+  { label: 'Arcade (in progress)', href: '/arcade/', icon: '/tex/item_amethyst.png', external: true, soon: true },
 ];
 
 export default function Hotbar() {
@@ -59,6 +60,7 @@ export default function Hotbar() {
       const n = Number(e.key);
       if (!Number.isInteger(n) || n < 1 || n > DESTS.length) return;
       const dest = DESTS[n - 1];
+      if (dest.soon) return;
       if (dest.external) {
         window.location.href = dest.href;
       } else {
@@ -89,7 +91,9 @@ export default function Hotbar() {
           {DESTS.map((d, i) => (
             <li key={d.href}>
               <a
-                href={d.href}
+                href={d.soon ? undefined : d.href}
+                tabIndex={0}
+                aria-disabled={d.soon || undefined}
                 aria-current={!d.external && i === active ? 'true' : undefined}
                 onMouseEnter={() => setTip(d.label)}
                 onMouseLeave={() => setTip(null)}
@@ -97,7 +101,9 @@ export default function Hotbar() {
                 onBlur={() => setTip(null)}
                 className="mc-slot mc-slot-hover grid h-[38px] w-[38px] place-items-center min-[430px]:h-[46px] min-[430px]:w-[46px] sm:h-[54px] sm:w-[54px]"
                 style={
-                  !d.external && i === active
+                  d.soon
+                    ? { opacity: 0.45, cursor: 'not-allowed' }
+                    : !d.external && i === active
                     ? {
                         boxShadow:
                           'inset 3px 3px 0 #373737, inset -3px -3px 0 rgba(255,255,255,.53), 0 0 0 3px #fff, 0 0 0 5px #000',
