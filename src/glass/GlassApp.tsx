@@ -2,10 +2,9 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, Pause, Phone, Sparkles } from 'lucide-react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { useCountUp, useMotion, useReveal } from './motion';
+import { useCountUp, useMotion, usePointerSheen, useReveal } from './motion';
 import { useGitHub } from './github';
-import { GrassButton, GrassCube } from './GrassBlock';
-import Cursor from './Cursor';
+import { GrassCube } from './GrassBlock';
 import Work from './Work';
 import Activity from './Activity';
 import LinkedIn from './LinkedIn';
@@ -15,14 +14,13 @@ import './glass.css';
 /**
  * The glass portfolio, served at /.
  *
- * This is the page a recruiter lands on. The Minecraft world is one click
- * away through the grass-block button, which is the only pixelated thing on
- * the page and is meant to look like it wandered in from somewhere else.
+ * This is the page a recruiter lands on. The Minecraft version exists but is
+ * deliberately low-key: one tiny grass block in the nav bar, and nothing else
+ * on the page points at it.
  *
- * All profile copy comes from portfolio.json through usePortfolio, like the
- * Minecraft site; only section labels are written here. Projects and the
- * activity feed are topped up live from GitHub, and the LinkedIn card embeds
- * LinkedIn's own badge.
+ * All profile copy comes from portfolio.json through usePortfolio; only
+ * section labels are written here. Projects and the activity feed are topped
+ * up live from GitHub.
  */
 
 const BLOBS: CSSProperties[] = [
@@ -44,16 +42,27 @@ function Backdrop() {
   );
 }
 
-/** Scroll position and progress as CSS variables, without re-rendering React. */
+/**
+ * Scroll progress as a CSS variable, without re-rendering React.
+ *
+ * Written only onto the two elements that read it, the backdrop (parallax)
+ * and the progress bar. It used to go on <html>, and a custom property
+ * changed on the root is inherited by everything, so every scroll frame made
+ * the browser restyle the entire page on top of redrawing the glass blur.
+ */
 function useScrollVars() {
   useEffect(() => {
     const root = document.documentElement;
+    const targets = [
+      document.querySelector<HTMLElement>('.g-backdrop'),
+      document.querySelector<HTMLElement>('.g-progress'),
+    ].filter((el): el is HTMLElement => el !== null);
     let raf = 0;
     const update = () => {
       raf = 0;
       const max = root.scrollHeight - window.innerHeight;
-      root.style.setProperty('--scroll', String(window.scrollY));
-      root.style.setProperty('--progress', String(max > 0 ? window.scrollY / max : 0));
+      const progress = String(max > 0 ? window.scrollY / max : 0);
+      for (const el of targets) el.style.setProperty('--progress', progress);
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(update);
@@ -181,6 +190,7 @@ export default function GlassApp() {
   const { profile, game, experience, skills, education, services, projects } = usePortfolio();
   const [motion, toggleMotion] = useMotion();
   const fine = useMediaQuery('(pointer: fine) and (hover: hover)');
+  usePointerSheen(motion && fine);
   const github = useGitHub();
   useScrollVars();
   // rescan once GitHub data lands, so cards it adds are revealed too
@@ -195,7 +205,6 @@ export default function GlassApp() {
     <>
       <Backdrop />
       <div className="g-progress" aria-hidden />
-      {motion && fine && <Cursor />}
       <a
         href="#top"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-20 focus:z-[80] focus:rounded-full focus:bg-black focus:px-4 focus:py-2"
@@ -206,8 +215,8 @@ export default function GlassApp() {
 
       <main id="top" className="relative z-10">
         {/* ------------------------------------------------ hero */}
-        <section className="mx-auto grid min-h-[100svh] max-w-6xl items-center gap-10 px-4 pb-16 pt-32 lg:grid-cols-[1.25fr_1fr]">
-          <div>
+        <section className="mx-auto flex min-h-[100svh] max-w-5xl flex-col items-center justify-center px-4 pb-16 pt-32 text-center">
+          <div className="flex flex-col items-center">
             {openTo && (
               <p className="reveal glass glass-pill inline-flex items-center gap-2.5 px-4 py-2 text-sm font-medium">
                 <span className="g-live-dot" aria-hidden />
@@ -227,12 +236,12 @@ export default function GlassApp() {
               {taglineWords.join(' ')} <span className="g-gradient-text">{lastWord}.</span>
             </p>
             <p
-              className="reveal mt-5 max-w-xl text-lg text-[color:var(--g-soft)]"
+              className="reveal mt-5 max-w-2xl text-lg text-[color:var(--g-soft)]"
               style={{ '--d': '240ms' } as CSSProperties}
             >
               {profile.role}. {profile.specialization.replace(/\s*·\s*/g, ', ')}.
             </p>
-            <div className="reveal mt-8 flex flex-wrap gap-3" style={{ '--d': '320ms' } as CSSProperties}>
+            <div className="reveal mt-8 flex flex-wrap justify-center gap-3" style={{ '--d': '320ms' } as CSSProperties}>
               {social.linkedin && (
                 <a
                   href={social.linkedin}
@@ -261,25 +270,6 @@ export default function GlassApp() {
                   <Mail size={18} aria-hidden /> Email me
                 </a>
               )}
-            </div>
-          </div>
-
-          <div className="glass reveal flex flex-col items-center p-6 text-center sm:p-8" style={{ '--d': '200ms' } as CSSProperties}>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--g-green)]">Side quest</p>
-            {profile.avatarSvg && (
-              <img
-                src={profile.avatarSvg}
-                alt={`${profile.name} as a Minecraft character`}
-                className="mt-4 h-56 w-auto sm:h-64"
-                style={{ imageRendering: 'pixelated', filter: 'drop-shadow(0 18px 24px rgba(0,0,0,.45))' }}
-              />
-            )}
-            <p className="g-display mt-4 text-2xl font-semibold">Bored of glass?</p>
-            <p className="mt-2 max-w-xs text-[color:var(--g-soft)]">
-              There is a whole Minecraft version of this portfolio, with a town to walk through.
-            </p>
-            <div className="mt-6">
-              <GrassButton />
             </div>
           </div>
         </section>
@@ -459,11 +449,6 @@ export default function GlassApp() {
                 </a>
               )}
             </div>
-          </div>
-
-          <div className="reveal mt-16 flex flex-col items-center gap-5 text-center">
-            <p className="text-[color:var(--g-soft)]">Done reading? There is still a whole world to walk around.</p>
-            <GrassButton label="Enter the Minecraft world" size={40} />
           </div>
         </section>
       </main>

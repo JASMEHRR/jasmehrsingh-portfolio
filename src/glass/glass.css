@@ -96,6 +96,7 @@ html[data-mode='glass'] section[id] {
    Progress caps the shift at about 100 to 240px however long the page is. */
 html[data-motion='on'] .g-blob {
   translate: 0 calc(var(--progress, 0) * var(--depth, 0.1) * -1200px);
+  /* --progress is set on .g-backdrop, not on <html>: see useScrollVars */
   animation: g-drift var(--dur, 22s) ease-in-out infinite alternate;
 }
 
@@ -214,17 +215,18 @@ html[data-motion='on'] .g-live-dot {
 
 /* ---------------------------------------------------------- reveal
    Only hidden when motion is on, and only until the element is in view. */
+/* Opacity and transform only. It used to blur in as well, and animating a
+   filter on every section as it arrived was a large part of why scrolling
+   felt choppy: filters repaint every frame, transforms and opacity do not. */
 html[data-motion='on'] .reveal:not(.in) {
   opacity: 0;
-  transform: translateY(28px) scale(0.985);
-  filter: blur(8px);
+  transform: translateY(28px);
 }
 
 html[data-motion='on'] .reveal {
   transition:
-    opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
-    transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
-    filter 0.8s ease var(--d, 0ms);
+    opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms);
 }
 
 /* ---------------------------------------------------------- progress */
@@ -237,42 +239,6 @@ html[data-motion='on'] .reveal {
   transform: scaleX(var(--progress, 0));
   background: linear-gradient(90deg, var(--g-cyan), var(--g-violet), var(--g-pink), var(--g-amber));
   pointer-events: none;
-}
-
-/* ---------------------------------------------------------- cursor lens
-   A small lens that trails the pointer and swells over anything clickable.
-   The plain blur is declared first; the SVG displacement after it bends
-   what is behind the lens like real glass in Chromium, and a browser that
-   cannot parse it keeps the blur instead. */
-.g-lens {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 70;
-  width: 38px;
-  height: 38px;
-  margin: -19px 0 0 -19px;
-  border-radius: 50%;
-  pointer-events: none;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.04) 60%);
-  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.15);
-  -webkit-backdrop-filter: blur(3px) saturate(180%);
-  backdrop-filter: blur(3px) saturate(180%);
-  backdrop-filter: url(#g-liquid) saturate(180%);
-  transition: width 0.25s ease, height 0.25s ease, margin 0.25s ease, opacity 0.3s ease;
-  will-change: transform;
-}
-
-.g-lens.hot {
-  width: 76px;
-  height: 76px;
-  margin: -38px 0 0 -38px;
-  border-color: rgba(255, 255, 255, 0.8);
-}
-
-.g-lens.gone {
-  opacity: 0;
 }
 
 /* ---------------------------------------------------------- grass block
@@ -315,52 +281,13 @@ html[data-motion='on'] .g-cube {
   animation: g-spin 9s linear infinite;
 }
 
-html[data-motion='on'] .g-grass:hover .g-cube {
+html[data-motion='on'] a:hover .g-cube {
   animation-duration: 2.2s;
 }
 
 @keyframes g-spin {
   from { transform: rotateX(-24deg) rotateY(0deg); }
   to { transform: rotateX(-24deg) rotateY(360deg); }
-}
-
-/* The button itself is grassy: the side texture of a grass block, tiled and
-   kept pixel-sharp, with a pixel font. A deliberate outlier in a glass page. */
-.g-grass {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 22px 10px 10px;
-  border: 3px solid #1d1d1d;
-  background-image: url('/tex/grass_side.png');
-  background-size: 48px 48px;
-  image-rendering: pixelated;
-  color: #fff;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
-  line-height: 1.7;
-  text-shadow: 2px 2px 0 #1b1b1b;
-  box-shadow:
-    inset 3px 3px 0 rgba(255, 255, 255, 0.35),
-    inset -3px -3px 0 rgba(0, 0, 0, 0.35),
-    0 12px 40px -10px rgba(126, 224, 111, 0.55);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.g-grass:hover {
-  box-shadow:
-    inset 3px 3px 0 rgba(255, 255, 255, 0.45),
-    inset -3px -3px 0 rgba(0, 0, 0, 0.35),
-    0 16px 50px -8px rgba(126, 224, 111, 0.8);
-}
-
-html[data-motion='on'] .g-grass:hover {
-  transform: translateY(-3px);
-}
-
-html[data-motion='on'] .g-grass:active {
-  transform: translateY(1px);
 }
 
 /* ---------------------------------------------------------- activity bars */

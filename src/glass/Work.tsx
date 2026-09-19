@@ -9,14 +9,14 @@ function repoKey(link: string): string | null {
   return m ? m[1].toLowerCase() : null;
 }
 
-function ProjectCard({ p, repo, delay }: { p: Project; repo?: Repo; delay: number }) {
+function ProjectCard({ p, repo, delay, span }: { p: Project; repo?: Repo; delay: number; span: string }) {
   // curated copy always wins; GitHub fills in what only it knows
   const stack = p.stack.length > 0 ? p.stack : repo?.language ? [repo.language] : [];
   const updated = repo?.pushedAt ? timeAgo(repo.pushedAt) : '';
 
   return (
     <article
-      className={`glass reveal flex flex-col p-6 sm:p-7 ${p.highlight ? 'lg:col-span-2' : ''}`}
+      className={`glass reveal flex flex-col p-6 sm:p-7 ${span}`}
       style={{ '--d': `${delay}ms`, boxShadow: `inset 0 1px 0 rgba(255,255,255,.3), 0 30px 70px -40px ${p.color}` } as CSSProperties}
     >
       <div className="flex items-start justify-between gap-4">
@@ -86,6 +86,20 @@ export default function Work({ projects, github }: { projects: Project[]; github
   // highlighted work first, otherwise in the order the JSON gives
   cards.sort((a, b) => Number(b.p.highlight) - Number(a.p.highlight));
 
+  // No holes in the grid. Every highlighted card used to span two of the
+  // three columns, and three of them in a row left the third column empty
+  // beside each one. Now only as many cards go wide as it takes to make the
+  // last row come out full (highlighted ones first), and the grid packs
+  // densely, so the cells always add up to complete rows. On the two-column
+  // layout an odd count lets the last card take the whole final row.
+  const n = cards.length;
+  const wide = (3 - (n % 3)) % 3;
+  const spanFor = (i: number) => {
+    if (i < wide) return 'lg:col-span-2';
+    if (n % 2 === 1 && i === n - 1) return 'md:col-span-2 lg:col-span-1';
+    return '';
+  };
+
   const more = (github?.repos ?? [])
     .filter((r) => !curatedKeys.has(r.name.toLowerCase()))
     .sort((a, b) => Date.parse(b.pushedAt) - Date.parse(a.pushedAt));
@@ -102,9 +116,9 @@ export default function Work({ projects, github }: { projects: Project[]; github
         </p>
       </header>
 
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-flow-row-dense lg:grid-cols-3">
         {cards.map(({ p, repo }, i) => (
-          <ProjectCard key={p.id} p={p} repo={repo} delay={(i % 3) * 90} />
+          <ProjectCard key={p.id} p={p} repo={repo} delay={(i % 3) * 90} span={spanFor(i)} />
         ))}
       </div>
 

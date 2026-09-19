@@ -16,16 +16,3 @@ export function GrassCube({ size = 56 }: { size?: number }) {
     </span>
   );
 }
-
-/**
- * The way into the Minecraft version: a grass-block button, pixel font and
- * all, sitting in an otherwise glass page on purpose.
- */
-export function GrassButton({ label = 'Play the Minecraft version', size = 44 }: { label?: string; size?: number }) {
-  return (
-    <a href="/minecraft" className="g-grass">
-      <GrassCube size={size} />
-      <span>{label}</span>
-    </a>
-  );
-}
