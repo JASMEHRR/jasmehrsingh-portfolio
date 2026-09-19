@@ -95,6 +95,7 @@ export default function Work({ projects, github }: { projects: Project[]; github
   const n = cards.length;
   const wide = (3 - (n % 3)) % 3;
   const spanFor = (i: number) => {
+    if (n === 1) return 'md:col-span-2 lg:col-span-3';
     if (i < wide) return 'lg:col-span-2';
     if (n % 2 === 1 && i === n - 1) return 'md:col-span-2 lg:col-span-1';
     return '';

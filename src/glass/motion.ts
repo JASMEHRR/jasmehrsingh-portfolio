@@ -86,6 +86,10 @@ function parseStat(value: string): { n: number; format: (x: number) => string } 
   if (!Number.isFinite(base)) return null;
   const letter = m[2].toUpperCase();
   const plus = m[3];
+  // count in the value's own case, so '5k+' does not count in 'K' and then
+  // switch to 'k' on the final frame
+  const lower = m[2] !== '' && m[2] === m[2].toLowerCase();
+  const [k, mil] = lower ? ['k', 'm'] : ['K', 'M'];
 
   // "1M+" counted as 0 to 1 is a single jump, not a count, so thousands and
   // millions count through their real size instead: 0K+, 500K+, then 1M+
@@ -93,7 +97,7 @@ function parseStat(value: string): { n: number; format: (x: number) => string } 
   if (unit > 1) {
     return {
       n: base * unit,
-      format: (x) => (x >= 1e6 ? `${Math.floor(x / 1e6)}M` : `${Math.floor(x / 1e3)}K`) + plus,
+      format: (x) => (x >= 1e6 ? `${Math.floor(x / 1e6)}${mil}` : `${Math.floor(x / 1e3)}${k}`) + plus,
     };
   }
   const commas = m[1].includes(',');
@@ -152,11 +156,23 @@ export function useCountUp(value: string, motion: boolean) {
         setCounting(null);
       }, dur + 250);
     };
+    // Re-armed only once the stat is completely off screen. Without that,
+    // small scrolls around the observer's edge fired enter, leave, enter,
+    // and each one dropped the figure back to zero and started again.
+    let armed = true;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!entry) return;
-        if (entry.isIntersecting) run();
-        else {
+        if (entry.isIntersecting) {
+          if (armed) {
+            armed = false;
+            run();
+          }
+          return;
+        }
+        const r = entry.boundingClientRect;
+        if (r.bottom <= 0 || r.top >= window.innerHeight) {
+          armed = true;
           stop();
           setCounting(null);
         }
@@ -168,6 +184,8 @@ export function useCountUp(value: string, motion: boolean) {
     return () => {
       io.disconnect();
       stop();
+      // a count cut off by a motion toggle must not reappear half-finished
+      setCounting(null);
     };
   }, [value, motion]);
 
@@ -184,15 +202,33 @@ export function useCountUp(value: string, motion: boolean) {
 export function usePointerSheen(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return;
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType !== 'mouse') return;
-      const panel = (e.target as Element | null)?.closest<HTMLElement>('.glass');
+    let raf = 0;
+    let last: PointerEvent | null = null;
+
+    // At most once a frame: pointer events arrive at up to 240Hz, and reading
+    // a rect straight after the previous event's style write forced a layout
+    // on every one of them.
+    const apply = () => {
+      raf = 0;
+      const e = last;
+      if (!e) return;
+      // the panel, not a glass pill inside it: a chip or button under the
+      // pointer would otherwise freeze the sheen of the card around it
+      const panel = (e.target as Element | null)?.closest<HTMLElement>('.glass:not(.glass-pill)');
       if (!panel) return;
       const r = panel.getBoundingClientRect();
       panel.style.setProperty('--mx', `${e.clientX - r.left}px`);
       panel.style.setProperty('--my', `${e.clientY - r.top}px`);
     };
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return;
+      last = e;
+      if (!raf) raf = requestAnimationFrame(apply);
+    };
     window.addEventListener('pointermove', onMove, { passive: true });
-    return () => window.removeEventListener('pointermove', onMove);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('pointermove', onMove);
+    };
   }, [enabled]);
 }

@@ -86,6 +86,12 @@ export interface Project {
   year: string;
   link: string;
   image: string;
+  /**
+   * Listed first on the glass site, and first in line when a card has to go
+   * wide to fill out the last row of the grid. It does not make a card wide
+   * on its own: the grid widens only as many cards as it needs to leave no
+   * gaps, so with a multiple of three projects every card is the same size.
+   */
   highlight: boolean;
   /** block colour for the chest slot */
   color: string;
