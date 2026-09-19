@@ -2,7 +2,8 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, Pause, Phone, Sparkles } from 'lucide-react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { useCountUp, useMotion, usePointerSheen, useReveal } from './motion';
+import { useCountUp, useMotion, useReveal } from './motion';
+import { useCursorFx } from './cursorFx';
 import { useGitHub } from './github';
 import { GrassCube } from './GrassBlock';
 import Work from './Work';
@@ -37,6 +38,8 @@ function Backdrop() {
       {BLOBS.map((style, i) => (
         <div key={i} className="g-blob" style={style} />
       ))}
+      {/* the light that trails the pointer behind the glass; see cursorFx */}
+      <div className="g-glow" />
       <div className="g-grain" />
     </div>
   );
@@ -112,6 +115,7 @@ function Nav({ name, motion, toggleMotion }: { name: string; motion: boolean; to
             <li key={href}>
               <a
                 href={href}
+                data-magnet
                 className="rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--g-soft)] transition-colors hover:bg-white/10 hover:text-[color:var(--g-ink)]"
               >
                 {label}
@@ -121,6 +125,7 @@ function Nav({ name, motion, toggleMotion }: { name: string; motion: boolean; to
         </ul>
         <button
           type="button"
+          data-magnet
           onClick={toggleMotion}
           aria-pressed={motion}
           className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-[color:var(--g-soft)] transition-colors hover:bg-white/10 hover:text-[color:var(--g-ink)]"
@@ -131,6 +136,7 @@ function Nav({ name, motion, toggleMotion }: { name: string; motion: boolean; to
         </button>
         <a
           href="/minecraft"
+          data-magnet
           className="grid h-10 w-10 place-items-center rounded-full bg-white/10"
           title="Play the Minecraft version"
         >
@@ -190,7 +196,7 @@ export default function GlassApp() {
   const { profile, game, experience, skills, education, services, projects } = usePortfolio();
   const [motion, toggleMotion] = useMotion();
   const fine = useMediaQuery('(pointer: fine) and (hover: hover)');
-  usePointerSheen(motion && fine);
+  useCursorFx(motion && fine);
   const github = useGitHub();
   useScrollVars();
   // rescan once GitHub data lands, so cards it adds are revealed too
@@ -215,29 +221,32 @@ export default function GlassApp() {
 
       <main id="top" className="relative z-10">
         {/* ------------------------------------------------ hero */}
-        <section className="mx-auto flex min-h-[100svh] max-w-5xl flex-col items-center justify-center px-4 pb-16 pt-32 text-center">
+        <section className="g-hero mx-auto flex min-h-[100svh] max-w-5xl flex-col items-center justify-center px-4 pb-16 pt-32 text-center">
           <div className="flex flex-col items-center">
             {openTo && (
-              <p className="reveal glass glass-pill inline-flex items-center gap-2.5 px-4 py-2 text-sm font-medium">
+              <p
+                className="g-depth reveal glass glass-pill inline-flex items-center gap-2.5 px-4 py-2 text-sm font-medium"
+                style={{ '--dz': '10px' } as CSSProperties}
+              >
                 <span className="g-live-dot" aria-hidden />
                 {openTo}
               </p>
             )}
             <h1
-              className="g-display reveal mt-6 text-[clamp(3rem,9vw,6.5rem)] font-extrabold leading-[0.95]"
-              style={{ '--d': '80ms' } as CSSProperties}
+              className="g-depth g-display reveal mt-6 text-[clamp(3rem,9vw,6.5rem)] font-extrabold leading-[0.95]"
+              style={{ '--d': '80ms', '--dz': '34px' } as CSSProperties}
             >
               {profile.name}
             </h1>
             <p
-              className="g-display reveal mt-5 text-[clamp(1.6rem,3.6vw,2.6rem)] font-semibold leading-tight"
-              style={{ '--d': '160ms' } as CSSProperties}
+              className="g-depth g-display reveal mt-5 text-[clamp(1.6rem,3.6vw,2.6rem)] font-semibold leading-tight"
+              style={{ '--d': '160ms', '--dz': '20px' } as CSSProperties}
             >
               {taglineWords.join(' ')} <span className="g-gradient-text">{lastWord}.</span>
             </p>
             <p
-              className="reveal mt-5 max-w-2xl text-lg text-[color:var(--g-soft)]"
-              style={{ '--d': '240ms' } as CSSProperties}
+              className="g-depth reveal mt-5 max-w-2xl text-lg text-[color:var(--g-soft)]"
+              style={{ '--d': '240ms', '--dz': '12px' } as CSSProperties}
             >
               {profile.role}. {profile.specialization.replace(/\s*·\s*/g, ', ')}.
             </p>

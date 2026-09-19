@@ -95,8 +95,12 @@ html[data-mode='glass'] section[id] {
    half of the page sat on flat colour with nothing for the glass to bend.
    Progress caps the shift at about 100 to 240px however long the page is. */
 html[data-motion='on'] .g-blob {
-  translate: 0 calc(var(--progress, 0) * var(--depth, 0.1) * -1200px);
-  /* --progress is set on .g-backdrop, not on <html>: see useScrollVars */
+  /* --progress is set on .g-backdrop, not on <html>: see useScrollVars.
+     --cx/--cy (the pointer, -0.5 to 0.5) come from cursorFx. */
+  translate:
+    calc(var(--cx, 0) * var(--depth, 0.1) * 500px)
+    calc(var(--progress, 0) * var(--depth, 0.1) * -1200px + var(--cy, 0) * var(--depth, 0.1) * 400px);
+  transition: translate 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
   animation: g-drift var(--dur, 22s) ease-in-out infinite alternate;
 }
 
@@ -220,13 +224,19 @@ html[data-motion='on'] .g-live-dot {
    felt choppy: filters repaint every frame, transforms and opacity do not. */
 html[data-motion='on'] .reveal:not(.in) {
   opacity: 0;
-  transform: translateY(28px);
+  translate: 0 28px;
 }
 
+/* The entrance uses the `translate` property and leaves `transform` alone,
+   because the cursor tilt and the hero parallax both drive transform on the
+   same elements; sharing one property, each would have overwritten the other.
+   Transform is listed here as well so a tilted card eases back when the
+   pointer leaves instead of snapping flat. */
 html[data-motion='on'] .reveal {
   transition:
     opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
-    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms);
+    translate 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
+    transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 /* ---------------------------------------------------------- progress */
@@ -313,4 +323,76 @@ html[data-motion='on'] .reveal:not(.in) .g-bar {
 
 html[data-motion='on'] .reveal .g-bar {
   transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) var(--bd, 0ms);
+}
+
+/* ---------------------------------------------------------- cursor
+   See cursorFx.ts. Nothing here draws a cursor; these are the things the
+   cursor moves. */
+
+/* a soft light that trails the pointer, behind the glass */
+.g-glow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 620px;
+  height: 620px;
+  margin: -310px 0 0 -310px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    rgba(139, 108, 255, 0.55) 0%,
+    rgba(58, 216, 255, 0.28) 35%,
+    rgba(255, 92, 168, 0.12) 55%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  transition: opacity 0.5s ease;
+  will-change: transform;
+}
+
+html[data-motion='on'] .g-glow.on {
+  opacity: 1;
+}
+
+/* the hero's lines sit at different depths and drift with the mouse */
+html[data-motion='on'] .g-hero .g-depth {
+  transform: translate(calc(var(--cx, 0) * var(--dz, 0px) * -1), calc(var(--cy, 0) * var(--dz, 0px) * -1));
+}
+
+/* magnetic nav items ease back when released; colour transitions kept */
+[data-magnet] {
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* a ripple across whatever glass was pressed, under its content */
+.g-ripple-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.g-ripple {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 70%);
+  transform: scale(0);
+  animation: g-ripple 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+@keyframes g-ripple {
+  to {
+    transform: scale(var(--rs, 30));
+    opacity: 0;
+  }
 }
