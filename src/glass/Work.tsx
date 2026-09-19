@@ -45,7 +45,7 @@ function ProjectCard({ p, repo, delay }: { p: Project; repo?: Repo; delay: numbe
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm">
         <span className="text-[color:var(--g-faint)]">
-          {p.link ? (updated ? `Updated ${updated} on GitHub` : `${p.year}`) : 'Private repository'}
+          {updated ? `Updated ${updated} on GitHub` : p.year}
         </span>
         {p.link ? (
           <a

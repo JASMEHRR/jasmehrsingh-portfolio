@@ -52,8 +52,12 @@ export default function LinkedIn({ profile }: { profile: Profile }) {
         s.onerror = () => setBadge('failed');
         document.body.appendChild(s);
       }
+      // LinkedIn's v1 badge writes ordinary markup into the div rather than an
+      // iframe, so success is "the div has content", not "an iframe exists"
       timer = window.setTimeout(() => {
-        setBadge(el.querySelector('iframe') ? 'shown' : 'failed');
+        const badgeEl = el.querySelector('.LI-profile-badge');
+        const rendered = Boolean(badgeEl && badgeEl.childElementCount > 0) || Boolean(el.querySelector('iframe'));
+        setBadge(rendered ? 'shown' : 'failed');
       }, 7000);
     };
 

@@ -1,8 +1,9 @@
 import type { CSSProperties } from 'react';
 import { Github } from 'lucide-react';
-import { describe, timeAgo, GITHUB_USER, type Activity as Event, type GitHubData } from './github';
+import { describe, timeAgo, EVENTS_PAGE, GITHUB_USER, type Activity as Event, type GitHubData } from './github';
 
-const DAYS = 21;
+const MAX_DAYS = 21;
+const DAY_MS = 86400000;
 
 /** Local calendar day, so "today" matches the visitor's own clock. */
 function dayKey(d: Date): string {
@@ -37,9 +38,21 @@ export default function Activity({ github }: { github: GitHubData | null | undef
   const perDay = new Map<string, number>();
   const perRepo = new Map<string, number>();
   for (const e of events) {
-    perDay.set(dayKey(new Date(e.at)), (perDay.get(dayKey(new Date(e.at))) ?? 0) + 1);
+    const key = dayKey(new Date(e.at));
+    perDay.set(key, (perDay.get(key) ?? 0) + 1);
     if (e.repo) perRepo.set(e.repo, (perRepo.get(e.repo) ?? 0) + 1);
   }
+
+  // GitHub returns one page of events. When that page is full it may stop
+  // short of three weeks, and days before its oldest event would read as zero
+  // whether or not anything happened then, so the chart only claims the span
+  // the feed actually covers.
+  const oldest = Date.parse(events[events.length - 1].at);
+  const covered =
+    events.length >= EVENTS_PAGE && Number.isFinite(oldest)
+      ? Math.floor((now.getTime() - oldest) / DAY_MS) + 1
+      : MAX_DAYS;
+  const DAYS = Math.max(1, Math.min(MAX_DAYS, covered));
 
   const days = Array.from({ length: DAYS }, (_, i) => {
     const d = new Date(now);

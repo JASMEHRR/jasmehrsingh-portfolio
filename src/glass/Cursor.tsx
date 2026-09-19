@@ -34,11 +34,13 @@ export default function Cursor() {
       tx = e.clientX;
       ty = e.clientY;
       if (!seen) {
+        // jump to the first position rather than gliding in from the centre
         seen = true;
         x = tx;
         y = ty;
-        el.classList.remove('gone');
       }
+      // every move, not just the first: pointerleave hides it again
+      el.classList.remove('gone');
       const target = e.target as Element | null;
       el.classList.toggle('hot', Boolean(target?.closest('a, button, [role="button"]')));
 

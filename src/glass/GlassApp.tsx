@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, Pause, Phone, Sparkles } from 'lucide-react';
 import { usePortfolio } from '../hooks/usePortfolio';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { useCountUp, useMotion, useReveal } from './motion';
 import { useGitHub } from './github';
 import { GrassButton, GrassCube } from './GrassBlock';
@@ -66,17 +67,6 @@ function useScrollVars() {
       window.removeEventListener('resize', onScroll);
     };
   }, []);
-}
-
-function useFinePointer(): boolean {
-  const [fine, setFine] = useState(() => window.matchMedia('(pointer: fine) and (hover: hover)').matches);
-  useEffect(() => {
-    const mq = window.matchMedia('(pointer: fine) and (hover: hover)');
-    const sync = () => setFine(mq.matches);
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
-  }, []);
-  return fine;
 }
 
 function initials(name: string): string {
@@ -190,7 +180,7 @@ function CopyEmail({ email }: { email: string }) {
 export default function GlassApp() {
   const { profile, game, experience, skills, education, services, projects } = usePortfolio();
   const [motion, toggleMotion] = useMotion();
-  const fine = useFinePointer();
+  const fine = useMediaQuery('(pointer: fine) and (hover: hover)');
   const github = useGitHub();
   useScrollVars();
   // rescan once GitHub data lands, so cards it adds are revealed too

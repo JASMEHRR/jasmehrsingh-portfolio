@@ -19,6 +19,9 @@ export const GITHUB_USER = 'JASMEHRR';
 const CACHE_KEY = 'gh-cache-v1';
 const CACHE_MS = 10 * 60 * 1000;
 
+/** GitHub's largest page of events; a full page may not reach back as far as asked. */
+export const EVENTS_PAGE = 100;
+
 export interface Repo {
   name: string;
   url: string;
@@ -116,7 +119,7 @@ export async function loadGitHub(): Promise<GitHubData | null> {
   const base = `https://api.github.com/users/${GITHUB_USER}`;
   const [reposRes, eventsRes] = await Promise.allSettled([
     getJson(`${base}/repos?per_page=100&sort=pushed`),
-    getJson(`${base}/events/public?per_page=100`),
+    getJson(`${base}/events/public?per_page=${EVENTS_PAGE}`),
   ]);
 
   // repositories are the part the page needs; without them there is nothing

@@ -79,8 +79,6 @@ html[data-mode='glass'] section[id] {
   filter: blur(70px);
   opacity: 0.6;
   will-change: transform;
-  /* scroll parallax, fed by --scroll from GlassApp */
-  translate: 0 calc(var(--scroll, 0) * var(--depth, 0.1) * -1px);
 }
 
 .g-grain {
@@ -91,8 +89,28 @@ html[data-mode='glass'] section[id] {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
+/* Scroll parallax, only with motion on, and driven by scroll *progress*
+   rather than distance. Raw scroll distance on a 9,000px page pushed the
+   blobs 600 to 1,600px up, clean out of the fixed backdrop, so the lower
+   half of the page sat on flat colour with nothing for the glass to bend.
+   Progress caps the shift at about 100 to 240px however long the page is. */
 html[data-motion='on'] .g-blob {
+  translate: 0 calc(var(--progress, 0) * var(--depth, 0.1) * -1200px);
   animation: g-drift var(--dur, 22s) ease-in-out infinite alternate;
+}
+
+/* On a phone the drift is dropped and the blur softened: every glass panel
+   re-blurs its backdrop each frame the backdrop moves, and a handful of them
+   over constantly moving colour costs more battery than it returns. */
+@media (pointer: coarse), (max-width: 768px) {
+  html[data-motion='on'] .g-blob {
+    animation: none;
+  }
+
+  .glass {
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+  }
 }
 
 @keyframes g-drift {

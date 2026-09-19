@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 const KEY = 'glass-motion';
 
@@ -34,7 +34,10 @@ export function useMotion(): [boolean, () => void] {
     return stored ? stored === 'on' : !systemPrefersReduced();
   });
 
-  useEffect(() => {
+  // A layout effect, so the attribute is in place before the first paint.
+  // Set after it, the hero painted visible, was then hidden by the reveal
+  // rule, and faded back in: a flash on every load.
+  useLayoutEffect(() => {
     document.documentElement.dataset.motion = on ? 'on' : 'off';
   }, [on]);
 

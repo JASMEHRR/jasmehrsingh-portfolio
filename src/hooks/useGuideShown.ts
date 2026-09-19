@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { use3DWorld } from './use3DWorld';
+import { useMediaQuery } from './useMediaQuery';
 
 const QUERY = '(min-width: 1280px)';
 
@@ -17,15 +17,6 @@ const QUERY = '(min-width: 1280px)';
  */
 export function useGuideShown(): boolean {
   const in3D = use3DWorld();
-  const [wide, setWide] = useState(() => window.matchMedia(QUERY).matches);
-
-  useEffect(() => {
-    const mq = window.matchMedia(QUERY);
-    const sync = () => setWide(mq.matches);
-    sync();
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
-  }, []);
-
+  const wide = useMediaQuery(QUERY);
   return wide && in3D;
 }
