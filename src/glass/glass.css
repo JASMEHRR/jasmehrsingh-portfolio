@@ -113,9 +113,10 @@ html[data-motion='on'] .g-blob {
     animation: none;
   }
 
+  /* lighter than desktop's 12px: the weakest devices get the cheapest blur */
   .glass {
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
-    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(9px) saturate(160%);
+    backdrop-filter: blur(9px) saturate(160%);
   }
 }
 

@@ -179,10 +179,11 @@ export function useCountUp(value: string, motion: boolean) {
           setCounting(null);
         }
       },
-      // the same margin as useReveal, so the count starts at the moment the
-      // panel begins to fade in. Any later and the panel would appear showing
-      // its final figure, then drop to zero and count up: a visible flash.
-      { rootMargin: '0px 0px 12% 0px', threshold: 0 },
+      // The first visible pixel. The panel has already faded in (useReveal
+      // starts 12% below the screen), and the count drops to zero in the same
+      // frame the stat appears, so there is no flash of the final figure; any
+      // earlier and a slow scroll would finish the count off screen.
+      { rootMargin: '0px', threshold: 0 },
     );
     io.observe(el);
     return () => {
