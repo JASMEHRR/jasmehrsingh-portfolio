@@ -134,14 +134,52 @@ html[data-motion='on'] .g-blob {
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.035) 55%),
     rgba(16, 13, 38, 0.42);
-  -webkit-backdrop-filter: blur(22px) saturate(170%);
-  backdrop-filter: blur(22px) saturate(170%);
+  /* clearer than frosted glass; liquidLens.ts adds real refraction on top
+     of this in Chromium, and this is what every other engine shows */
+  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.06);
+  backdrop-filter: blur(16px) saturate(180%) brightness(1.06);
   border: 1px solid var(--g-line);
   border-radius: 28px;
+  /* Thickness: a lit top edge, a soft inner glow under it, and the lower
+     inside falling into shade, which is what makes a flat panel read as a
+     slab of glass with depth. --shadow-c lets a card tint its drop shadow. */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.32),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    0 24px 60px -28px rgba(0, 0, 0, 0.75);
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 14px 28px -16px rgba(255, 255, 255, 0.22),
+    inset 0 -22px 36px -22px rgba(0, 0, 0, 0.4),
+    0 24px 60px -28px var(--shadow-c, rgba(0, 0, 0, 0.75));
+}
+
+/* The rim. A one-pixel ring masked out of a gradient: bright along the top
+   left like light catching a curved edge, faint down the sides, and a hot
+   spot that slides round the rim toward the pointer (--mx/--my, from
+   cursorFx). This edge light is most of what separates liquid glass from a
+   translucent box. */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background:
+    radial-gradient(200px circle at var(--mx, 22%) var(--my, 0%), rgba(255, 255, 255, 0.95), transparent 70%),
+    linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.62),
+      rgba(255, 255, 255, 0.1) 30%,
+      rgba(255, 255, 255, 0.04) 62%,
+      rgba(255, 255, 255, 0.34)
+    );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
 }
 
 .glass::after {
@@ -170,7 +208,19 @@ html[data-motion='on'] .g-blob {
 
 a.glass,
 button.glass {
-  transition: transform 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    scale 0.45s cubic-bezier(0.3, 1.8, 0.45, 1),
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+/* Pressing glass squashes it and it springs back past its size before
+   settling, the way a drop of liquid would. Uses `scale`, not `transform`,
+   so it stacks with the magnet's pull instead of cancelling it. */
+html[data-motion='on'] :is(a.glass, button.glass, [data-magnet]):active {
+  scale: 0.93;
+  transition-duration: 0.08s;
 }
 
 a.glass:hover,
@@ -365,6 +415,7 @@ html[data-motion='on'] .g-hero .g-depth {
 [data-magnet] {
   transition:
     transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
+    scale 0.45s cubic-bezier(0.3, 1.8, 0.45, 1),
     color 0.2s ease,
     background-color 0.2s ease,
     border-color 0.2s ease,
@@ -398,4 +449,73 @@ html[data-motion='on'] .g-hero .g-depth {
     transform: scale(var(--rs, 30));
     opacity: 0;
   }
+}
+
+/* ---------------------------------------------------------- liquid nav
+   A glass highlight that slides between nav links on a spring, overshooting
+   and settling, so it moves like a bead of liquid rather than a box. */
+.g-nav-blob {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  z-index: 0;
+  width: var(--w, 0px);
+  height: 36px;
+  margin-top: -18px;
+  translate: var(--x, 0px) 0;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    0 4px 14px -6px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.2s ease;
+}
+
+.g-nav-blob.on {
+  opacity: 1;
+}
+
+html[data-motion='on'] .g-nav-blob {
+  transition:
+    translate 0.55s cubic-bezier(0.3, 1.55, 0.45, 1),
+    width 0.55s cubic-bezier(0.3, 1.55, 0.45, 1),
+    opacity 0.2s ease;
+}
+
+/* ---------------------------------------------------------- liquid cursor
+   See LiquidCursor.tsx. The refraction itself is the #g-drop filter; this is
+   the droplet's rim light and shadow. */
+.g-drop {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 70;
+  border-radius: 50%;
+  pointer-events: none;
+  backdrop-filter: url(#g-drop) brightness(1.12) saturate(1.35);
+  box-shadow:
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.85),
+    inset 0 -3px 6px rgba(255, 255, 255, 0.22),
+    inset 0 0 14px rgba(255, 255, 255, 0.12),
+    0 8px 22px -8px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.25s ease;
+  will-change: transform;
+}
+
+/* the specular glint, counter-rotated so it stays top left however the
+   droplet is stretched and turned */
+.g-drop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  rotate: calc(var(--a, 0rad) * -1);
+  background: radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 34%);
+}
+
+.g-drop.gone {
+  opacity: 0;
 }

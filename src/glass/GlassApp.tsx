@@ -1,9 +1,11 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type SyntheticEvent } from 'react';
 import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, Pause, Phone, Sparkles } from 'lucide-react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { useCountUp, useMotion, useReveal } from './motion';
 import { useCursorFx } from './cursorFx';
+import { CHROMIUM, useLiquidLens } from './liquidLens';
+import LiquidCursor from './LiquidCursor';
 import { useGitHub } from './github';
 import { GrassCube } from './GrassBlock';
 import Work from './Work';
@@ -91,6 +93,18 @@ function initials(name: string): string {
 }
 
 function Nav({ name, motion, toggleMotion }: { name: string; motion: boolean; toggleMotion: () => void }) {
+  // the glass bead that springs between links; positioned from the hovered
+  // link's own offsets, so it needs no state and causes no re-render
+  const blob = useRef<HTMLSpanElement>(null);
+  const moveTo = (e: SyntheticEvent<HTMLAnchorElement>) => {
+    const a = e.currentTarget;
+    const b = blob.current;
+    if (!b) return;
+    b.style.setProperty('--x', `${a.offsetLeft}px`);
+    b.style.setProperty('--w', `${a.offsetWidth}px`);
+    b.classList.add('on');
+  };
+  const hide = () => blob.current?.classList.remove('on');
   const links = [
     ['Work', '#work'],
     ['Journey', '#journey'],
@@ -101,6 +115,7 @@ function Nav({ name, motion, toggleMotion }: { name: string; motion: boolean; to
     <header className="fixed inset-x-0 top-4 z-50 flex justify-center px-3">
       <nav
         aria-label="Main"
+        data-lens
         className="glass glass-pill flex items-center gap-1 py-1.5 pl-1.5 pr-1.5 sm:gap-2"
       >
         <a
@@ -110,13 +125,17 @@ function Nav({ name, motion, toggleMotion }: { name: string; motion: boolean; to
         >
           {initials(name)}
         </a>
-        <ul className="hidden items-center sm:flex">
+        <ul className="relative hidden items-center sm:flex" onMouseLeave={hide}>
+          <span ref={blob} className="g-nav-blob" aria-hidden />
           {links.map(([label, href]) => (
             <li key={href}>
               <a
                 href={href}
                 data-magnet
-                className="rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--g-soft)] transition-colors hover:bg-white/10 hover:text-[color:var(--g-ink)]"
+                onMouseEnter={moveTo}
+                onFocus={moveTo}
+                onBlur={hide}
+                className="relative z-[1] inline-block rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--g-soft)] transition-colors hover:text-[color:var(--g-ink)]"
               >
                 {label}
               </a>
@@ -199,8 +218,10 @@ export default function GlassApp() {
   useCursorFx(motion && fine);
   const github = useGitHub();
   useScrollVars();
-  // rescan once GitHub data lands, so cards it adds are revealed too
+  // rescan once GitHub data lands, so the cards it adds are revealed and
+  // given their lens too
   useReveal(github);
+  useLiquidLens(github);
 
   const openTo = game.openTo ? `Open to ${game.openTo.charAt(0).toLowerCase()}${game.openTo.slice(1)}` : '';
   const taglineWords = profile.tagline.replace(/\.$/, '').split(' ');
@@ -211,6 +232,7 @@ export default function GlassApp() {
     <>
       <Backdrop />
       <div className="g-progress" aria-hidden />
+      {motion && fine && CHROMIUM && <LiquidCursor />}
       <a
         href="#top"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-20 focus:z-[80] focus:rounded-full focus:bg-black focus:px-4 focus:py-2"
@@ -225,6 +247,7 @@ export default function GlassApp() {
           <div className="flex flex-col items-center">
             {openTo && (
               <p
+                data-lens
                 className="g-depth reveal glass glass-pill inline-flex items-center gap-2.5 px-4 py-2 text-sm font-medium"
                 style={{ '--dz': '10px' } as CSSProperties}
               >
@@ -256,6 +279,7 @@ export default function GlassApp() {
                   href={social.linkedin}
                   target="_blank"
                   rel="noreferrer"
+                  data-lens
                   className="glass glass-pill inline-flex items-center gap-2 px-5 py-3 font-semibold"
                 >
                   <Linkedin size={18} aria-hidden /> LinkedIn
@@ -266,6 +290,7 @@ export default function GlassApp() {
                   href={social.github}
                   target="_blank"
                   rel="noreferrer"
+                  data-lens
                   className="glass glass-pill inline-flex items-center gap-2 px-5 py-3 font-semibold"
                 >
                   <Github size={18} aria-hidden /> GitHub
@@ -274,6 +299,7 @@ export default function GlassApp() {
               {social.email && (
                 <a
                   href={`mailto:${social.email}`}
+                  data-lens
                   className="glass glass-pill inline-flex items-center gap-2 px-5 py-3 font-semibold"
                 >
                   <Mail size={18} aria-hidden /> Email me

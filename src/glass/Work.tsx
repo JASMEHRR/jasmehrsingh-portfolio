@@ -17,7 +17,9 @@ function ProjectCard({ p, repo, delay, span }: { p: Project; repo?: Repo; delay:
   return (
     <article
       className={`glass reveal flex flex-col p-6 sm:p-7 ${span}`}
-      style={{ '--d': `${delay}ms`, boxShadow: `inset 0 1px 0 rgba(255,255,255,.3), 0 30px 70px -40px ${p.color}` } as CSSProperties}
+      // tints the glass's drop shadow with the project's colour; the rim and
+      // thickness shading come from .glass and are no longer overwritten here
+      style={{ '--d': `${delay}ms`, '--shadow-c': `${p.color}99` } as CSSProperties}
     >
       <div className="flex items-start justify-between gap-4">
         <div>
