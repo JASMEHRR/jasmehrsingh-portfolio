@@ -13,7 +13,6 @@ export interface Profile {
   tagline: string;
   role: string;
   specialization: string;
-  location: string;
   yearsOfExperience: string;
   bio: string;
   avatarSvg: string;
@@ -37,7 +36,8 @@ export interface Game {
   levelLabel: string;
   hearts: number;
   hunger: number;
-  spawn: string;
+  /** What kind of work he is open to. Never a place: no location on the site. */
+  openTo: string;
   status: string;
   splashes: string[];
   ores: Ore[];
@@ -70,7 +70,6 @@ export interface Experience {
   company: string;
   role: string;
   period: string;
-  location: string;
   summary: string;
   highlights: string[];
 }
@@ -101,7 +100,6 @@ export interface Education {
   institution: string;
   degree: string;
   period: string;
-  location: string;
   result: string;
 }
 

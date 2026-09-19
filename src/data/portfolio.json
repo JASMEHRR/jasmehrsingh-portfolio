@@ -5,7 +5,6 @@
     "tagline": "Marketer who actually builds.",
     "role": "Digital Marketing & AI Automation",
     "specialization": "Content · Growth · Brand Partnerships",
-    "location": "Chandigarh, India",
     "yearsOfExperience": "2+",
     "bio": "I run campaigns, content and brand partnerships by day, and ship AI tools with Claude Code by night. I have driven 1M+ views on short-form video I wrote and shot myself, grown owned channels to 10M+ Pinterest impressions, and founded two independent brands from zero. Currently pursuing an MBA at LM Thapar School of Management, specialising in Marketing.",
     "avatarSvg": "/avatar.png",
@@ -105,33 +104,30 @@
   "experience": [
     {
       "company": "ChainCode Consulting LLP",
-      "role": "Sales & Marketing Intern — MyMints",
-      "period": "Jan 2026 — Mar 2026",
-      "location": "Chandigarh",
+      "role": "Sales & Marketing Intern (MyMints)",
+      "period": "Jan 2026 to Mar 2026",
       "summary": "Launch-phase growth for MyMints, a hyperlocal commerce platform.",
       "highlights": [
         "Onboarded 10+ local vendor partners through field outreach and training during the platform's launch phase.",
         "Produced reels and digital content generating 1M+ combined views across partner locations.",
-        "Planned and executed three seasonal campaigns end-to-end — Ambassador Program, Valentine's Day, Holi."
+        "Planned and executed three seasonal campaigns end-to-end: Ambassador Program, Valentine's Day and Holi."
       ]
     },
     {
       "company": "Glood.co & PawHow.in",
       "role": "Founder",
-      "period": "Jan 2025 — Present",
-      "location": "Chandigarh / Remote",
+      "period": "Jan 2025 to Present",
       "summary": "Two independent ventures built and run from zero.",
       "highlights": [
-        "Launched Glood.co, a custom merchandise brand — 1,000+ units sold through campus stalls and online channels.",
-        "Built 3–4 cross-brand partnerships to expand distribution and audience reach.",
+        "Launched Glood.co, a custom merchandise brand, and sold 1,000+ units through campus stalls and online channels.",
+        "Built 3 to 4 cross-brand partnerships to expand distribution and audience reach.",
         "Founded PawHow.in, a pet-products content and affiliate platform; grew owned channels to 10M+ Pinterest impressions."
       ]
     },
     {
       "company": "Ecolution Club, Chitkara University",
       "role": "Event Coordinator Head",
-      "period": "Apr 2025 — Mar 2026",
-      "location": "Rajpura",
+      "period": "Apr 2025 to Mar 2026",
       "summary": "Owned communications and event delivery for the university sustainability club.",
       "highlights": [
         "Coordinated sustainability programmes across the university community.",
@@ -142,8 +138,7 @@
     {
       "company": "Contensify",
       "role": "Marketing Intern",
-      "period": "Jun 2025 — Jul 2025",
-      "location": "Remote",
+      "period": "Jun 2025 to Jul 2025",
       "summary": "Content and social ownership for a SaaS content platform.",
       "highlights": [
         "Owned the company LinkedIn page and produced content for a brand-awareness campaign that lifted engagement.",
@@ -153,8 +148,7 @@
     {
       "company": "Piccolo Events & Agahi Events",
       "role": "On-Ground Operations Head",
-      "period": "Jun 2023 — Jun 2025",
-      "location": "Chandigarh · Haridwar · Dehradun · Ludhiana",
+      "period": "Jun 2023 to Jun 2025",
       "summary": "Multi-city event operations for large student debate circuits.",
       "highlights": [
         "Delivered multi-day debate events reaching 1,500+ students across four cities.",
@@ -163,10 +157,9 @@
       ]
     },
     {
-      "company": "Mount'EM — JA Student Company Program",
+      "company": "Mount'EM (JA Student Company Program)",
       "role": "Marketing & Sales Manager",
-      "period": "2021 — 2022",
-      "location": "Mohali",
+      "period": "2021 to 2022",
       "summary": "School entrepreneurship programme running a real product line.",
       "highlights": [
         "Handled marketing and door-to-door sales for a wall-mount product line.",
@@ -197,14 +190,30 @@
       "icon": "/tex/item_netherite.png"
     },
     {
+      "id": "agent-os",
+      "title": "Agent OS",
+      "subtitle": "Governed agent platform",
+      "description": "A platform for running AI agents under explicit rules, with Post Studio for drafting content in my own voice. Covered by 1,800+ automated tests. Private repository.",
+      "stack": [],
+      "role": "Product direction, testing, iteration",
+      "year": "2026",
+      "link": "",
+      "image": "",
+      "highlight": true,
+      "color": "#b06cf7",
+      "rarity": "legendary",
+      "material": "Amethyst",
+      "icon": "/tex/item_amethyst.png"
+    },
+    {
       "id": "ventureadda",
       "title": "Venture Adda",
-      "subtitle": "Startup & venture discovery platform",
-      "description": "A platform for discovering and tracking early-stage ventures. Currently in active development and private while the core loop is being built.",
+      "subtitle": "Student marketplace for campus ventures",
+      "description": "A marketplace for student-run ventures on campus. Each venture gets its own storefront, every product gets its own shareable page, and a moderated billboard features what is on offer. In active development.",
       "stack": [
         "TypeScript",
         "React",
-        "Supabase"
+        "Firebase"
       ],
       "role": "Founder, product direction",
       "year": "2026",
@@ -300,22 +309,19 @@
     {
       "institution": "LM Thapar School of Management, Thapar Institute of Engineering & Technology",
       "degree": "Master of Business Administration (MBA), Marketing",
-      "period": "2026 — 2028",
-      "location": "Patiala",
+      "period": "2026 to 2028",
       "result": ""
     },
     {
       "institution": "Chitkara University",
       "degree": "Bachelor of Business Administration (BBA), Digital Marketing",
-      "period": "2023 — 2026",
-      "location": "Rajpura",
+      "period": "2023 to 2026",
       "result": "CGPA 8.89 / 10"
     },
     {
       "institution": "Learning Paths School",
-      "degree": "Class XII, CBSE — Commerce with Informatics Practices",
+      "degree": "Class XII, CBSE (Commerce with Informatics Practices)",
       "period": "2023",
-      "location": "Mohali",
       "result": "70%"
     }
   ],
@@ -323,7 +329,7 @@
   "services": [
     {
       "title": "Content & Copywriting",
-      "body": "Short-form video scripts, landing copy, blog and social content built around hooks that actually hold attention — not filler written to fill a calendar.",
+      "body": "Short-form video scripts, landing copy, blog and social content built around hooks that actually hold attention, not filler written to fill a calendar.",
       "tags": [
         "Scripting",
         "Hooks",
@@ -341,7 +347,7 @@
     },
     {
       "title": "AI Automation",
-      "body": "Custom internal tools built with Claude Code — video repurposing pipelines, content dashboards, workflow automation. I direct the product; the AI writes the code.",
+      "body": "Custom internal tools built with Claude Code, video repurposing pipelines, content dashboards, workflow automation. I direct the product; the AI writes the code.",
       "tags": [
         "Claude Code",
         "Pipelines",
@@ -363,8 +369,8 @@
     "level": 2,
     "hearts": 10,
     "hunger": 9,
-    "spawn": "Chandigarh, India",
-    "status": "Online — open to work",
+    "openTo": "Remote and international roles",
+    "status": "Online and open to work",
     "splashes": [
       "Also try the normal site!",
       "Marketer who actually builds!",

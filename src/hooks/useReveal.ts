@@ -6,7 +6,7 @@ import { useEffect } from 'react';
  * Elements marked data-reveal start fully visible in the stylesheet. Only if
  * motion is welcome does this hook add the .reveal class that hides them,
  * then .in as each scrolls into view. So if JS never runs, or the reader
- * prefers reduced motion, the page is simply there — the failure mode is
+ * prefers reduced motion, the page is simply there, the failure mode is
  * "no animation", never "no content".
  */
 export function useReveal() {

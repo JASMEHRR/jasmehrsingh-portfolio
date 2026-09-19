@@ -29,7 +29,7 @@
   --ench-ink: #5b2d8f;   /* 5.5:1 purple, for text on the light panel */
   --deep: #0d0b14;
 
-  /* horizon line — every world layer positions itself from this */
+  /* horizon line, every world layer positions itself from this */
   --hz: 64%;
 
   /* biome palette, swapped by [data-biome] below */
@@ -69,7 +69,7 @@ body {
 section[id] { scroll-margin-top: 24px; }
 
 /* ============================================================
-   BIOMES — each section swaps the world beneath it
+   BIOMES, each section swaps the world beneath it
    ============================================================ */
 [data-biome='overworld'] {
   --ground: #6b3f1d;
@@ -110,7 +110,7 @@ section[id] { scroll-margin-top: 24px; }
 }
 
 /* ============================================================
-   WORLD — fixed parallax backdrop behind everything
+   WORLD, fixed parallax backdrop behind everything
    ============================================================ */
 .world {
   position: fixed;
@@ -194,7 +194,7 @@ section[id] { scroll-margin-top: 24px; }
   filter: drop-shadow(6px 10px 0 rgba(0, 0, 0, 0.18));
 }
 
-/* cherry grove — same silhouette, pink canopy */
+/* cherry grove, same silhouette, pink canopy */
 .w-cherry {
   top: calc(var(--hz) - 118px);
   height: 118px;
@@ -223,7 +223,7 @@ section[id] { scroll-margin-top: 24px; }
     url('/tex/dirt.png') repeat 0 0 / 48px 48px;
 }
 
-/* cave / stone mass — also the floor for enchant and craft biomes */
+/* cave / stone mass, also the floor for enchant and craft biomes */
 .w-stone {
   top: 0;
   bottom: 0;
@@ -255,7 +255,7 @@ section[id] { scroll-margin-top: 24px; }
 }
 @keyframes glint { 50% { filter: brightness(1.8); } }
 
-/* enchant biome — obsidian pillars and drifting glyphs */
+/* enchant biome, obsidian pillars and drifting glyphs */
 .w-ench {
   top: 0;
   bottom: 0;
@@ -282,7 +282,7 @@ section[id] { scroll-margin-top: 24px; }
 }
 @keyframes rise { to { transform: translateY(-46px); opacity: 0; } }
 
-/* workshop floor — oak planks, only lit for the crafting biome */
+/* workshop floor, oak planks, only lit for the crafting biome */
 .w-planks {
   top: calc(var(--hz) - 6px);
   bottom: 0;
@@ -292,7 +292,7 @@ section[id] { scroll-margin-top: 24px; }
     url('/tex/planks.png') repeat 0 0 / 48px 48px;
 }
 
-/* torch sprites — the stick, the flame, and the pool of light it throws */
+/* torch sprites, the stick, the flame, and the pool of light it throws */
 .w-torches {
   top: calc(var(--hz) - 30px);
   height: 30px;
@@ -405,7 +405,7 @@ section[id] { scroll-margin-top: 24px; }
 }
 .mc-xp > i { position: absolute; inset: 0 auto 0 0; background: var(--xp); transition: width 0.6s steps(10); }
 
-/* enchantment level bar — purple, notched into 5 */
+/* enchantment level bar, purple, notched into 5 */
 .mc-ench-bar {
   height: 14px;
   background: #241a35;

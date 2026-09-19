@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { usePointer } from '../hooks/usePointer';
-import { is3DWorld } from '../three/mode';
+import { useGuideShown } from '../hooks/useGuideShown';
 import { Panel, Hearts, XpBar } from './mc/Gui';
 
 /**
@@ -14,10 +14,14 @@ import { Panel, Hearts, XpBar } from './mc/Gui';
  */
 export default function HeroProfile() {
   const { profile, game } = usePortfolio();
-  // when the 3D world runs, the character is a real model standing in the
-  // scene, so the flat cut-out would be a second copy of him
-  const in3D = is3DWorld();
-  const [hasSkin, setHasSkin] = useState(Boolean(profile.avatarSvg) && !is3DWorld());
+  // The 3D guide stands beside the page from 1280px up; below that he is shown
+  // here as the flat avatar instead. One hook decides both, so he is never
+  // shown twice and never missing: before, the hero hid him whenever the world
+  // was 3D and the guide only appeared at 1280, and between 769 and 1279px he
+  // was nowhere at all.
+  const guideShown = useGuideShown();
+  const [imgFailed, setImgFailed] = useState(false);
+  const hasSkin = Boolean(profile.avatarSvg) && !guideShown && !imgFailed;
   const pointer = usePointer();
 
   // one random splash per load, like the title screen. Picked in a lazy
@@ -30,11 +34,14 @@ export default function HeroProfile() {
     <section
       id="home"
       data-biome="overworld"
-      className="relative z-10 flex min-h-[100svh] items-center overflow-hidden"
+      className="relative z-10 flex min-h-[100svh] flex-col justify-center overflow-hidden sm:flex-row sm:items-center"
     >
-      {/* ---------- the character, full height ---------- */}
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[62%] lg:w-[52%]">
-        {!in3D && <div
+      {/* ---------- the character, full height ----------
+          On a phone he is stacked above the text instead of standing behind
+          it: side by side, the panel took 64% of a 375px screen, every value
+          wrapped across three or four lines and he was half hidden under it. */}
+      <div className="pointer-events-none relative z-0 mt-16 h-[36svh] w-full shrink-0 sm:absolute sm:inset-y-0 sm:right-0 sm:mt-0 sm:h-auto sm:w-[62%] lg:w-[52%]">
+        {!guideShown && <div
           aria-hidden
           className="absolute bottom-[30%] left-1/2 h-[42vh] w-[42vh] -translate-x-1/2 rounded-full blur-3xl transition-transform duration-500 ease-out"
           style={{
@@ -50,7 +57,7 @@ export default function HeroProfile() {
           /* feet land on the horizon (--hz is 64%), so the character stands
              in the world rather than hovering over it */
           <div
-            className="absolute bottom-[34%] left-1/2 transition-transform duration-300 ease-out"
+            className="absolute bottom-0 left-1/2 transition-transform duration-300 ease-out sm:bottom-[34%]"
             style={{
               transform: `translate(calc(-50% + ${pointer.x * 22}px), ${pointer.y * 12}px)`,
             }}
@@ -58,11 +65,13 @@ export default function HeroProfile() {
             <img
               src={profile.avatarSvg}
               alt={`${profile.name}, rendered as a Minecraft character`}
-              onError={() => setHasSkin(false)}
-              className="mc-float h-[clamp(260px,54vh,620px)] w-auto max-w-none select-none"
+              onError={() => setImgFailed(true)}
+              className="mc-float h-[34svh] w-auto max-w-none select-none sm:h-[clamp(260px,54vh,620px)]"
               style={{
                 imageRendering: 'pixelated',
-                filter: 'drop-shadow(0 24px 0 rgba(0,0,0,.3))',
+                // soft and close: a hard shadow offset 24px straight down read as a
+                // ghostly second copy of him hanging below his feet
+                filter: 'drop-shadow(0 10px 14px rgba(0,0,0,.35))',
               }}
             />
           </div>
@@ -70,8 +79,8 @@ export default function HeroProfile() {
       </div>
 
       {/* ---------- identity + stats, over the top ---------- */}
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-24">
-        <div className="max-w-[min(560px,64%)]">
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-32 pt-6 sm:py-24">
+        <div className="sm:max-w-[min(560px,64%)]">
           <p
             className="mc-out mb-3 text-[color:var(--gold)]"
             style={{ fontFamily: 'var(--px)', fontSize: 10 }}
@@ -110,8 +119,8 @@ export default function HeroProfile() {
                 <dd className="text-[color:var(--ink)]">{game.className}</dd>
                 <dt className="text-[color:var(--ink-soft)]">{game.levelLabel}</dt>
                 <dd className="text-[color:var(--ink)]">{profile.yearsOfExperience}</dd>
-                <dt className="text-[color:var(--ink-soft)]">Spawn</dt>
-                <dd className="text-[color:var(--ink)]">{game.spawn}</dd>
+                <dt className="text-[color:var(--ink-soft)]">Open to</dt>
+                <dd className="text-[color:var(--ink)]">{game.openTo}</dd>
                 <dt className="text-[color:var(--ink-soft)]">Status</dt>
                 <dd className="text-[color:var(--ink)]">{game.status}</dd>
               </dl>

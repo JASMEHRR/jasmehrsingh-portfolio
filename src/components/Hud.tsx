@@ -15,7 +15,7 @@ const BIOME_LABEL: Record<string, string> = {
  * the right.
  *
  * The hearts used to live here and made the top of the page look busy without
- * saying anything — health is a decorative stat, so it belongs in the profile
+ * saying anything, health is a decorative stat, so it belongs in the profile
  * panel where it is read once, not pinned over every section. What stays is
  * the one readout that earns its place: the bar doubles as scroll progress.
  */

@@ -23,7 +23,7 @@ function read(): Portfolio {
     // opinion about them.
     return { ...base, ...over, game: { ...base.game, ...(over.game ?? {}) } };
   } catch {
-    // private mode, blocked storage, or malformed JSON — fall back to the file
+    // private mode, blocked storage, or malformed JSON, fall back to the file
     return base;
   }
 }
@@ -31,7 +31,7 @@ function read(): Portfolio {
 /**
  * Typed access to the content layer.
  *
- * Components must never hardcode profile, experience, project or stat copy —
+ * Components must never hardcode profile, experience, project or stat copy -
  * everything comes through here so a design pivot only touches JSON.
  *
  * /edit writes a draft into localStorage; if one is present it is layered over

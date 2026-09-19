@@ -2,7 +2,7 @@
 Generate the block and item textures for the site.
 
 These are original 16x16 pixel-art tiles drawn in the style of the game, not
-extracted game assets — the same approach the award-winning Minecraft folios
+extracted game assets, the same approach the award-winning Minecraft folios
 take, and the only one that is ours to ship.
 
 Run: python tools/make_textures.py
@@ -42,7 +42,7 @@ def blank(color=(0, 0, 0, 0)):
 
 
 def noisy(base, shades, seed, density=0.55):
-    """A flat colour speckled with darker and lighter cousins — the core of
+    """A flat colour speckled with darker and lighter cousins, the core of
     almost every stone-like block in the game."""
     rnd = random.Random(seed)
     px = blank(base)

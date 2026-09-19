@@ -94,9 +94,9 @@ export default function Editor() {
               onChange={(v) => set((d) => void (d.profile.yearsOfExperience = v))}
             />
             <Field
-              label="Spawn"
-              value={draft.game.spawn}
-              onChange={(v) => set((d) => void (d.game.spawn = v))}
+              label="Open to"
+              value={draft.game.openTo}
+              onChange={(v) => set((d) => void (d.game.openTo = v))}
             />
             <Field
               label="Tagline"

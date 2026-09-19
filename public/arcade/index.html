@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JasMehr Singh — Arcade Mode</title>
-<meta name="description" content="The arcade version of JasMehr Singh's portfolio. Hotbar navigation, chest-grid projects, enchantment-table skills. Press 1–9.">
+<title>JasMehr Singh, Arcade Mode</title>
+<meta name="description" content="The arcade version of JasMehr Singh's portfolio. Hotbar navigation, chest-grid projects, enchantment-table skills. Press 1 to 9.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -22,7 +22,7 @@ button{font-family:inherit}
 a{color:inherit;text-decoration:none}
 
 
-/* ================= WORLD v2 — lighting & atmosphere =================
+/* ================= WORLD v2, lighting & atmosphere =================
    Horizon is fixed at --hz. Every layer is positioned from it so nothing floats.
    Time-of-day is driven by JS through CSS variables (--sky1/--sky2/--sky3, --light,
    --warm, --sunx/--suny, --night). */
@@ -57,7 +57,7 @@ a{color:inherit;text-decoration:none}
 .flare{top:var(--suny);left:var(--sunx);right:auto;width:2px;height:2px;opacity:calc(.7 * var(--light));transition:top 1.5s,left 1.5s;
   box-shadow:120px 160px 0 14px rgba(255,255,255,.12),210px 280px 0 8px rgba(255,200,120,.16),330px 440px 0 22px rgba(255,255,255,.08),-90px 120px 0 6px rgba(255,255,255,.1)}
 
-/* clouds — clustered blocks, soft shadowed */
+/* clouds, clustered blocks, soft shadowed */
 .clouds,.clouds2{top:7%;height:200px;opacity:.95}
 .clouds{background:
    linear-gradient(#fff,#fff) 3% 26px/150px 22px no-repeat,linear-gradient(#fff,#fff) calc(3% + 22px) 8px/90px 22px no-repeat,linear-gradient(#fff,#fff) calc(3% + 48px) -8px/46px 20px no-repeat,
@@ -69,7 +69,7 @@ a{color:inherit;text-decoration:none}
   filter:brightness(var(--light));animation:drift 160s linear infinite reverse}
 @keyframes drift{to{transform:translateX(-260px)}}
 
-/* far mountains — hazed by fog */
+/* far mountains, hazed by fog */
 .mtn{top:calc(var(--hz) - 30%);height:30%;
   background:
    linear-gradient(#4a5f92,#4a5f92) 0 100%/18% 34% no-repeat,linear-gradient(#4a5f92,#4a5f92) 8% 100%/22% 66% no-repeat,
@@ -86,7 +86,7 @@ a{color:inherit;text-decoration:none}
    linear-gradient(#3d5a3a,#3d5a3a) 50% 100%/28% 70% no-repeat,linear-gradient(#3d5a3a,#3d5a3a) 72% 100%/34% 90% no-repeat;
   filter:brightness(var(--light))}
 
-/* trees — 3-tier canopy, sitting exactly on the grass line */
+/* trees, 3-tier canopy, sitting exactly on the grass line */
 .trees{top:calc(var(--hz) - 120px);height:120px;
   background:
    /* trunks */
@@ -128,7 +128,7 @@ a{color:inherit;text-decoration:none}
   animation:glint 4s steps(2) infinite}
 @keyframes glint{50%{filter:brightness(1.7)}}
 
-/* water — inset into the grass, reflects the sky, animated specular */
+/* water, inset into the grass, reflects the sky, animated specular */
 .water{top:calc(var(--hz) - 2px);left:60%;right:12%;height:34px;
   background:
    repeating-linear-gradient(90deg,rgba(255,255,255,.45) 0 10px,transparent 10px 26px) 0 4px/100% 3px no-repeat,
@@ -364,16 +364,16 @@ a{color:inherit;text-decoration:none}
         <button class="mcbtn small" id="mineBtn" style="flex:1">Mine (M)</button>
       </div>
     </div>
-    <p class="sub" style="margin-top:22px;font-size:8px;color:#cfd8ff">Press 1–9, arrows or scroll to move · F3 for debug · M to mine</p>
+    <p class="sub" style="margin-top:22px;font-size:8px;color:#cfd8ff">Press 1 to 9, arrows or scroll to move · F3 for debug · M to mine</p>
   </section>
 
   <section class="screen" data-screen="2">
     <div class="book">
       <h2>Player Profile</h2>
-      <p>I've spent two years coordinating campaigns, events and brand partnerships for student organisations and early-stage teams — ChainCode Consulting, MyMints, Contensify — handling cold outreach, event activations, B2B content and vendor partnerships end-to-end.</p>
+      <p>I've spent two years coordinating campaigns, events and brand partnerships for student organisations and early-stage teams (ChainCode Consulting, MyMints, Contensify), handling cold outreach, event activations, B2B content and vendor partnerships end-to-end.</p>
       <p>I founded two ventures, Glood.co and PawHow.in, and ran operations for multi-day events reaching 1,500+ students across four cities.</p>
-      <p>At night I build. With Claude Code I've directed and shipped AI tools — video repurposing, life-management dashboards, habit games. Claude Code does the heavy lifting on code; my job is product direction, testing and iteration.</p>
-      <p>Currently: MBA at LM Thapar School of Management, specialising in Marketing. Based in Chandigarh, India.</p>
+      <p>At night I build. With Claude Code I've directed and shipped AI tools: video repurposing, life-management dashboards, habit games. Claude Code does the heavy lifting on code; my job is product direction, testing and iteration.</p>
+      <p>Currently: MBA at LM Thapar School of Management, specialising in Marketing.</p>
       <span class="pg">Page 1 of 1</span>
     </div>
   </section>
@@ -439,7 +439,7 @@ a{color:inherit;text-decoration:none}
       <button class="mcbtn" data-go="1">Back to spawn</button>
       <button class="mcbtn" id="mineBtn2">Mine (M)</button>
     </div>
-    <p style="margin-top:26px;font-size:7px;color:#bbb">Built with Claude Code. Original pixel art. Inspired by sandbox-game interfaces — not affiliated with Mojang, Microsoft or Minecraft.</p>
+    <p style="margin-top:26px;font-size:7px;color:#bbb">Built with Claude Code. Original pixel art. Inspired by sandbox-game interfaces, not affiliated with Mojang, Microsoft or Minecraft.</p>
   </section>
 
 </main>
@@ -452,7 +452,7 @@ a{color:inherit;text-decoration:none}
 
 <div class="mine" id="mine" role="dialog" aria-label="Ore mining minigame">
   <div class="box">
-    <h3>Mine! Click blocks — ores take 3 hits.</h3>
+    <h3>Mine! Click blocks, ores take 3 hits.</h3>
     <div class="stat"><span id="mTime">20s</span><span id="mScore">0 pts</span><span id="mBest">Best 0</span></div>
     <div class="ores" id="ores"></div>
     <div class="row" style="margin-top:12px"><button class="mcbtn small" id="mRestart">Restart</button><button class="mcbtn small" id="mClose">Close (Esc)</button></div>
@@ -507,18 +507,18 @@ a{color:inherit;text-decoration:none}
     'Design & Ops': [['Canva','V'],['Prezi','III'],['Notion','IV'],['MS Office','IV']]
   };
   var JOBS = [
-    { role:'Sales & Marketing Intern', org:'ChainCode Consulting LLP — MyMints', when:'Jan 2026 – Mar 2026', ins:['Field Outreach','Reels','Campaigns'], res:'10+ vendors onboarded · 1M+ views · 3 seasonal campaigns' },
-    { role:'Founder', org:'Glood.co & PawHow.in', when:'Jan 2025 – Present', ins:['Brand','Content','Partners'], res:'1,000+ units sold · 10M+ Pinterest impressions' },
-    { role:'Event Coordinator Head', org:'Ecolution Club, Chitkara University', when:'Apr 2025 – Mar 2026', ins:['Events','Templates','Comms'], res:'Promoted from Content Writer' },
-    { role:'Marketing Intern', org:'Contensify', when:'Jun 2025 – Jul 2025', ins:['LinkedIn','Content','Product'], res:'Owned company LinkedIn page' },
-    { role:'On-Ground Operations Head', org:'Piccolo & Agahi Events', when:'Jun 2023 – Jun 2025', ins:['Logistics','Sponsors','Staffing'], res:'1,500+ students · 4 cities' },
-    { role:'Marketing & Sales Manager', org:"Mount'EM — JA Student Company", when:'2021 – 2022', ins:['D2D Sales','Research','Strategy'], res:'School venture programme' }
+    { role:'Sales & Marketing Intern', org:'ChainCode Consulting LLP, MyMints', when:'Jan 2026 to Mar 2026', ins:['Field Outreach','Reels','Campaigns'], res:'10+ vendors onboarded · 1M+ views · 3 seasonal campaigns' },
+    { role:'Founder', org:'Glood.co & PawHow.in', when:'Jan 2025 to Present', ins:['Brand','Content','Partners'], res:'1,000+ units sold · 10M+ Pinterest impressions' },
+    { role:'Event Coordinator Head', org:'Ecolution Club, Chitkara University', when:'Apr 2025 to Mar 2026', ins:['Events','Templates','Comms'], res:'Promoted from Content Writer' },
+    { role:'Marketing Intern', org:'Contensify', when:'Jun 2025 to Jul 2025', ins:['LinkedIn','Content','Product'], res:'Owned company LinkedIn page' },
+    { role:'On-Ground Operations Head', org:'Piccolo & Agahi Events', when:'Jun 2023 to Jun 2025', ins:['Logistics','Sponsors','Staffing'], res:'1,500+ students · 4 cities' },
+    { role:'Marketing & Sales Manager', org:"Mount'EM (JA Student Company)", when:'2021 to 2022', ins:['D2D Sales','Research','Strategy'], res:'School venture programme' }
   ];
   var ADV = [
-    ['Gold Medal — Debate', "World Scholar's Cup, Global Round qualifier (2022)", true],
+    ['Gold Medal, Debate', "World Scholar's Cup, Global Round qualifier (2022)", true],
     ['1st Place', 'Tech Jagran Business Conclave (2022)', true],
-    ['Finalist', 'Code to Learn Contest — Google India (2019)', true],
-    ['2nd — Articulate Toast', 'Chitkara Toastmasters (2024)', false],
+    ['Finalist', 'Code to Learn Contest, Google India (2019)', true],
+    ['2nd, Articulate Toast', 'Chitkara Toastmasters (2024)', false],
     ['Semrush ×3', 'Technical SEO · AI Visibility · Off-Page SEO', false],
     ['HubSpot ×2', 'Social Media Marketing · Content Marketing', false],
     ['Google Digital Unlocked', 'Digital Marketing', false],
@@ -528,9 +528,9 @@ a{color:inherit;text-decoration:none}
     ['10M+ impressions', 'Pinterest, owned channels', true]
   ];
   var TRADES = [
-    { cost:3, svc:'Content & growth strategy', sub:'Channel plan, hooks, calendar, SEO — what to make and why it will move.' },
+    { cost:3, svc:'Content & growth strategy', sub:'Channel plan, hooks, calendar, SEO, what to make and why it will move.' },
     { cost:4, svc:'Short-form video', sub:'Scripting, hooks and iteration. One of mine is nearing 1M views.' },
-    { cost:5, svc:'AI automation build', sub:'Custom tool built with Claude Code — video pipelines, dashboards, content ops.' },
+    { cost:5, svc:'AI automation build', sub:'Custom tool built with Claude Code: video pipelines, dashboards, content ops.' },
     { cost:2, svc:'Brand partnerships', sub:'Influencer and vendor outreach, from list to signed collab.' }
   ];
 
@@ -579,7 +579,7 @@ a{color:inherit;text-decoration:none}
     $('coords').textContent = 'XYZ: ' + (n * 16) + ' / 64 / ' + (n * 7);
     if (!visited[n]) { visited[n] = 1; gainXP(XP_PER); toast('Advancement Made!', SLOTS[n - 1].name + ' discovered', SLOTS[n - 1].ico); }
     var seen = 0; for (var k = 1; k <= 9; k++) if (visited[k]) seen++;
-    if (seen === 9 && !visited.all) { visited.all = 1; gainXP(30); toast('Advancement Made!', 'Explorer — every screen visited', 'diamond'); }
+    if (seen === 9 && !visited.all) { visited.all = 1; gainXP(30); toast('Advancement Made!', 'Explorer, every screen visited', 'diamond'); }
     paintF3();
   }
   document.body.addEventListener('click', function (e) { var b = e.target.closest('[data-go]'); if (b) go(+b.getAttribute('data-go')); });
@@ -662,7 +662,7 @@ a{color:inherit;text-decoration:none}
   /* ---- chest (GitHub) ---- */
   var GH_USER = 'JASMEHRR', CACHE_KEY = 'gh_repos_v2', CACHE_MINS = 60;
   var HIDE = ['jasmehrr', 'jasmehrr.github.io', 'portfolio'];
-  var MANUAL = [{ name:'ventureadda', label:'Venture Adda', lang:'TypeScript', desc:'Startup and venture discovery platform — in active development.', url:'', ico:'diamond' }];
+  var MANUAL = [{ name:'ventureadda', label:'Venture Adda', lang:'TypeScript', desc:'Student marketplace for campus ventures, in active development.', url:'', ico:'diamond' }];
   var CURATED = {
     'clipforge':      { label:'ClipForge',      ico:'film',   desc:'AI pipeline that turns long videos into captioned short clips.' },
     'ascend':         { label:'ASCEND',         ico:'potion', desc:'Life-management dashboard with habit stacking and AI coaching.' },
@@ -737,7 +737,7 @@ a{color:inherit;text-decoration:none}
     if (!P || typeof P !== 'object') return;
     if (Array.isArray(P.jobs) && P.jobs.length) {
       JOBS = P.jobs.map(function (j) {
-        return { role: j.role || '', org: j.org + (j.detail ? ' — ' + j.detail : ''), when: j.when || '',
+        return { role: j.role || '', org: j.org + (j.detail ? ', ' + j.detail : ''), when: j.when || '',
                  ins: (j.inputs && j.inputs.length ? j.inputs : (j.bullets || []).slice(0, 3).map(function (b) { return b.split(' ').slice(0, 2).join(' '); })).slice(0, 3),
                  res: j.result || ((j.bullets || [])[0] || '') };
       });
@@ -773,7 +773,7 @@ a{color:inherit;text-decoration:none}
     profileReady.then(function () { return fetch('https://api.github.com/users/' + GH_USER + '/repos?per_page=100&sort=pushed'); })
       .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('GitHub ' + r.status)); })
       .then(function (d) { if (!Array.isArray(d)) return; try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t:Date.now(), d:d })); } catch (e) { /* storage blocked: ignore */ } paintChest(toItems(d)); })
-      .catch(function () { if (!hit) chestNote.textContent = 'GitHub is busy — showing the last known inventory.'; });
+      .catch(function () { if (!hit) chestNote.textContent = 'GitHub is busy, showing the last known inventory.'; });
   }
 
   /* ---- mining minigame ---- */

@@ -9,7 +9,7 @@ const ROWS = 4;
  * The playable bit: a wall of stone with the real numbers buried in it.
  *
  * Every ore is a genuine statistic from the JSON, so digging is not a toy
- * detached from the content — it is the stats section, just one that makes
+ * detached from the content, it is the stats section, just one that makes
  * you work for it. A "reveal all" control is always available so the numbers
  * are never locked behind interaction for anyone using a keyboard, a screen
  * reader, or simply in a hurry.
@@ -186,7 +186,7 @@ export default function MiniMine() {
                     style={{ background: uncovered ? o.color : '#3a3a42' }}
                   />
                   <span className="truncate text-[18px] text-white/70">
-                    {uncovered ? `${o.value} — ${o.material}` : 'Undiscovered'}
+                    {uncovered ? `${o.value}, ${o.material}` : 'Undiscovered'}
                   </span>
                 </li>
               );

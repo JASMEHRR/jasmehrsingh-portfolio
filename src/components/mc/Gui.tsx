@@ -79,7 +79,7 @@ export function Block({ color, size = 28 }: { color: string; size?: number }) {
   );
 }
 
-/** Health row. Half hearts are not modelled — the stat is decorative. */
+/** Health row. Half hearts are not modelled, the stat is decorative. */
 export function Hearts({ count }: { count: number }) {
   return (
     <div className="flex gap-[3px]" role="img" aria-label={`Health ${count} of 10`}>

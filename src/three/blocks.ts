@@ -59,7 +59,7 @@ export type BlockId =
 
 /**
  * Materials per block. A cube's six groups are ordered +x, -x, +y, -y, +z, -z,
- * so grass gets a green top, dirt underside and grass-side elsewhere — the
+ * so grass gets a green top, dirt underside and grass-side elsewhere, the
  * detail that stops a grass block reading as a flat green cube.
  */
 export function materialsFor(id: BlockId): THREE.Material | THREE.Material[] {

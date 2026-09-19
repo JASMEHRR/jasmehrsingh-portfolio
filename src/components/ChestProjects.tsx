@@ -162,7 +162,7 @@ export default function ChestProjects() {
               className="mt-5 border-2 border-black/50 bg-black/25 px-4 py-3 text-center text-[#8a7aa8]"
               style={{ fontFamily: 'var(--px)', fontSize: 8 }}
             >
-              Private — in development
+              Private repository
             </p>
           )}
         </div>

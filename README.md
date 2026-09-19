@@ -1,4 +1,4 @@
-# JasMehr Singh — Portfolio
+# JasMehr Singh, Portfolio
 
 A personal portfolio built as a Minecraft world. React 18 + TypeScript + Vite +
 Tailwind, with every piece of content decoupled into JSON.
@@ -20,7 +20,7 @@ npm run preview  # serve the built output
 
 The backdrop is a 3D voxel **town** rendered with three.js
 (`components/World3D.tsx`). Terrain and buildings are one `InstancedMesh` per
-block type — about 17,000 cubes in ~25 draw calls — textured with original
+block type, about 17,000 cubes in ~25 draw calls, textured with original
 16x16 pixel art (`tools/make_textures.py`) sampled with `NearestFilter`, which
 is the single most important setting for making WebGL look like the game rather
 than a low-res render of something else.
@@ -32,13 +32,13 @@ district approaching before you arrive.
 
 | Section | District | Hour |
 | --- | --- | --- |
-| Profile | Town Square — well, lamps, houses | morning |
-| Skills | Library Quarter — walls of bookshelves | noon |
-| Journey | Workshop Row — chimneys, timber frames | golden afternoon |
-| Projects | Market — stalls under awnings | dusk |
-| The Mine | Mine head — timbered portal in a quarry | lamplight |
-| Advancements | Gardens — cherry trees and a pond | blossom evening |
-| Contact | Docks — a jetty over water | night |
+| Profile | Town Square, well, lamps, houses | morning |
+| Skills | Library Quarter, walls of bookshelves | noon |
+| Journey | Workshop Row, chimneys, timber frames | golden afternoon |
+| Projects | Market, stalls under awnings | dusk |
+| The Mine | Mine head, timbered portal in a quarry | lamplight |
+| Advancements | Gardens, cherry trees and a pond | blossom evening |
+| Contact | Docks, a jetty over water | night |
 
 The palette follows the hours rather than picking pretty colours per section,
 which is what keeps seven different moods feeling like one place. Fog is close
@@ -46,7 +46,7 @@ and strongly tinted on purpose: it does the work of the dreaminess, washing
 distant blocks toward the sky colour so the grid softens with depth without
 anything up close going blurry.
 
-Roofs are stepped rather than sloped because every block is a cube — each
+Roofs are stepped rather than sloped because every block is a cube, each
 course inset by one and raised by one reads as a pitch at a distance, which is
 how the game does it too.
 
@@ -66,7 +66,7 @@ is how you scroll, and stealing that to spin a model would trap the reader.
 
 His face is not modelled. `tools/make_face.py` cuts it out of the reference
 render and it is mapped onto the head cube's front, because a 16x16 pixel face
-could never match a high-res render — the gap was structural, not a matter of
+could never match a high-res render, the gap was structural, not a matter of
 getting the map right. Everything else is Blender-built
 (`public/character.glb`) and rigged on load in `three/character.ts`.
 
@@ -114,14 +114,14 @@ public/
 
 Open `src/data/portfolio.json`. Nothing else needs to change.
 
-- **New job** — add to `experience[]`. The recipe grid fills one slot per highlight.
-- **New project** — add to `projects[]` with `color`, `rarity` and `material`.
+- **New job**, add to `experience[]`. The recipe grid fills one slot per highlight.
+- **New project**, add to `projects[]` with `color`, `rarity` and `material`.
   `"highlight": true` pins it first and adds a star. Empty `link` shows
-  "Private — in development" instead of a dead button.
-- **New skill** — add to the relevant `skills.categories[].items[]` as
+  "Private, in development" instead of a dead button.
+- **New skill**, add to the relevant `skills.categories[].items[]` as
   `{ name, level }`, level 1-5, rendered as roman numerals.
-- **New buried stat** — add to `game.ores[]`. The mine lays them out automatically.
-- **Splash text** — `game.splashes[]`, one picked at random per load.
+- **New buried stat**, add to `game.ores[]`. The mine lays them out automatically.
+- **Splash text**, `game.splashes[]`, one picked at random per load.
 
 ## Accessibility
 
@@ -160,7 +160,7 @@ The turn is +-52 degrees rather than a full revolution. He is only textured on
 the front, so a full spin would park a blank back toward the reader for half of
 every cycle.
 
-This idle is **opt-out, not reduced-motion-gated** — see the Motion toggle,
+This idle is **opt-out, not reduced-motion-gated**, see the Motion toggle,
 bottom right. Gating it on the OS preference hid the feature from the person
 who asked for it. Everything tied to scrolling (camera travel, reveals,
 parallax) stays gated, because that is the motion the preference exists to
@@ -188,7 +188,7 @@ runtime and a catch-all would otherwise hand it `index.html`.
 
 - The character is built in code from the reference render itself
   (`three/character.ts`), not modelled by hand and not loaded as a GLB. Run
-  `python tools/extract_character.py` to regenerate `public/char/` — it crops
+  `python tools/extract_character.py` to regenerate `public/char/`, it crops
   the face, torso, arms and legs straight out of `public/avatar.png` and samples
   that image's hair mask into `hair.json`. The face on the model is therefore
   the face in the render, and the afro's outline is the outline that was drawn.
@@ -200,6 +200,6 @@ runtime and a catch-all would otherwise hand it `index.html`.
 - Textures are generated, not extracted: run `python tools/make_textures.py` to
   regenerate `public/tex`. They are original pixel art in the game's style,
   which is what keeps them ours to ship.
-- `lucide-react` is pinned to `0.x` — v1 removed the GitHub/LinkedIn brand icons.
+- `lucide-react` is pinned to `0.x`, v1 removed the GitHub/LinkedIn brand icons.
 - `public/profile.json` feeds the `/arcade` page only; the React site reads
   `src/data/portfolio.json`. Update both if a role changes.

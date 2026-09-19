@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { loadCharacter, type Character } from '../three/character';
 import { usePortfolio } from '../hooks/usePortfolio';
-import { is3DWorld } from '../three/mode';
+import { useGuideShown } from '../hooks/useGuideShown';
 
 /**
  * JasMehr, standing beside the page rather than inside it.
@@ -33,28 +33,12 @@ export default function Guide() {
   const [biome, setBiome] = useState('overworld');
   const [ready, setReady] = useState(false);
 
-  // He is shown from xl up, and this is the same threshold as a query rather
-  // than a Tailwind `hidden xl:block`. With the class doing the hiding the
-  // element still exists between 769 and 1279px, so the effect below would
-  // fetch the model, take a second WebGL context and drive a render loop
-  // forever for something with display:none.
-  const [wide, setWide] = useState(
-    () => window.matchMedia('(min-width: 1280px)').matches,
-  );
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1280px)');
-    const sync = () => setWide(mq.matches);
-    // synced once on mount as well as on change: the initial state above is
-    // read during the first render, which can land before layout, when every
-    // width query answers against a viewport of 0
-    sync();
-    mq.addEventListener('change', sync);
-    window.addEventListener('resize', sync);
-    return () => {
-      mq.removeEventListener('change', sync);
-      window.removeEventListener('resize', sync);
-    };
-  }, []);
+  // Shared with HeroProfile, which shows the flat avatar whenever this is
+  // false, so there is always exactly one of him on the page. Gated in JS
+  // rather than with a Tailwind `hidden xl:block`: with the class doing the
+  // hiding the element would still mount, fetch the model and run a render
+  // loop behind display:none.
+  const shown = useGuideShown();
 
   // The line he says follows the same attribute the backdrop reads, so his
   // commentary and the scenery can never disagree about where you are.
@@ -99,6 +83,34 @@ export default function Guide() {
     const rim = new THREE.DirectionalLight(0xbfd8ff, 1.1);
     rim.position.set(3.5, 2, -4);
     scene.add(rim);
+
+    // A soft contact shadow under his feet. Without it he hovers against the
+    // backdrop; with it he reads as standing on something. It is a flat
+    // radial gradient on the ground plane, which the near-level camera sees
+    // almost edge-on, so it lands as the thin dark ellipse a real contact
+    // shadow makes rather than as a disc.
+    const shadowTex = (() => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 64;
+      const g = c.getContext('2d');
+      if (g) {
+        const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grad.addColorStop(0, 'rgba(0,0,0,0.55)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        g.fillStyle = grad;
+        g.fillRect(0, 0, 64, 64);
+      }
+      return new THREE.CanvasTexture(c);
+    })();
+    const shadowMat = new THREE.MeshBasicMaterial({
+      map: shadowTex,
+      transparent: true,
+      depthWrite: false,
+    });
+    const contact = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), shadowMat);
+    contact.rotation.x = -Math.PI / 2;
+    contact.position.y = 0.005;
+    scene.add(contact);
 
     let hero: Character | null = null;
     let raf = 0;
@@ -169,14 +181,18 @@ export default function Guide() {
       canvas.removeEventListener('pointermove', onMove);
       canvas.removeEventListener('pointerup', onUp);
       canvas.removeEventListener('pointercancel', onUp);
+      contact.geometry.dispose();
+      shadowMat.dispose();
+      shadowTex.dispose();
       renderer.dispose();
       host.removeChild(canvas);
     };
-  }, [wide]);
+  }, [shown]);
 
-  // He needs WebGL and room to stand in; below that the page is the point and
-  // a 300px figure beside a single column would simply be in the way.
-  if (!is3DWorld() || !wide) return null;
+  // He needs WebGL and room to stand in; below that the hero shows the flat
+  // avatar instead, since a 300px figure beside a single column would simply
+  // be in the way.
+  if (!shown) return null;
 
   return (
     <div className="pointer-events-none fixed bottom-0 right-4 z-20 select-none">
