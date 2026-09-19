@@ -1,0 +1,371 @@
+/* ============================================================
+   The glass portfolio.
+
+   Everything here is scoped to html[data-mode='glass'], which main.tsx
+   stamps before the first render. The Minecraft site's global rules in
+   index.css (a pixel font on <body>, pixelated image rendering, a dark
+   ground) would otherwise leak in, and these would leak back the other way.
+
+   Motion lives behind html[data-motion='on'] only. With it off, every
+   element is simply where it belongs: nothing starts hidden and waits for an
+   animation to reveal it, so the failure mode is "still" and never "empty".
+   ============================================================ */
+
+html[data-mode='glass'] {
+  --g-bg: #0a0918;
+  --g-ink: #f5f3ff;
+  --g-soft: rgba(245, 243, 255, 0.74);  /* 9.8:1 on the darkest glass */
+  --g-faint: rgba(245, 243, 255, 0.56);
+  --g-line: rgba(255, 255, 255, 0.16);
+  --g-violet: #8b6cff;
+  --g-pink: #ff5ca8;
+  --g-cyan: #3ad8ff;
+  --g-green: #7ee06f;
+  --g-amber: #ffbe55;
+  --g-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+  --g-text: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  scroll-behavior: smooth;
+}
+
+html[data-mode='glass'] body {
+  background: var(--g-bg);
+  color: var(--g-ink);
+  font-family: var(--g-text);
+  font-size: 16px;
+  line-height: 1.6;
+  image-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[data-mode='glass'] ::selection {
+  background: rgba(139, 108, 255, 0.45);
+}
+
+html[data-mode='glass'] :focus-visible {
+  outline: 2px solid var(--g-cyan);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+html[data-mode='glass'] section[id] {
+  scroll-margin-top: 96px;
+}
+
+.g-display {
+  font-family: var(--g-display);
+  letter-spacing: -0.02em;
+}
+
+/* ---------------------------------------------------------- backdrop
+   Colour for the glass to bend. Liquid glass over a flat colour is just a
+   grey box: it needs something bright and uneven behind it to read as glass
+   at all. The blobs are blurred once, statically, and only ever moved with
+   transform, which keeps the drift on the compositor. */
+.g-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 700px at 80% -10%, rgba(139, 108, 255, 0.28), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(58, 216, 255, 0.18), transparent 60%),
+    var(--g-bg);
+}
+
+.g-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.6;
+  will-change: transform;
+  /* scroll parallax, fed by --scroll from GlassApp */
+  translate: 0 calc(var(--scroll, 0) * var(--depth, 0.1) * -1px);
+}
+
+.g-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+html[data-motion='on'] .g-blob {
+  animation: g-drift var(--dur, 22s) ease-in-out infinite alternate;
+}
+
+@keyframes g-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(var(--dx, 60px), var(--dy, -40px)) scale(1.12); }
+  100% { transform: translate(calc(var(--dx, 60px) * -0.6), calc(var(--dy, -40px) * -0.8)) scale(0.94); }
+}
+
+/* ---------------------------------------------------------- glass
+   A dark tint so white text keeps its contrast whatever blob drifts under
+   it, a bright inner top edge for the rim light, and a sheen that follows
+   the pointer (--mx/--my are set by Cursor.tsx on the panel being hovered). */
+.glass {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.035) 55%),
+    rgba(16, 13, 38, 0.42);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  backdrop-filter: blur(22px) saturate(170%);
+  border: 1px solid var(--g-line);
+  border-radius: 28px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 24px 60px -28px rgba(0, 0, 0, 0.75);
+}
+
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 0%),
+    rgba(255, 255, 255, 0.14),
+    transparent 62%
+  );
+}
+
+.glass:hover::after {
+  opacity: 1;
+}
+
+.glass-pill {
+  border-radius: 999px;
+}
+
+a.glass,
+button.glass {
+  transition: transform 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+}
+
+a.glass:hover,
+button.glass:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+html[data-motion='on'] a.glass:hover,
+html[data-motion='on'] button.glass:hover {
+  transform: translateY(-2px);
+}
+
+.g-gradient-text {
+  background: linear-gradient(100deg, var(--g-cyan), var(--g-violet) 40%, var(--g-pink) 70%, var(--g-amber));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html[data-motion='on'] .g-gradient-text {
+  animation: g-sheen 8s ease-in-out infinite alternate;
+}
+
+@keyframes g-sheen {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+}
+
+.g-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--g-green);
+  box-shadow: 0 0 0 0 rgba(126, 224, 111, 0.6);
+}
+
+html[data-motion='on'] .g-live-dot {
+  animation: g-ping 2s ease-out infinite;
+}
+
+@keyframes g-ping {
+  0% { box-shadow: 0 0 0 0 rgba(126, 224, 111, 0.6); }
+  100% { box-shadow: 0 0 0 10px rgba(126, 224, 111, 0); }
+}
+
+/* ---------------------------------------------------------- reveal
+   Only hidden when motion is on, and only until the element is in view. */
+html[data-motion='on'] .reveal:not(.in) {
+  opacity: 0;
+  transform: translateY(28px) scale(0.985);
+  filter: blur(8px);
+}
+
+html[data-motion='on'] .reveal {
+  transition:
+    opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
+    transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
+    filter 0.8s ease var(--d, 0ms);
+}
+
+/* ---------------------------------------------------------- progress */
+.g-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 3px;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--progress, 0));
+  background: linear-gradient(90deg, var(--g-cyan), var(--g-violet), var(--g-pink), var(--g-amber));
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------- cursor lens
+   A small lens that trails the pointer and swells over anything clickable.
+   The plain blur is declared first; the SVG displacement after it bends
+   what is behind the lens like real glass in Chromium, and a browser that
+   cannot parse it keeps the blur instead. */
+.g-lens {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 70;
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border-radius: 50%;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.04) 60%);
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(3px) saturate(180%);
+  backdrop-filter: blur(3px) saturate(180%);
+  backdrop-filter: url(#g-liquid) saturate(180%);
+  transition: width 0.25s ease, height 0.25s ease, margin 0.25s ease, opacity 0.3s ease;
+  will-change: transform;
+}
+
+.g-lens.hot {
+  width: 76px;
+  height: 76px;
+  margin: -38px 0 0 -38px;
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.g-lens.gone {
+  opacity: 0;
+}
+
+/* ---------------------------------------------------------- grass block
+   A real 3D cube in CSS, faced with the same 16px textures as the Minecraft
+   world, so the button is a literal piece of the other site sticking out of
+   this one. */
+.g-cube {
+  --s: 56px;
+  position: relative;
+  width: var(--s);
+  height: var(--s);
+  transform-style: preserve-3d;
+  transform: rotateX(-24deg) rotateY(-38deg);
+}
+
+.g-cube-wrap {
+  perspective: 600px;
+  display: inline-grid;
+  place-items: center;
+  width: calc(var(--s, 56px) * 1.5);
+  height: calc(var(--s, 56px) * 1.5);
+}
+
+.g-face {
+  position: absolute;
+  inset: 0;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  backface-visibility: hidden;
+}
+
+.g-face.top { transform: rotateX(90deg) translateZ(calc(var(--s) / 2)); background-image: url('/tex/grass_top.png'); }
+.g-face.bottom { transform: rotateX(-90deg) translateZ(calc(var(--s) / 2)); background-image: url('/tex/dirt.png'); }
+.g-face.front { transform: translateZ(calc(var(--s) / 2)); background-image: url('/tex/grass_side.png'); filter: brightness(0.92); }
+.g-face.back { transform: rotateY(180deg) translateZ(calc(var(--s) / 2)); background-image: url('/tex/grass_side.png'); filter: brightness(0.7); }
+.g-face.right { transform: rotateY(90deg) translateZ(calc(var(--s) / 2)); background-image: url('/tex/grass_side.png'); filter: brightness(0.78); }
+.g-face.left { transform: rotateY(-90deg) translateZ(calc(var(--s) / 2)); background-image: url('/tex/grass_side.png'); filter: brightness(0.86); }
+
+html[data-motion='on'] .g-cube {
+  animation: g-spin 9s linear infinite;
+}
+
+html[data-motion='on'] .g-grass:hover .g-cube {
+  animation-duration: 2.2s;
+}
+
+@keyframes g-spin {
+  from { transform: rotateX(-24deg) rotateY(0deg); }
+  to { transform: rotateX(-24deg) rotateY(360deg); }
+}
+
+/* The button itself is grassy: the side texture of a grass block, tiled and
+   kept pixel-sharp, with a pixel font. A deliberate outlier in a glass page. */
+.g-grass {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 22px 10px 10px;
+  border: 3px solid #1d1d1d;
+  background-image: url('/tex/grass_side.png');
+  background-size: 48px 48px;
+  image-rendering: pixelated;
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.7;
+  text-shadow: 2px 2px 0 #1b1b1b;
+  box-shadow:
+    inset 3px 3px 0 rgba(255, 255, 255, 0.35),
+    inset -3px -3px 0 rgba(0, 0, 0, 0.35),
+    0 12px 40px -10px rgba(126, 224, 111, 0.55);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.g-grass:hover {
+  box-shadow:
+    inset 3px 3px 0 rgba(255, 255, 255, 0.45),
+    inset -3px -3px 0 rgba(0, 0, 0, 0.35),
+    0 16px 50px -8px rgba(126, 224, 111, 0.8);
+}
+
+html[data-motion='on'] .g-grass:hover {
+  transform: translateY(-3px);
+}
+
+html[data-motion='on'] .g-grass:active {
+  transform: translateY(1px);
+}
+
+/* ---------------------------------------------------------- activity bars */
+.g-bar {
+  border-radius: 6px 6px 3px 3px;
+  background: linear-gradient(180deg, var(--g-cyan), var(--g-violet));
+  min-height: 3px;
+}
+
+.g-bar.empty {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* bars rise from the baseline as their panel comes into view; scaled rather
+   than resized, so it stays on the compositor */
+.g-bar {
+  transform-origin: 50% 100%;
+}
+
+html[data-motion='on'] .reveal:not(.in) .g-bar {
+  transform: scaleY(0.04);
+}
+
+html[data-motion='on'] .reveal .g-bar {
+  transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) var(--bd, 0ms);
+}

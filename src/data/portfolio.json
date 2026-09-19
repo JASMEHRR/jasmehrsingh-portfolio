@@ -193,11 +193,13 @@
       "id": "agent-os",
       "title": "Agent OS",
       "subtitle": "Governed agent platform",
-      "description": "A platform for running AI agents under explicit rules, with Post Studio for drafting content in my own voice. Covered by 1,800+ automated tests. Private repository.",
-      "stack": [],
+      "description": "A platform for running AI agents under explicit rules, with Post Studio for drafting content in my own voice. Covered by 1,800+ automated tests.",
+      "stack": [
+        "Python"
+      ],
       "role": "Product direction, testing, iteration",
       "year": "2026",
-      "link": "",
+      "link": "https://github.com/JASMEHRR/agent-os",
       "image": "",
       "highlight": true,
       "color": "#b06cf7",
