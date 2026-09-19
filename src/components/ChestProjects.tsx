@@ -134,7 +134,8 @@ export default function ChestProjects() {
 
           <p className="no-break mt-4 text-[20px] leading-snug text-[#e2d8f2]">{item.description}</p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
+          {item.stack.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
             {item.stack.map((s) => (
               <span
                 key={s}
@@ -145,6 +146,7 @@ export default function ChestProjects() {
               </span>
             ))}
           </div>
+          )}
 
           <p className="mt-4 text-[19px] leading-snug text-[#9a8ab8]">{item.role}</p>
 

@@ -43,7 +43,7 @@ export default function HeroProfile() {
       <div className="pointer-events-none relative z-0 mt-16 h-[36svh] w-full shrink-0 sm:absolute sm:inset-y-0 sm:right-0 sm:mt-0 sm:h-auto sm:w-[62%] lg:w-[52%]">
         {!guideShown && <div
           aria-hidden
-          className="absolute bottom-[30%] left-1/2 h-[42vh] w-[42vh] -translate-x-1/2 rounded-full blur-3xl transition-transform duration-500 ease-out"
+          className="absolute bottom-[5%] left-1/2 h-[30svh] w-[30svh] -translate-x-1/2 rounded-full blur-3xl transition-transform duration-500 ease-out sm:bottom-[30%] sm:h-[42vh] sm:w-[42vh]"
           style={{
             background:
               'radial-gradient(circle, rgba(255,216,61,.26) 0%, rgba(176,108,247,.16) 45%, transparent 70%)',
@@ -54,8 +54,9 @@ export default function HeroProfile() {
         {hasSkin && (
           /* pointer parallax lives on the wrapper so it cannot fight the
              bob animation's own transform on the image */
-          /* feet land on the horizon (--hz is 64%), so the character stands
-             in the world rather than hovering over it */
+          /* from 640px his feet land on the 2D world's horizon (--hz is
+             64%), so he stands in it rather than hovering; on a phone he is
+             stacked and simply sits at the bottom of his own box */
           <div
             className="absolute bottom-0 left-1/2 transition-transform duration-300 ease-out sm:bottom-[34%]"
             style={{

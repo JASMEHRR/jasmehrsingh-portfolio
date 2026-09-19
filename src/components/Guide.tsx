@@ -114,9 +114,22 @@ export default function Guide() {
 
     let hero: Character | null = null;
     let raf = 0;
+    // The effect re-runs whenever the guide is shown or hidden, so a model can
+    // finish loading after its scene has already been torn down. Such a late
+    // arrival is disposed rather than added to a dead scene and left to leak.
+    let alive = true;
 
     loadCharacter()
       .then((c) => {
+        if (!alive) {
+          c.group.traverse((o) => {
+            const m = o as THREE.Mesh;
+            if (!m.isMesh) return;
+            m.geometry.dispose();
+            (Array.isArray(m.material) ? m.material : [m.material]).forEach((x) => x.dispose());
+          });
+          return;
+        }
         hero = c;
         // left at the origin; the camera does the framing
         hero.group.position.set(0, 0, 0);
@@ -175,6 +188,9 @@ export default function Guide() {
     tick();
 
     return () => {
+      alive = false;
+      // so the bubble does not show above an empty canvas on the next mount
+      setReady(false);
       cancelAnimationFrame(raf);
       window.removeEventListener('keydown', onKey);
       canvas.removeEventListener('pointerdown', onDown);

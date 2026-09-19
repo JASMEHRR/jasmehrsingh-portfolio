@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { is3DWorld } from '../three/mode';
+import { use3DWorld } from './use3DWorld';
 
 const QUERY = '(min-width: 1280px)';
 
@@ -16,6 +16,7 @@ const QUERY = '(min-width: 1280px)';
  * land before layout, when every width query is answered against 0.
  */
 export function useGuideShown(): boolean {
+  const in3D = use3DWorld();
   const [wide, setWide] = useState(() => window.matchMedia(QUERY).matches);
 
   useEffect(() => {
@@ -23,14 +24,8 @@ export function useGuideShown(): boolean {
     const sync = () => setWide(mq.matches);
     sync();
     mq.addEventListener('change', sync);
-    window.addEventListener('resize', sync);
-    return () => {
-      mq.removeEventListener('change', sync);
-      window.removeEventListener('resize', sync);
-    };
+    return () => mq.removeEventListener('change', sync);
   }, []);
 
-  // is3DWorld() is a plain read, safe here because the listeners above
-  // re-render this on every resize
-  return wide && is3DWorld();
+  return wide && in3D;
 }

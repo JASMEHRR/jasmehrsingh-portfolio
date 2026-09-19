@@ -6,6 +6,30 @@ export const OVERRIDE_KEY = 'portfolio-override';
 /** Parsed once per page load rather than on every render. */
 let cached: Portfolio | null = null;
 
+/**
+ * Drop fields the site has retired, if an old draft still carries them.
+ *
+ * Location was removed from the site on purpose: no city on a professional
+ * page. A draft saved in /edit before that still holds profile.location,
+ * game.spawn and a location on every job and degree, and because /edit seeds
+ * itself from this merge, downloading from it would have written the city
+ * straight back into portfolio.json. Removing them here covers rendering,
+ * editing and downloading in one place.
+ */
+function scrub(p: Portfolio): Portfolio {
+  const drop = <T extends object>(o: T, key: string): T => {
+    const { [key]: _gone, ...rest } = o as Record<string, unknown>;
+    return rest as T;
+  };
+  return {
+    ...p,
+    profile: drop(p.profile, 'location'),
+    game: drop(p.game, 'spawn'),
+    experience: p.experience.map((e) => drop(e, 'location')),
+    education: p.education.map((e) => drop(e, 'location')),
+  };
+}
+
 function read(): Portfolio {
   const base = data as unknown as Portfolio;
   try {
@@ -21,7 +45,7 @@ function read(): Portfolio {
     // took the whole page down with it. Layering game over the file's copy
     // means new fields keep their committed values until the draft has an
     // opinion about them.
-    return { ...base, ...over, game: { ...base.game, ...(over.game ?? {}) } };
+    return scrub({ ...base, ...over, game: { ...base.game, ...(over.game ?? {}) } });
   } catch {
     // private mode, blocked storage, or malformed JSON, fall back to the file
     return base;
