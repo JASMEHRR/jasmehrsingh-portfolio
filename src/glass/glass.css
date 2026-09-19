@@ -366,7 +366,10 @@ html[data-motion='on'] .g-hero .g-depth {
   transition:
     transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
     color 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    fill 0.2s ease,
+    stroke 0.2s ease;
 }
 
 /* a ripple across whatever glass was pressed, under its content */

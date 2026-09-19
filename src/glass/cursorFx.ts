@@ -27,6 +27,17 @@ import { useEffect } from 'react';
 const PANEL = '.glass:not(.glass-pill)';
 const MAGNET = 'a.glass-pill, button.glass-pill, [data-magnet]';
 
+/**
+ * Safari (desktop WebKit) has a history of dropping or flattening
+ * backdrop-filter on elements with a 3D transform, which would turn a frosted
+ * card clear the moment it tilts. There it gets a flat lean instead.
+ */
+const FLAT_TILT =
+  /AppleWebKit/.test(navigator.userAgent) && !/Chrome|Chromium|Edg|OPR/.test(navigator.userAgent);
+
+/** How long after the last scroll event the page still counts as scrolling. */
+const SCROLL_SETTLE_MS = 160;
+
 export function useCursorFx(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return;
@@ -44,6 +55,8 @@ export function useCursorFx(enabled: boolean) {
     let raf = 0;
     let tilted: HTMLElement | null = null;
     let magnet: HTMLElement | null = null;
+    let retarget = false;
+    let lastScroll = 0;
 
     const release = (el: HTMLElement | null) => {
       if (el) el.style.transform = '';
@@ -54,24 +67,40 @@ export function useCursorFx(enabled: boolean) {
       if (!active) return;
 
       // ---- reads ----
-      const panel = target?.closest<HTMLElement>(PANEL) ?? null;
+      if (retarget) {
+        // resolved here, once a frame, rather than on every scroll event
+        retarget = false;
+        target = document.elementFromPoint(px, py);
+      }
+      // a node the page has since removed is not under the pointer any more
+      if (target && !target.isConnected) target = null;
+      let panel = target?.closest<HTMLElement>(PANEL) ?? null;
+      // not a panel that has yet to fade in: it would arrive already leaning
+      if (panel?.closest('.reveal:not(.in)')) panel = null;
       const pull = target?.closest<HTMLElement>(MAGNET) ?? null;
+      const scrolling = performance.now() - lastScroll < SCROLL_SETTLE_MS;
       const pr = panel?.getBoundingClientRect();
       const mr = pull?.getBoundingClientRect();
       const w = window.innerWidth;
       const h = window.innerHeight;
 
       // ---- writes ----
-      gx += (px - gx) * 0.14;
-      gy += (py - gy) * 0.14;
-      if (glow) glow.style.transform = `translate3d(${gx}px, ${gy}px, 0)`;
+      // The glow and the blob parallax move the backdrop, and every glass
+      // panel re-blurs whatever moves behind it. Scrolling already makes them
+      // re-blur each frame, so these hold still until a scroll settles rather
+      // than doubling that cost exactly when smoothness matters most.
+      if (!scrolling) {
+        gx += (px - gx) * 0.14;
+        gy += (py - gy) * 0.14;
+        if (glow) glow.style.transform = `translate3d(${gx}px, ${gy}px, 0)`;
 
-      const cx = (px / w - 0.5).toFixed(3);
-      const cy = (py / h - 0.5).toFixed(3);
-      backdrop?.style.setProperty('--cx', cx);
-      backdrop?.style.setProperty('--cy', cy);
-      hero?.style.setProperty('--cx', cx);
-      hero?.style.setProperty('--cy', cy);
+        const cx = (px / w - 0.5).toFixed(3);
+        const cy = (py / h - 0.5).toFixed(3);
+        backdrop?.style.setProperty('--cx', cx);
+        backdrop?.style.setProperty('--cy', cy);
+        hero?.style.setProperty('--cx', cx);
+        hero?.style.setProperty('--cy', cy);
+      }
 
       if (panel !== tilted) {
         release(tilted);
@@ -85,23 +114,28 @@ export function useCursorFx(enabled: boolean) {
         // big panels tilt less, or a full-width panel swings like a door:
         // a stat tile leans the full 10 degrees, a wide project card about 4
         const max = Math.min(10, 4800 / (pr.width + pr.height));
-        const ry = (x / pr.width - 0.5) * 2 * max;
-        const rx = -(y / pr.height - 0.5) * 2 * max;
-        panel.style.transform = `perspective(1000px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(1.015)`;
+        const nx = x / pr.width - 0.5;
+        const ny = y / pr.height - 0.5;
+        panel.style.transform = FLAT_TILT
+          ? `translate(${(nx * max * 1.2).toFixed(1)}px, ${(ny * max * 1.2).toFixed(1)}px) scale(1.015)`
+          : `perspective(1000px) rotateX(${(-ny * 2 * max).toFixed(2)}deg) rotateY(${(nx * 2 * max).toFixed(2)}deg) scale(1.015)`;
       }
 
       if (pull !== magnet) {
         release(magnet);
         magnet = pull;
       }
-      if (pull && mr) {
+      if (pull && mr && mr.width > 0) {
         const dx = px - (mr.left + mr.width / 2);
         const dy = py - (mr.top + mr.height / 2);
         pull.style.transform = `translate(${(dx * 0.28).toFixed(1)}px, ${(dy * 0.38 - 2).toFixed(1)}px)`;
       }
 
-      // keep going until the glow has caught the pointer up
-      if (Math.abs(px - gx) > 0.5 || Math.abs(py - gy) > 0.5) raf = requestAnimationFrame(frame);
+      // keep going until the glow has caught the pointer up, and through a
+      // scroll so the glow resumes once it settles
+      if (scrolling || Math.abs(px - gx) > 0.5 || Math.abs(py - gy) > 0.5) {
+        raf = requestAnimationFrame(frame);
+      }
     };
 
     const schedule = () => {
@@ -124,8 +158,9 @@ export function useCursorFx(enabled: boolean) {
 
     // content scrolls under a still pointer; what it is over has changed
     const onScroll = () => {
+      lastScroll = performance.now();
       if (!active) return;
-      target = document.elementFromPoint(px, py);
+      retarget = true;
       schedule();
     };
 
