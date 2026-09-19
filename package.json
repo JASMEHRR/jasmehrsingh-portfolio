@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npx netlify deploy --build --prod --site f5166db2-cbe6-43a6-90f4-5c115fae5b66"
   },
   "dependencies": {
     "framer-motion": "^13.2.0",
