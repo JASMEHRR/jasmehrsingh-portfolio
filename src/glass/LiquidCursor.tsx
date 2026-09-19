@@ -101,17 +101,26 @@ export default function LiquidCursor() {
       press = 1;
       schedule();
     };
-    const onLeave = () => el.classList.add('gone');
+    // released outside the window, or cancelled by a context menu, the page
+    // never sees pointerup; leaving or losing focus un-squashes it as well
+    const onLeave = () => {
+      el.classList.add('gone');
+      onUp();
+    };
 
     window.addEventListener('pointermove', onMove, { passive: true });
     window.addEventListener('pointerdown', onDown, { passive: true });
     window.addEventListener('pointerup', onUp, { passive: true });
+    window.addEventListener('pointercancel', onUp, { passive: true });
+    window.addEventListener('blur', onUp);
     document.documentElement.addEventListener('pointerleave', onLeave);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      window.removeEventListener('blur', onUp);
       document.documentElement.removeEventListener('pointerleave', onLeave);
       svg.remove();
     };

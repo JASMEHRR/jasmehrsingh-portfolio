@@ -18,8 +18,10 @@ function ProjectCard({ p, repo, delay, span }: { p: Project; repo?: Repo; delay:
     <article
       className={`glass reveal flex flex-col p-6 sm:p-7 ${span}`}
       // tints the glass's drop shadow with the project's colour; the rim and
-      // thickness shading come from .glass and are no longer overwritten here
-      style={{ '--d': `${delay}ms`, '--shadow-c': `${p.color}99` } as CSSProperties}
+      // thickness shading come from .glass. With no colour the variable is
+      // left unset so var()'s fallback applies: 'undefined99' would be
+      // invalid and take the whole box-shadow, rim light included, with it
+      style={{ '--d': `${delay}ms`, '--shadow-c': p.color ? `${p.color}99` : undefined } as CSSProperties}
     >
       <div className="flex items-start justify-between gap-4">
         <div>

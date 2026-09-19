@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * Real refraction on the glass, the thing that makes it liquid glass rather
@@ -154,6 +154,10 @@ interface Lens {
 }
 
 export function useLiquidLens(version: unknown = 0) {
+  // set up once; later calls with a new `version` only pick up the panels
+  // that have appeared since, rather than rebuilding every lens from scratch
+  const scanRef = useRef<(() => void) | null>(null);
+
   useEffect(() => {
     if (!CHROMIUM || !('ResizeObserver' in window) || !('IntersectionObserver' in window)) return;
 
@@ -247,17 +251,46 @@ export function useLiquidLens(version: unknown = 0) {
     // reports; everything further down waits until it comes near.
     const selector = everyPanel() ? '[data-lens], .glass' : '[data-lens]';
     const margin = 300;
-    for (const el of document.querySelectorAll<HTMLElement>(selector)) {
-      const r = el.getBoundingClientRect();
-      if (r.bottom > -margin && r.top < window.innerHeight + margin) start(el);
-      else near.observe(el);
-    }
+    const seen = new WeakSet<HTMLElement>();
+    const scan = () => {
+      for (const el of document.querySelectorAll<HTMLElement>(selector)) {
+        if (seen.has(el)) continue;
+        seen.add(el);
+        const r = el.getBoundingClientRect();
+        if (r.bottom > -margin && r.top < window.innerHeight + margin) start(el);
+        else near.observe(el);
+      }
+    };
+    scan();
+    scanRef.current = scan;
+
+    // While the page scrolls, every refracting panel re-runs its filter each
+    // frame over a backdrop that is moving under it. Panels fall back to
+    // their plain blur for the length of a scroll (html.g-scrolling, see
+    // glass.css) and bend again once it settles; the nav and the hero's pills
+    // keep refracting throughout, since the page bending under the nav as it
+    // scrolls is the effect worth paying for.
+    let settle = 0;
+    const onScroll = () => {
+      document.documentElement.classList.add('g-scrolling');
+      window.clearTimeout(settle);
+      settle = window.setTimeout(() => document.documentElement.classList.remove('g-scrolling'), 160);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
+      scanRef.current = null;
+      window.removeEventListener('scroll', onScroll);
+      window.clearTimeout(settle);
+      document.documentElement.classList.remove('g-scrolling');
       near.disconnect();
       resize.disconnect();
       for (const el of lenses.keys()) el.style.removeProperty('backdrop-filter');
       svg.remove();
     };
+  }, []);
+
+  useEffect(() => {
+    scanRef.current?.();
   }, [version]);
 }

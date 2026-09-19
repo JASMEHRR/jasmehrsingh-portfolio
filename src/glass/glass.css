@@ -519,3 +519,11 @@ html[data-motion='on'] .g-nav-blob {
 .g-drop.gone {
   opacity: 0;
 }
+
+/* mid-scroll, panels drop their refraction for a plain blur and pick it up
+   again when the scroll settles; see liquidLens.ts. The nav and hero pills
+   (data-lens) keep bending throughout. */
+html.g-scrolling .glass:not([data-lens]) {
+  -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08) !important;
+  backdrop-filter: blur(10px) saturate(180%) brightness(1.08) !important;
+}
