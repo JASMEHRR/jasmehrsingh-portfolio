@@ -71,7 +71,9 @@ export function useReveal(version: unknown = 0) {
           io.unobserve(e.target);
         }
       },
-      { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+      // starts a little before the element reaches the screen, so scrolling
+      // arrives at content already appearing rather than at empty space
+      { rootMargin: '0px 0px 12% 0px', threshold: 0 },
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
@@ -177,8 +179,10 @@ export function useCountUp(value: string, motion: boolean) {
           setCounting(null);
         }
       },
-      // matches useReveal, so the count starts as the panel begins to appear
-      { rootMargin: '0px 0px -8% 0px', threshold: 0 },
+      // the same margin as useReveal, so the count starts at the moment the
+      // panel begins to fade in. Any later and the panel would appear showing
+      // its final figure, then drop to zero and count up: a visible flash.
+      { rootMargin: '0px 0px 12% 0px', threshold: 0 },
     );
     io.observe(el);
     return () => {

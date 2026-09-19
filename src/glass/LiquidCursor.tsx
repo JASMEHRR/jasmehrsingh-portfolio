@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { domeMap } from './liquidLens';
 
 /** Diameter of the lens at rest, in CSS pixels. */
-const SIZE = 46;
+const SIZE = 30;
 
 /**
  * A droplet of liquid glass that follows the pointer.
@@ -36,7 +36,7 @@ export default function LiquidCursor() {
     svg.style.position = 'absolute';
     svg.innerHTML = `<filter id="g-drop" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
       <feImage href="${domeMap(SIZE)}" x="0" y="0" width="${SIZE}" height="${SIZE}" preserveAspectRatio="none" result="map"/>
-      <feDisplacementMap in="SourceGraphic" in2="map" scale="30" xChannelSelector="R" yChannelSelector="G"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="20" xChannelSelector="R" yChannelSelector="G"/>
     </filter>`;
     document.body.appendChild(svg);
 
@@ -89,7 +89,7 @@ export default function LiquidCursor() {
       }
       el.classList.remove('gone');
       const over = (e.target as Element | null)?.closest('a, button, [role="button"]');
-      sizeTarget = over ? 1.75 : 1;
+      sizeTarget = over ? 1.6 : 1;
       schedule();
     };
     const onDown = (e: PointerEvent) => {

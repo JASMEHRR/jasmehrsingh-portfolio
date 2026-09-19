@@ -213,7 +213,7 @@ export function useLiquidLens(version: unknown = 0) {
         svg.appendChild(filter);
         el.style.setProperty(
           'backdrop-filter',
-          `url(#${id}) blur(${pill ? 3 : 10}px) saturate(180%) brightness(1.08)`,
+          `url(#${id}) blur(${pill ? 3 : 8}px) saturate(180%) brightness(1.08)`,
         );
         lens = { image, key: '' };
         lenses.set(el, lens);
@@ -274,7 +274,10 @@ export function useLiquidLens(version: unknown = 0) {
     const onScroll = () => {
       document.documentElement.classList.add('g-scrolling');
       window.clearTimeout(settle);
-      settle = window.setTimeout(() => document.documentElement.classList.remove('g-scrolling'), 160);
+      // long enough that the gaps in a slow scroll do not count as stopping:
+      // at 160ms every pause flipped every panel's filter off and on again,
+      // and each flip repaints them all
+      settle = window.setTimeout(() => document.documentElement.classList.remove('g-scrolling'), 400);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
 

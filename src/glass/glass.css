@@ -84,8 +84,9 @@ html[data-mode='glass'] section[id] {
 .g-grain {
   position: absolute;
   inset: 0;
-  opacity: 0.07;
-  mix-blend-mode: overlay;
+  /* plain, not mix-blend-mode: overlay, which had to be re-blended with the
+     backdrop on every frame the blobs moved */
+  opacity: 0.035;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
@@ -136,8 +137,8 @@ html[data-motion='on'] .g-blob {
     rgba(16, 13, 38, 0.42);
   /* clearer than frosted glass; liquidLens.ts adds real refraction on top
      of this in Chromium, and this is what every other engine shows */
-  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.06);
-  backdrop-filter: blur(16px) saturate(180%) brightness(1.06);
+  -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.06);
+  backdrop-filter: blur(12px) saturate(180%) brightness(1.06);
   border: 1px solid var(--g-line);
   border-radius: 28px;
   /* Thickness: a lit top edge, a soft inner glow under it, and the lower
@@ -274,7 +275,7 @@ html[data-motion='on'] .g-live-dot {
    felt choppy: filters repaint every frame, transforms and opacity do not. */
 html[data-motion='on'] .reveal:not(.in) {
   opacity: 0;
-  translate: 0 28px;
+  translate: 0 18px;
 }
 
 /* The entrance uses the `translate` property and leaves `transform` alone,
@@ -284,8 +285,8 @@ html[data-motion='on'] .reveal:not(.in) {
    pointer leaves instead of snapping flat. */
 html[data-motion='on'] .reveal {
   transition:
-    opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
-    translate 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
+    opacity 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
+    translate 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
     transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
@@ -524,6 +525,16 @@ html[data-motion='on'] .g-nav-blob {
    again when the scroll settles; see liquidLens.ts. The nav and hero pills
    (data-lens) keep bending throughout. */
 html.g-scrolling .glass:not([data-lens]) {
-  -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.08) !important;
-  backdrop-filter: blur(10px) saturate(180%) brightness(1.08) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(180%) brightness(1.08) !important;
+  backdrop-filter: blur(8px) saturate(180%) brightness(1.08) !important;
+}
+
+/* The drift is the one thing that moves the backdrop when nothing else is
+   happening, and every glass panel re-blurs whatever moves behind it, so a
+   drift running under the whole page redraws every visible panel on every
+   frame, forever. It runs while the hero is on screen, where there is very
+   little glass, and pauses below it and during any scroll. */
+.g-backdrop.still .g-blob,
+html.g-scrolling .g-blob {
+  animation-play-state: paused;
 }

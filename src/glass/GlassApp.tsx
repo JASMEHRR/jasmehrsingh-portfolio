@@ -48,6 +48,24 @@ function Backdrop() {
 }
 
 /**
+ * Pauses the blob drift once the hero has scrolled away (.g-backdrop.still in
+ * glass.css). Below the hero the page is mostly glass, and a drifting
+ * backdrop makes every visible panel redraw on every frame.
+ */
+function useDriftWhileHeroVisible() {
+  useEffect(() => {
+    const hero = document.querySelector('.g-hero');
+    const backdrop = document.querySelector('.g-backdrop');
+    if (!hero || !backdrop || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry) backdrop.classList.toggle('still', !entry.isIntersecting);
+    });
+    io.observe(hero);
+    return () => io.disconnect();
+  }, []);
+}
+
+/**
  * Scroll progress as a CSS variable, without re-rendering React.
  *
  * Written only onto the two elements that read it, the backdrop (parallax)
@@ -218,6 +236,7 @@ export default function GlassApp() {
   useCursorFx(motion && fine);
   const github = useGitHub();
   useScrollVars();
+  useDriftWhileHeroVisible();
   // rescan once GitHub data lands, so the cards it adds are revealed and
   // given their lens too
   useReveal(github);
