@@ -11,6 +11,7 @@
     "deploy": "npx netlify deploy --build --prod --site f5166db2-cbe6-43a6-90f4-5c115fae5b66"
   },
   "dependencies": {
+    "@netlify/blobs": "^11.1.0",
     "framer-motion": "^13.2.0",
     "lucide-react": "^0.577.0",
     "react": "^18.3.1",

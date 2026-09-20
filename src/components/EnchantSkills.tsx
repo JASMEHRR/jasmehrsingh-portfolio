@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { usePortfolio } from '../hooks/usePortfolio';
+import { applyLevels, useLiveLevels } from '../glass/skillEdits';
 import { Panel, EnchantRow } from './mc/Gui';
 
 /**
@@ -10,7 +11,10 @@ import { Panel, EnchantRow } from './mc/Gui';
  * swaps the list rather than scrolling, which keeps every skill one click away.
  */
 export default function EnchantSkills() {
-  const { skills } = usePortfolio();
+  const portfolio = usePortfolio();
+  // levels edited on the live site apply here too, so both modes agree
+  const [live] = useLiveLevels();
+  const skills = { categories: applyLevels(portfolio.skills.categories, live) };
   const [active, setActive] = useState(0);
   const category = skills.categories[active];
 

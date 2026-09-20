@@ -71,9 +71,9 @@ export function useReveal(version: unknown = 0) {
           io.unobserve(e.target);
         }
       },
-      // starts a little before the element reaches the screen, so scrolling
-      // arrives at content already appearing rather than at empty space
-      { rootMargin: '0px 0px 12% 0px', threshold: 0 },
+      // starts a quarter of a screen before the element arrives, so
+      // scrolling meets content already appearing rather than empty space
+      { rootMargin: '0px 0px 25% 0px', threshold: 0 },
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
@@ -180,7 +180,7 @@ export function useCountUp(value: string, motion: boolean) {
         }
       },
       // The first visible pixel. The panel has already faded in (useReveal
-      // starts 12% below the screen), and the count drops to zero in the same
+      // starts a quarter screen below), and the count drops to zero in the same
       // frame the stat appears, so there is no flash of the final figure; any
       // earlier and a slow scroll would finish the count off screen.
       { rootMargin: '0px', threshold: 0 },

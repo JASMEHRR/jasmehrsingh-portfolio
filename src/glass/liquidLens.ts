@@ -22,10 +22,10 @@ import { useEffect, useRef } from 'react';
  * backdrop-filter. Safari and Firefox keep the stylesheet's frosted blur,
  * which is a fallback, not a failure.
  *
- * Each panel is only given its lens when it first comes near the viewport,
- * and each map only computes the rim band where anything bends, so the work
- * is spread out and small. `version` asks for a rescan after new panels mount,
- * such as the ones the GitHub data adds.
+ * Lenses are built in idle time, never mid-scroll, and each map only computes
+ * the rim band where anything bends, so the work is spread out and small.
+ * `version` asks for a rescan after new panels mount, such as the ones the
+ * GitHub data adds.
  */
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -44,9 +44,8 @@ function everyPanel(): boolean {
  * off with the square of the distance, the profile of a lens edge rather than
  * a flat bevel. The middle is left untouched, so the glass stays clear.
  *
- * Only the rim is computed: the top and bottom bands (which hold the rounded
- * corners) in full, and in between just the left and right strips, where the
- * edge is straight and the pull is purely sideways. On a large card that is a
+ * Only the rim is computed, and only the four corners need a distance field;
+ * along the straight edges the pull is straight in. On a large card that is a
  * small fraction of the pixels.
  */
 export function lensMap(w: number, h: number, radius: number, bezel: number): string {
@@ -57,12 +56,9 @@ export function lensMap(w: number, h: number, radius: number, bezel: number): st
   if (!ctx) return '';
   const img = ctx.createImageData(w, h);
   const data = img.data;
-  for (let i = 0; i < data.length; i += 4) {
-    data[i] = 128;
-    data[i + 1] = 128;
-    data[i + 2] = 128;
-    data[i + 3] = 255;
-  }
+  // every pixel to (128, 128, 128, 255), "no pull", as one native fill rather
+  // than a loop over each byte, which took 10ms on a large card by itself
+  new Uint32Array(data.buffer).fill(0xff808080);
 
   const hx = w / 2;
   const hy = h / 2;
@@ -78,31 +74,47 @@ export function lensMap(w: number, h: number, radius: number, bezel: number): st
     data[i + 1] = Math.round(128 + vy * 127);
   };
 
+  // The four corner squares hold the only curved rim, so only they need the
+  // distance field. Everywhere else the rim is a straight edge, and the pull
+  // is straight in from it: the same answer the field gives, for a fraction
+  // of the work.
   const band = Math.ceil(bezel + r);
-  for (let y = 0; y < h; y++) {
-    const inCornerRows = y < band || y >= h - band;
-    for (let x = 0; x < w; x++) {
-      if (!inCornerRows) {
-        // straight left and right edges: skip the clear middle entirely
-        if (x >= bezel && x < w - bezel) {
-          x = Math.max(x, Math.floor(w - bezel) - 1);
-          continue;
+  const bx = Math.min(band, Math.ceil(hx));
+  const by = Math.min(band, Math.ceil(hy));
+  for (const [y0, y1] of [[0, by], [h - by, h]]) {
+    for (const [x0, x1] of [[0, bx], [w - bx, w]]) {
+      for (let y = y0; y < y1; y++) {
+        for (let x = x0; x < x1; x++) {
+          const px = x + 0.5;
+          const py = y + 0.5;
+          const d = -sd(px, py);
+          if (d <= 0 || d >= bezel) continue;
+          const gx = sd(px + 1, py) - sd(px - 1, py);
+          const gy = sd(px, py + 1) - sd(px, py - 1);
+          const len = Math.hypot(gx, gy) || 1;
+          const t = 1 - d / bezel;
+          put(x, y, (-gx / len) * t * t, (-gy / len) * t * t);
         }
-        const d = Math.min(x + 0.5, w - x - 0.5);
-        if (d >= bezel) continue;
-        const t = 1 - d / bezel;
-        put(x, y, (x < hx ? 1 : -1) * t * t, 0);
-        continue;
       }
-      const px = x + 0.5;
-      const py = y + 0.5;
-      const d = -sd(px, py);
-      if (d <= 0 || d >= bezel) continue;
-      const gx = sd(px + 1, py) - sd(px - 1, py);
-      const gy = sd(px, py + 1) - sd(px, py - 1);
-      const len = Math.hypot(gx, gy) || 1;
+    }
+  }
+  const edge = Math.ceil(bezel);
+  // top and bottom edges, between the corners
+  for (let y = 0; y < Math.min(edge, by); y++) {
+    for (const row of y === h - 1 - y ? [y] : [y, h - 1 - y]) {
+      const d = Math.min(row + 0.5, h - row - 0.5);
+      if (d >= bezel) continue;
       const t = 1 - d / bezel;
-      put(x, y, (-gx / len) * t * t, (-gy / len) * t * t);
+      for (let x = bx; x < w - bx; x++) put(x, row, 0, (row < hy ? 1 : -1) * t * t);
+    }
+  }
+  // left and right edges, between the corners
+  for (let x = 0; x < Math.min(edge, bx); x++) {
+    for (const col of x === w - 1 - x ? [x] : [x, w - 1 - x]) {
+      const d = Math.min(col + 0.5, w - col - 0.5);
+      if (d >= bezel) continue;
+      const t = 1 - d / bezel;
+      for (let y = by; y < h - by; y++) put(col, y, (col < hx ? 1 : -1) * t * t, 0);
     }
   }
   ctx.putImageData(img, 0, 0);
@@ -159,7 +171,7 @@ export function useLiquidLens(version: unknown = 0) {
   const scanRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    if (!CHROMIUM || !('ResizeObserver' in window) || !('IntersectionObserver' in window)) return;
+    if (!CHROMIUM || !('ResizeObserver' in window) || !('requestIdleCallback' in window)) return;
 
     const svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('aria-hidden', 'true');
@@ -213,7 +225,8 @@ export function useLiquidLens(version: unknown = 0) {
         svg.appendChild(filter);
         el.style.setProperty(
           'backdrop-filter',
-          `url(#${id}) blur(${pill ? 3 : 8}px) saturate(180%) brightness(1.08)`,
+          // --g-tint is the colour work all glass shares; see glass.css
+          `url(#${id}) blur(${pill ? 3 : 8}px) var(--g-tint)`,
         );
         lens = { image, key: '' };
         lenses.set(el, lens);
@@ -225,59 +238,89 @@ export function useLiquidLens(version: unknown = 0) {
       lens.key = key;
     };
 
-    const resize = new ResizeObserver((entries) => {
-      for (const e of entries) if (lenses.has(e.target as HTMLElement)) build(e.target as HTMLElement);
-    });
-    // a panel gets its lens the first time it comes near the screen
-    const near = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (!e.isIntersecting) continue;
-          const el = e.target as HTMLElement;
-          near.unobserve(el);
-          start(el);
-        }
-      },
-      { rootMargin: '300px 0px' },
-    );
-
-    const start = (el: HTMLElement) => {
-      build(el);
-      resize.observe(el);
+    // Maps are built in idle time and never during a scroll. They used to be
+    // built as each panel came near the screen, which is to say mid-scroll,
+    // several at once as a row of cards arrived, at up to 36ms each: the page
+    // stalled right where it should have been revealing the next section.
+    // Mid-scroll the panels do not show their lens anyway (see onScroll).
+    const root = document.documentElement;
+    const queue = new Set<HTMLElement>();
+    let idle = 0;
+    let scrolling = false;
+    const pump = (deadline: IdleDeadline) => {
+      idle = 0;
+      if (scrolling) return; // picked up again when the scroll settles
+      for (const el of queue) {
+        queue.delete(el);
+        build(el);
+        if (deadline.timeRemaining() < 4) break;
+      }
+      if (queue.size > 0) schedule();
+    };
+    const schedule = () => {
+      if (!idle && !scrolling) idle = requestIdleCallback(pump, { timeout: 300 });
+    };
+    const enqueue = (el: HTMLElement) => {
+      queue.add(el);
+      schedule();
     };
 
-    // Whatever is already on screen (the nav bar, the hero) gets its lens
-    // straight away rather than a frame later, when the observer first
-    // reports; everything further down waits until it comes near.
+    // a new size needs a new map; build() skips it if nothing actually changed
+    const resize = new ResizeObserver((entries) => {
+      for (const e of entries) enqueue(e.target as HTMLElement);
+    });
+
     const selector = everyPanel() ? '[data-lens], .glass' : '[data-lens]';
-    const margin = 300;
     const seen = new WeakSet<HTMLElement>();
     const scan = () => {
+      const fresh: { el: HTMLElement; onScreen: boolean }[] = [];
       for (const el of document.querySelectorAll<HTMLElement>(selector)) {
         if (seen.has(el)) continue;
         seen.add(el);
+        // a glass chip inside a glass card has only the card's flat tint
+        // behind it, nothing to bend; glass.css drops its backdrop filter
+        if (el.parentElement?.closest('.glass')) continue;
         const r = el.getBoundingClientRect();
-        if (r.bottom > -margin && r.top < window.innerHeight + margin) start(el);
-        else near.observe(el);
+        fresh.push({ el, onScreen: r.bottom > 0 && r.top < window.innerHeight });
+      }
+      // what is on screen first (the nav, and wherever the page opened),
+      // then the rest from the top down
+      fresh.sort((a, b) => Number(b.onScreen) - Number(a.onScreen));
+      for (const { el, onScreen } of fresh) {
+        // The nav and the hero's pills on screen bend from the first frame,
+        // not frosted until the first idle moment and then visibly clearing.
+        // They are small, so building them now costs next to nothing.
+        if (onScreen && el.hasAttribute('data-lens')) build(el);
+        else enqueue(el);
+        resize.observe(el);
       }
     };
     scan();
     scanRef.current = scan;
 
     // While the page scrolls, every refracting panel re-runs its filter each
-    // frame over a backdrop that is moving under it. Panels fall back to
-    // their plain blur for the length of a scroll (html.g-scrolling, see
-    // glass.css) and bend again once it settles; the nav and the hero's pills
-    // keep refracting throughout, since the page bending under the nav as it
+    // frame over a backdrop that is moving under it. Panels fall back to a
+    // plain tint for the length of a scroll (html.g-scrolling, see glass.css)
+    // and bend again once it settles; the nav and the hero's pills keep
+    // refracting throughout, since the page bending under the nav as it
     // scrolls is the effect worth paying for.
     let settle = 0;
     const onScroll = () => {
-      document.documentElement.classList.add('g-scrolling');
+      if (!scrolling) {
+        scrolling = true;
+        root.classList.add('g-scrolling');
+        cancelIdleCallback(idle);
+        idle = 0;
+      }
       window.clearTimeout(settle);
       // long enough that the gaps in a slow scroll do not count as stopping:
       // at 160ms every pause flipped every panel's filter off and on again,
       // and each flip repaints them all
-      settle = window.setTimeout(() => document.documentElement.classList.remove('g-scrolling'), 400);
+      settle = window.setTimeout(() => {
+        scrolling = false;
+        root.classList.remove('g-scrolling');
+        schedule();
+      }, 400);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
 
@@ -285,8 +328,9 @@ export function useLiquidLens(version: unknown = 0) {
       scanRef.current = null;
       window.removeEventListener('scroll', onScroll);
       window.clearTimeout(settle);
-      document.documentElement.classList.remove('g-scrolling');
-      near.disconnect();
+      cancelIdleCallback(idle);
+      queue.clear();
+      root.classList.remove('g-scrolling');
       resize.disconnect();
       for (const el of lenses.keys()) el.style.removeProperty('backdrop-filter');
       svg.remove();

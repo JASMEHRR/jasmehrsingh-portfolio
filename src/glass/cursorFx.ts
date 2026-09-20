@@ -24,7 +24,8 @@ import { useEffect } from 'react';
  * Only mounted for a mouse (a fine pointer that can hover) with motion on.
  */
 
-const PANEL = '.glass:not(.glass-pill)';
+// not a dialog: the password prompt leaning about while you type in it
+const PANEL = '.glass:not(.glass-pill, dialog)';
 const MAGNET = 'a.glass-pill, button.glass-pill, [data-magnet]';
 
 /**

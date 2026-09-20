@@ -11,6 +11,7 @@ import { GrassCube } from './GrassBlock';
 import Work from './Work';
 import Activity from './Activity';
 import LinkedIn from './LinkedIn';
+import Skills from './Skills';
 import type { Ore } from '../types/portfolio';
 import './glass.css';
 
@@ -110,19 +111,101 @@ function initials(name: string): string {
     .slice(0, 2);
 }
 
-function Nav({ name, motion, toggleMotion }: { name: string; motion: boolean; toggleMotion: () => void }) {
-  // the glass bead that springs between links; positioned from the hovered
-  // link's own offsets, so it needs no state and causes no re-render
+/** Which nav link each section belongs to. Sections not listed (the hero, the numbers, About) light none. */
+const SECTION_LINK: Record<string, string> = {
+  work: '#work',
+  activity: '#work',
+  journey: '#journey',
+  skills: '#skills',
+  contact: '#contact',
+};
+
+/**
+ * The nav link for the section being read, as the page scrolls.
+ *
+ * An observer watches a thin line 40% of the way down the screen rather than
+ * listening to scroll, so it costs nothing per frame. The sections sit end to
+ * end, so the line is always inside one of them. `version` re-observes after
+ * the GitHub data changes the sections.
+ */
+function useScrollSpy(version: unknown): string | null {
+  const [active, setActive] = useState<string | null>(null);
+  useEffect(() => {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('main > section'));
+    if (sections.length === 0 || !('IntersectionObserver' in window)) return;
+    const onLine = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) onLine.add(e.target);
+          else onLine.delete(e.target);
+        }
+        // where two sections meet on the line, the lower one wins, so a tab
+        // lights as soon as its section's heading reaches it
+        const current = sections.filter((s) => onLine.has(s)).pop();
+        setActive(current ? (SECTION_LINK[current.id] ?? null) : null);
+      },
+      { rootMargin: '-40% 0px -55% 0px' },
+    );
+    sections.forEach((s) => io.observe(s));
+    return () => io.disconnect();
+  }, [version]);
+  return active;
+}
+
+function Nav({
+  name,
+  motion,
+  toggleMotion,
+  version,
+}: {
+  name: string;
+  motion: boolean;
+  toggleMotion: () => void;
+  version: unknown;
+}) {
+  // The glass bead that springs between links. It sits on the tab for the
+  // section being read, follows the pointer across the others, and goes
+  // back when the pointer leaves. Positioned from the link's own offsets.
   const blob = useRef<HTMLSpanElement>(null);
-  const moveTo = (e: SyntheticEvent<HTMLAnchorElement>) => {
-    const a = e.currentTarget;
+  const linkRefs = useRef(new Map<string, HTMLAnchorElement>());
+  const hovering = useRef(false);
+  const active = useScrollSpy(version);
+  const place = (a: HTMLAnchorElement | null | undefined) => {
     const b = blob.current;
     if (!b) return;
+    if (!a) {
+      b.classList.remove('on');
+      return;
+    }
     b.style.setProperty('--x', `${a.offsetLeft}px`);
     b.style.setProperty('--w', `${a.offsetWidth}px`);
     b.classList.add('on');
   };
-  const hide = () => blob.current?.classList.remove('on');
+  // Pointer events rather than mouse ones: a tap on a touch screen sends a
+  // mouseenter but never the mouseleave, which left the bead stuck on the
+  // tapped link, whereas pointerleave follows every tap once the finger lifts
+  const moveTo = (e: SyntheticEvent<HTMLAnchorElement>) => {
+    hovering.current = true;
+    place(e.currentTarget);
+  };
+  const settle = () => {
+    hovering.current = false;
+    place(active ? linkRefs.current.get(active) : null);
+  };
+  useEffect(() => {
+    let current = true;
+    const onActive = () => {
+      if (current && !hovering.current) place(active ? linkRefs.current.get(active) : null);
+    };
+    onActive();
+    // measured again once the web fonts are in: a page reopened mid-scroll
+    // lights a tab straight away, sized to the fallback font
+    void document.fonts?.ready.then(onActive);
+    return () => {
+      current = false;
+    };
+  }, [active]);
   const links = [
     ['Work', '#work'],
     ['Journey', '#journey'],
@@ -143,17 +226,22 @@ function Nav({ name, motion, toggleMotion }: { name: string; motion: boolean; to
         >
           {initials(name)}
         </a>
-        <ul className="relative hidden items-center sm:flex" onMouseLeave={hide}>
+        <ul className="relative hidden items-center sm:flex" onPointerLeave={settle}>
           <span ref={blob} className="g-nav-blob" aria-hidden />
           {links.map(([label, href]) => (
             <li key={href}>
               <a
                 href={href}
+                ref={(el) => {
+                  if (el) linkRefs.current.set(href, el);
+                  else linkRefs.current.delete(href);
+                }}
                 data-magnet
-                onMouseEnter={moveTo}
+                aria-current={active === href ? 'location' : undefined}
+                onPointerEnter={moveTo}
                 onFocus={moveTo}
-                onBlur={hide}
-                className="relative z-[1] inline-block rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--g-soft)] transition-colors hover:text-[color:var(--g-ink)]"
+                onBlur={settle}
+                className="relative z-[1] inline-block rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--g-soft)] transition-colors hover:text-[color:var(--g-ink)] aria-[current=location]:text-[color:var(--g-ink)]"
               >
                 {label}
               </a>
@@ -258,7 +346,7 @@ export default function GlassApp() {
       >
         Skip to content
       </a>
-      <Nav name={profile.name} motion={motion} toggleMotion={toggleMotion} />
+      <Nav name={profile.name} motion={motion} toggleMotion={toggleMotion} version={github} />
 
       <main id="top" className="relative z-10">
         {/* ------------------------------------------------ hero */}
@@ -416,34 +504,7 @@ export default function GlassApp() {
               What I bring
             </h2>
           </header>
-          <div className="grid gap-5 md:grid-cols-2">
-            {skills.categories.map((cat, i) => (
-              <div key={cat.name} className="glass reveal p-6 sm:p-7" style={{ '--d': `${(i % 2) * 90}ms` } as CSSProperties}>
-                <h3 className="g-display text-xl font-semibold">{cat.name}</h3>
-                <ul className="mt-5 space-y-3">
-                  {cat.items.map((s) => (
-                    <li key={s.name} className="flex items-center justify-between gap-4">
-                      <span>{s.name}</span>
-                      <span className="flex gap-1" role="img" aria-label={`${s.level} out of 5`}>
-                        {[1, 2, 3, 4, 5].map((n) => (
-                          <span
-                            key={n}
-                            className="h-2 w-5 rounded-full"
-                            style={{
-                              background:
-                                n <= s.level
-                                  ? 'linear-gradient(90deg, var(--g-cyan), var(--g-violet))'
-                                  : 'rgba(255,255,255,.12)',
-                            }}
-                          />
-                        ))}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          <Skills categories={skills.categories} />
 
           <h3 className="g-display reveal mt-16 text-3xl font-bold">Education</h3>
           <div className="mt-6 grid gap-5 md:grid-cols-3">

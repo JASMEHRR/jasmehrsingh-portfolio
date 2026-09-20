@@ -24,6 +24,11 @@ html[data-mode='glass'] {
   --g-amber: #ffbe55;
   --g-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
   --g-text: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* The colour work every piece of glass does to what is behind it, shared
+     by the resting blur, the refracting lens (liquidLens.ts) and the
+     mid-scroll fallback. One value, so switching between them never shifts
+     the colour; they used to disagree, and panels flickered on each scroll. */
+  --g-tint: saturate(180%) brightness(1.06);
   scroll-behavior: smooth;
 }
 
@@ -114,9 +119,13 @@ html[data-motion='on'] .g-blob {
   }
 
   /* lighter than desktop's 12px: the weakest devices get the cheapest blur */
+  html[data-mode='glass'] {
+    --g-tint: saturate(160%);
+  }
+
   .glass {
-    -webkit-backdrop-filter: blur(9px) saturate(160%);
-    backdrop-filter: blur(9px) saturate(160%);
+    -webkit-backdrop-filter: blur(9px) var(--g-tint);
+    backdrop-filter: blur(9px) var(--g-tint);
   }
 }
 
@@ -138,8 +147,8 @@ html[data-motion='on'] .g-blob {
     rgba(16, 13, 38, 0.42);
   /* clearer than frosted glass; liquidLens.ts adds real refraction on top
      of this in Chromium, and this is what every other engine shows */
-  -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.06);
-  backdrop-filter: blur(12px) saturate(180%) brightness(1.06);
+  -webkit-backdrop-filter: blur(12px) var(--g-tint);
+  backdrop-filter: blur(12px) var(--g-tint);
   border: 1px solid var(--g-line);
   border-radius: 28px;
   /* Thickness: a lit top edge, a soft inner glow under it, and the lower
@@ -208,6 +217,15 @@ html[data-motion='on'] .g-blob {
   border-radius: 999px;
 }
 
+/* Glass inside glass (the stack chips on a project card, the buttons on the
+   contact card) has only its parent's flat tint behind it, so a backdrop
+   filter there blurs nothing you can see. Each one still cost the browser a
+   full extra render pass on every frame, and there were thirty of them. */
+.glass .glass {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
 a.glass,
 button.glass {
   transition:
@@ -225,9 +243,21 @@ html[data-motion='on'] :is(a.glass, button.glass, [data-magnet]):active {
   transition-duration: 0.08s;
 }
 
+/* Anything that can be clicked is tinted violet to cyan and warms up on
+   hover, so a button never reads as one more glass label: the stack chips,
+   the badges and the panels stay clear. */
+a.glass,
+button.glass {
+  background:
+    linear-gradient(135deg, rgba(139, 108, 255, 0.34), rgba(58, 216, 255, 0.14) 70%),
+    rgba(26, 20, 60, 0.5);
+  border-color: rgba(176, 158, 255, 0.5);
+}
+
 a.glass:hover,
 button.glass:hover {
-  border-color: rgba(255, 255, 255, 0.32);
+  background-color: rgba(139, 108, 255, 0.4);
+  border-color: rgba(214, 204, 255, 0.85);
 }
 
 html[data-motion='on'] a.glass:hover,
@@ -286,8 +316,8 @@ html[data-motion='on'] .reveal:not(.in) {
    pointer leaves instead of snapping flat. */
 html[data-motion='on'] .reveal {
   transition:
-    opacity 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
-    translate 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
+    opacity 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
+    translate 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms),
     transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
@@ -522,12 +552,16 @@ html[data-motion='on'] .g-nav-blob {
   opacity: 0;
 }
 
-/* mid-scroll, panels drop their refraction for a plain blur and pick it up
-   again when the scroll settles; see liquidLens.ts. The nav and hero pills
-   (data-lens) keep bending throughout. */
-html.g-scrolling .glass:not([data-lens]) {
-  -webkit-backdrop-filter: blur(8px) saturate(180%) brightness(1.08) !important;
-  backdrop-filter: blur(8px) saturate(180%) brightness(1.08) !important;
+/* Mid-scroll, panels drop their refraction and their blur, and pick both up
+   again when the scroll settles; see liquidLens.ts. The blur goes too
+   because behind a panel there is only the backdrop, whose colour is
+   already blurred soft, so blurring it again changes nothing you can see
+   while costing the most of anything on the page, every panel, every frame.
+   The tint stays (--g-tint), so the colour does not flicker. The nav and
+   hero pills (data-lens) keep bending throughout. */
+html.g-scrolling .glass:not([data-lens], .glass .glass) {
+  -webkit-backdrop-filter: var(--g-tint) !important;
+  backdrop-filter: var(--g-tint) !important;
 }
 
 /* The drift is the one thing that moves the backdrop when nothing else is
@@ -538,4 +572,47 @@ html.g-scrolling .glass:not([data-lens]) {
 .g-backdrop.still .g-blob,
 html.g-scrolling .g-blob {
   animation-play-state: paused;
+}
+
+/* ---------------------------------------------------------- skill editor
+   See Skills.tsx. The password prompt is a native modal <dialog>, which
+   brings focus trapping and Escape to close for free. .glass makes it
+   position: relative, and a top-layer element that is not fixed would open
+   at the top of the document rather than on screen, so it is pinned. */
+dialog.g-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(92vw, 380px);
+  height: fit-content;
+  color: var(--g-ink);
+}
+
+dialog.g-dialog::backdrop {
+  background: rgba(6, 5, 16, 0.55);
+}
+
+.g-input {
+  border: 1px solid var(--g-line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
+  color: var(--g-ink);
+}
+
+.g-input:focus {
+  border-color: var(--g-cyan);
+  outline: none;
+}
+
+/* the blocks, as buttons, while editing */
+.g-block {
+  border-radius: 999px;
+  transition: scale 0.2s cubic-bezier(0.3, 1.8, 0.45, 1), filter 0.2s ease;
+}
+
+.g-block:hover {
+  scale: 1.18;
+  filter: brightness(1.35);
 }
