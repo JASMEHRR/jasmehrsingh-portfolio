@@ -243,7 +243,6 @@ export function useLiquidLens(version: unknown = 0) {
     // several at once as a row of cards arrived, at up to 36ms each: the page
     // stalled right where it should have been revealing the next section.
     // Mid-scroll the panels do not show their lens anyway (see onScroll).
-    const root = document.documentElement;
     const queue = new Set<HTMLElement>();
     let idle = 0;
     let scrolling = false;
@@ -300,25 +299,22 @@ export function useLiquidLens(version: unknown = 0) {
 
     // While the page scrolls, every refracting panel re-runs its filter each
     // frame over a backdrop that is moving under it. Panels fall back to a
-    // plain tint for the length of a scroll (html.g-scrolling, see glass.css)
-    // and bend again once it settles; the nav and the hero's pills keep
-    // refracting throughout, since the page bending under the nav as it
-    // scrolls is the effect worth paying for.
+    // plain tint for the length of a scroll (html.g-scrolling, which
+    // useScrollState in motion.ts sets, see glass.css) and bend again once it
+    // settles; the nav and the hero's pills keep refracting throughout, since
+    // the page bending under the nav as it scrolls is the effect worth paying
+    // for. This is the same span of time, for a different reason: no map is
+    // built while the page is moving.
     let settle = 0;
     const onScroll = () => {
       if (!scrolling) {
         scrolling = true;
-        root.classList.add('g-scrolling');
         cancelIdleCallback(idle);
         idle = 0;
       }
       window.clearTimeout(settle);
-      // long enough that the gaps in a slow scroll do not count as stopping:
-      // at 160ms every pause flipped every panel's filter off and on again,
-      // and each flip repaints them all
       settle = window.setTimeout(() => {
         scrolling = false;
-        root.classList.remove('g-scrolling');
         schedule();
       }, 400);
     };
@@ -330,7 +326,6 @@ export function useLiquidLens(version: unknown = 0) {
       window.clearTimeout(settle);
       cancelIdleCallback(idle);
       queue.clear();
-      root.classList.remove('g-scrolling');
       resize.disconnect();
       for (const el of lenses.keys()) el.style.removeProperty('backdrop-filter');
       svg.remove();

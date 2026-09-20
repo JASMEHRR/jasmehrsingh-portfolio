@@ -80,6 +80,36 @@ export function useReveal(version: unknown = 0) {
   }, [version]);
 }
 
+/**
+ * Marks the page as moving, as html.g-scrolling, for the length of a scroll.
+ *
+ * Several things hang off it in glass.css: panels drop their blur and their
+ * refraction while the page moves, the drifting colour behind them holds
+ * still, and the scrollbar lights up. It used to be set inside the lens,
+ * which runs in Chromium only, so every other browser kept its full blur
+ * through every scroll and a scrollbar that never answered.
+ */
+export function useScrollState() {
+  useEffect(() => {
+    const root = document.documentElement;
+    let settle = 0;
+    const onScroll = () => {
+      root.classList.add('g-scrolling');
+      window.clearTimeout(settle);
+      // long enough that the gaps in a slow scroll do not count as stopping:
+      // at 160ms every pause flipped every panel's filter off and on again,
+      // and each flip repaints them all
+      settle = window.setTimeout(() => root.classList.remove('g-scrolling'), 400);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.clearTimeout(settle);
+      root.classList.remove('g-scrolling');
+    };
+  }, []);
+}
+
 /** A stat value split into the part that counts and the text around it. */
 function parseStat(value: string): { n: number; format: (x: number) => string } | null {
   const m = /^([\d,]+(?:\.\d+)?)([A-Za-z]*)(\+?)$/.exec(value.trim());

@@ -108,6 +108,8 @@ export function useLiveContent(base: Portfolio): [Overrides, (o: Overrides) => v
 export type SendResult =
   | { result: 'ok'; content: Overrides }
   | { result: 'wrong-password' }
+  /** The page is older than the site: it asked for an endpoint that has since moved. */
+  | { result: 'stale' }
   | { result: 'failed'; error?: string };
 
 async function send(base: Portfolio, body: { password: string; sections?: Overrides }): Promise<SendResult> {
@@ -118,6 +120,10 @@ async function send(base: Portfolio, body: { password: string; sections?: Overri
       body: JSON.stringify(body),
     });
     if (r.status === 401) return { result: 'wrong-password' };
+    // A page where the answer should be means this tab is running an older
+    // build of the site, asking for an endpoint that has since moved; the
+    // site's own SPA fallback answers those with index.html and a 200.
+    if ((r.headers.get('content-type') ?? '').toLowerCase().includes('text/html')) return { result: 'stale' };
     // the function's own answer, not merely a 200: a page served in its
     // place would otherwise let any password in and report every save done
     const d = (await r.json().catch(() => null)) as { ok?: unknown; content?: unknown; error?: unknown } | null;

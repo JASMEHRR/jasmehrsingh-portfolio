@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type Syntheti
 import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, Pause, Phone, Sparkles } from 'lucide-react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { useCountUp, useMotion, useReveal } from './motion';
+import { useCountUp, useMotion, useReveal, useScrollState } from './motion';
 import { useCursorFx } from './cursorFx';
 import { CHROMIUM, useLiquidLens } from './liquidLens';
 import LiquidCursor from './LiquidCursor';
@@ -333,6 +333,7 @@ function GlassPage({ content }: { content: Portfolio }) {
   useCursorFx(motion && fine);
   const github = useGitHub();
   useScrollVars();
+  useScrollState();
   useDriftWhileHeroVisible();
   // rescan when GitHub data lands or an edit adds a card, so what appears is
   // revealed and given its lens too

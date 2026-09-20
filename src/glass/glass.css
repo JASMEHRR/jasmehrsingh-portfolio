@@ -587,6 +587,25 @@ dialog.g-dialog {
   height: fit-content;
   max-height: 90vh;
   color: var(--g-ink);
+  /* No bars on the prompt itself. A dialog scrolls by default, so on a short
+     window it grew a bar down the side and, once that took its width, another
+     along the bottom. It still scrolls if it has to, with nothing drawn. */
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+dialog.g-dialog::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* The rim ring sits a pixel outside every other panel, which is what a
+   scrolling box counts as content it has to reach. On the prompt that was
+   the whole reason both bars appeared, so here the ring sits just inside. */
+dialog.g-dialog::before {
+  inset: 0;
 }
 
 /* the section forms, which hold a list of projects or jobs */
@@ -632,4 +651,58 @@ input[type='color'].g-input {
 .g-block:hover {
   scale: 1.18;
   filter: brightness(1.35);
+}
+
+/* ---------------------------------------------------------- scrollbar
+   The page's own scrollbar, in the site's colours rather than the system's
+   grey. It rests dim and lights up while the page is moving (html.g-scrolling
+   is already on for the length of a scroll, see liquidLens.ts) or while the
+   pointer is on it, so it answers the scroll the way everything else does.
+   Colours are written out rather than taken from the variables, because a
+   scrollbar is drawn outside the page's own painting. */
+html[data-mode='glass'] {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 108, 255, 0.45) transparent;
+}
+
+html[data-mode='glass'].g-scrolling {
+  scrollbar-color: rgba(167, 139, 250, 0.95) transparent;
+}
+
+html[data-mode='glass']::-webkit-scrollbar,
+html[data-mode='glass'] ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+html[data-mode='glass']::-webkit-scrollbar-track,
+html[data-mode='glass'] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* the gap around the thumb is a transparent border, which is what gives a
+   rounded bead with room to breathe rather than a bar wall to wall */
+html[data-mode='glass']::-webkit-scrollbar-thumb,
+html[data-mode='glass'] ::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+  background-image: linear-gradient(
+    180deg,
+    rgba(58, 216, 255, 0.4),
+    rgba(139, 108, 255, 0.4) 55%,
+    rgba(255, 92, 168, 0.4)
+  );
+}
+
+html[data-mode='glass'].g-scrolling::-webkit-scrollbar-thumb,
+html[data-mode='glass']::-webkit-scrollbar-thumb:hover,
+html[data-mode='glass'] ::-webkit-scrollbar-thumb:hover {
+  border-width: 2px;
+  background-image: linear-gradient(180deg, #3ad8ff, #8b6cff 55%, #ff5ca8);
+}
+
+html[data-mode='glass']::-webkit-scrollbar-corner,
+html[data-mode='glass'] ::-webkit-scrollbar-corner {
+  background: transparent;
 }

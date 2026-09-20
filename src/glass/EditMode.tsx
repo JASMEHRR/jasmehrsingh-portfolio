@@ -416,7 +416,13 @@ export default function EditProvider({
       form.reset();
       login.current?.close();
     } else {
-      setLoginError(r.result === 'wrong-password' ? 'That password is not right.' : 'Could not reach the site. Try again.');
+      setLoginError(
+        r.result === 'wrong-password'
+          ? 'That password is not right.'
+          : r.result === 'stale'
+            ? 'This page is older than the site. Reload it and try again.'
+            : 'Could not reach the site. Try again.',
+      );
     }
   };
 
@@ -439,6 +445,8 @@ export default function EditProvider({
     } else if (r.result === 'wrong-password') {
       setPassword(null);
       setStatus('The password has changed. Leave and unlock again.');
+    } else if (r.result === 'stale') {
+      setStatus('This page is older than the site. Reload to edit again, which loses what is unpublished here.');
     } else {
       setStatus(r.error ?? 'Could not publish. Try again.');
     }
