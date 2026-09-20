@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type SyntheticEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type SyntheticEvent } from 'react';
 import { ArrowUpRight, Check, Copy, Github, Linkedin, Mail, Pause, Phone, Sparkles } from 'lucide-react';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useMediaQuery } from '../hooks/useMediaQuery';
@@ -12,7 +12,9 @@ import Work from './Work';
 import Activity from './Activity';
 import LinkedIn from './LinkedIn';
 import Skills from './Skills';
-import type { Ore } from '../types/portfolio';
+import EditProvider, { EditPencil } from './EditMode';
+import { useEdit } from './editContext';
+import type { Ore, Portfolio } from '../types/portfolio';
 import './glass.css';
 
 /**
@@ -318,17 +320,26 @@ function CopyEmail({ email }: { email: string }) {
 }
 
 export default function GlassApp() {
-  const { profile, game, experience, skills, education, services, projects } = usePortfolio();
+  // the committed file; EditProvider lays the live edits over it and hands
+  // the result to the page, so what is on screen is what Publish would send
+  const base = usePortfolio();
+  return <EditProvider base={base}>{(content) => <GlassPage content={content} />}</EditProvider>;
+}
+
+function GlassPage({ content }: { content: Portfolio }) {
+  const { profile, game, experience, skills, education, services, projects } = content;
   const [motion, toggleMotion] = useMotion();
   const fine = useMediaQuery('(pointer: fine) and (hover: hover)');
   useCursorFx(motion && fine);
   const github = useGitHub();
   useScrollVars();
   useDriftWhileHeroVisible();
-  // rescan once GitHub data lands, so the cards it adds are revealed and
-  // given their lens too
-  useReveal(github);
-  useLiquidLens(github);
+  // rescan when GitHub data lands or an edit adds a card, so what appears is
+  // revealed and given its lens too
+  const revision = useEdit()?.revision;
+  const version = useMemo(() => [github, revision], [github, revision]);
+  useReveal(version);
+  useLiquidLens(version);
 
   const openTo = game.openTo ? `Open to ${game.openTo.charAt(0).toLowerCase()}${game.openTo.slice(1)}` : '';
   const taglineWords = profile.tagline.replace(/\.$/, '').split(' ');
@@ -346,7 +357,7 @@ export default function GlassApp() {
       >
         Skip to content
       </a>
-      <Nav name={profile.name} motion={motion} toggleMotion={toggleMotion} version={github} />
+      <Nav name={profile.name} motion={motion} toggleMotion={toggleMotion} version={version} />
 
       <main id="top" className="relative z-10">
         {/* ------------------------------------------------ hero */}
@@ -380,6 +391,7 @@ export default function GlassApp() {
             >
               {profile.role}. {profile.specialization.replace(/\s*·\s*/g, ', ')}.
             </p>
+            <EditPencil card="intro" />
             <div className="reveal mt-8 flex flex-wrap justify-center gap-3" style={{ '--d': '320ms' } as CSSProperties}>
               {social.linkedin && (
                 <a
@@ -418,9 +430,12 @@ export default function GlassApp() {
 
         {/* ------------------------------------------------ numbers */}
         <section className="mx-auto max-w-6xl px-4 py-12" aria-label="In numbers">
+          <div className="flex justify-end">
+            <EditPencil card="numbers" />
+          </div>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
             {game.ores.map((ore, i) => (
-              <Stat key={ore.label} ore={ore} motion={motion} delay={(i % 3) * 90} />
+              <Stat key={`${i}-${ore.label}`} ore={ore} motion={motion} delay={(i % 3) * 90} />
             ))}
           </div>
         </section>
@@ -430,14 +445,17 @@ export default function GlassApp() {
           <div className="grid gap-5 lg:grid-cols-5">
             <div className="glass reveal p-7 sm:p-9 lg:col-span-2">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--g-pink)]">About</p>
-              <h2 id="about-title" className="g-display mt-3 text-4xl font-bold">
-                Hi, I'm {profile.shortName}.
-              </h2>
+              <div className="mt-3 flex items-center gap-2">
+                <h2 id="about-title" className="g-display text-4xl font-bold">
+                  Hi, I'm {profile.shortName}.
+                </h2>
+                <EditPencil card="about" />
+              </div>
               <p className="mt-5 text-lg leading-relaxed text-[color:var(--g-soft)]">{profile.bio}</p>
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:col-span-3">
               {services.map((s, i) => (
-                <div key={s.title} className="glass reveal p-6" style={{ '--d': `${(i % 2) * 90}ms` } as CSSProperties}>
+                <div key={`${i}-${s.title}`} className="glass reveal p-6" style={{ '--d': `${(i % 2) * 90}ms` } as CSSProperties}>
                   <h3 className="g-display text-xl font-semibold">{s.title}</h3>
                   <p className="mt-3 text-[color:var(--g-soft)]">{s.body}</p>
                   <ul className="mt-4 flex flex-wrap gap-2">
@@ -460,13 +478,16 @@ export default function GlassApp() {
         <section id="journey" className="mx-auto max-w-4xl px-4 py-20 sm:py-28" aria-labelledby="journey-title">
           <header className="reveal mb-12">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--g-amber)]">Journey</p>
-            <h2 id="journey-title" className="g-display mt-3 text-4xl font-bold sm:text-5xl">
-              Where I've worked
-            </h2>
+            <div className="mt-3 flex items-center gap-2">
+              <h2 id="journey-title" className="g-display text-4xl font-bold sm:text-5xl">
+                Where I've worked
+              </h2>
+              <EditPencil card="experience" />
+            </div>
           </header>
           <ol className="relative space-y-6 border-l border-white/15 pl-6 sm:pl-10">
             {experience.map((job, i) => (
-              <li key={`${job.company}-${job.period}`} className="relative">
+              <li key={`${i}-${job.company}`} className="relative">
                 <span
                   aria-hidden
                   className="absolute -left-[31px] top-7 h-3.5 w-3.5 rounded-full sm:-left-[47px]"
@@ -500,16 +521,22 @@ export default function GlassApp() {
         <section id="skills" className="mx-auto max-w-6xl px-4 py-20 sm:py-28" aria-labelledby="skills-title">
           <header className="reveal mb-10">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--g-violet)]">Skills</p>
-            <h2 id="skills-title" className="g-display mt-3 text-4xl font-bold sm:text-5xl">
-              What I bring
-            </h2>
+            <div className="mt-3 flex items-center gap-2">
+              <h2 id="skills-title" className="g-display text-4xl font-bold sm:text-5xl">
+                What I bring
+              </h2>
+              <EditPencil card="skills" />
+            </div>
           </header>
-          <Skills categories={skills.categories} />
+          <Skills skills={skills} />
 
-          <h3 className="g-display reveal mt-16 text-3xl font-bold">Education</h3>
+          <div className="reveal mt-16 flex items-center gap-2">
+            <h3 className="g-display text-3xl font-bold">Education</h3>
+            <EditPencil card="education" />
+          </div>
           <div className="mt-6 grid gap-5 md:grid-cols-3">
             {education.map((ed, i) => (
-              <div key={ed.institution} className="glass reveal p-6" style={{ '--d': `${i * 90}ms` } as CSSProperties}>
+              <div key={`${i}-${ed.institution}`} className="glass reveal p-6" style={{ '--d': `${i * 90}ms` } as CSSProperties}>
                 <p className="text-sm font-medium text-[color:var(--g-faint)]">{ed.period}</p>
                 <h4 className="g-display mt-1 text-lg font-semibold leading-snug">{ed.degree}</h4>
                 <p className="mt-1 text-[color:var(--g-soft)]">{ed.institution}</p>
@@ -523,9 +550,12 @@ export default function GlassApp() {
         <section id="contact" className="mx-auto max-w-6xl px-4 pb-16 pt-20 sm:pt-28" aria-labelledby="contact-title">
           <header className="reveal mb-10 max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--g-cyan)]">Contact</p>
-            <h2 id="contact-title" className="g-display mt-3 text-4xl font-bold sm:text-6xl">
-              Let's <span className="g-gradient-text">talk</span>.
-            </h2>
+            <div className="mt-3 flex items-center gap-2">
+              <h2 id="contact-title" className="g-display text-4xl font-bold sm:text-6xl">
+                Let's <span className="g-gradient-text">talk</span>.
+              </h2>
+              <EditPencil card="contact" />
+            </div>
           </header>
 
           <div className="grid gap-5 lg:grid-cols-3">

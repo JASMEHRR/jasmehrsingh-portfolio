@@ -2,6 +2,8 @@ import type { CSSProperties } from 'react';
 import { ArrowUpRight, Lock } from 'lucide-react';
 import type { Project } from '../types/portfolio';
 import { timeAgo, undash, type GitHubData, type Repo } from './github';
+import { EditPencil } from './EditMode';
+import { useEdit } from './editContext';
 
 /** The repository name at the end of a GitHub link, lower-cased for matching. */
 function repoKey(link: string): string | null {
@@ -80,9 +82,14 @@ function ProjectCard({ p, repo, delay, span }: { p: Project; repo?: Repo; delay:
  * day it is pushed rather than the day the JSON is edited.
  */
 export default function Work({ projects, github }: { projects: Project[]; github: GitHubData | null | undefined }) {
+  // A project added in the editor and left untitled would otherwise show
+  // visitors an empty card. It stays on screen while editing, so whoever
+  // added it can see it and fill it in.
+  const editing = useEdit()?.editing ?? false;
+  const listed = editing ? projects : projects.filter((p) => p?.title?.trim() !== '');
   const byName = new Map((github?.repos ?? []).map((r) => [r.name.toLowerCase(), r]));
   const curatedKeys = new Set<string>();
-  const cards = projects.map((p) => {
+  const cards = listed.map((p) => {
     const key = p.link ? repoKey(p.link) : null;
     if (key) curatedKeys.add(key);
     return { p, repo: key ? byName.get(key) : undefined };
@@ -113,9 +120,12 @@ export default function Work({ projects, github }: { projects: Project[]; github
     <section id="work" className="mx-auto max-w-6xl px-4 py-20 sm:py-28" aria-labelledby="work-title">
       <header className="reveal mb-10 max-w-2xl">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--g-cyan)]">Selected work</p>
-        <h2 id="work-title" className="g-display mt-3 text-4xl font-bold sm:text-5xl">
-          Things I've built
-        </h2>
+        <div className="mt-3 flex items-center gap-2">
+          <h2 id="work-title" className="g-display text-4xl font-bold sm:text-5xl">
+            Things I've built
+          </h2>
+          <EditPencil card="projects" />
+        </div>
         <p className="mt-4 text-lg text-[color:var(--g-soft)]">
           Products I have directed, tested and shipped with Claude Code. Update times come live from GitHub.
         </p>
@@ -123,7 +133,7 @@ export default function Work({ projects, github }: { projects: Project[]; github
 
       <div className="grid gap-5 md:grid-cols-2 lg:grid-flow-row-dense lg:grid-cols-3">
         {cards.map(({ p, repo }, i) => (
-          <ProjectCard key={p.id} p={p} repo={repo} delay={(i % 3) * 90} span={spanFor(i)} />
+          <ProjectCard key={`${i}-${p.id}`} p={p} repo={repo} delay={(i % 3) * 90} span={spanFor(i)} />
         ))}
       </div>
 

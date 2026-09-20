@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { usePortfolio } from '../hooks/usePortfolio';
-import { applyLevels, useLiveLevels } from '../glass/skillEdits';
+import { useLiveContent } from '../glass/liveContent';
 import { Panel, EnchantRow } from './mc/Gui';
 
 /**
@@ -12,9 +12,9 @@ import { Panel, EnchantRow } from './mc/Gui';
  */
 export default function EnchantSkills() {
   const portfolio = usePortfolio();
-  // levels edited on the live site apply here too, so both modes agree
-  const [live] = useLiveLevels();
-  const skills = { categories: applyLevels(portfolio.skills.categories, live) };
+  // skills edited on the live site apply here too, so both modes agree
+  const [live] = useLiveContent(portfolio);
+  const skills = (live.skills as typeof portfolio.skills | undefined) ?? portfolio.skills;
   const [active, setActive] = useState(0);
   const category = skills.categories[active];
 

@@ -585,7 +585,13 @@ dialog.g-dialog {
   margin: auto;
   width: min(92vw, 380px);
   height: fit-content;
+  max-height: 90vh;
   color: var(--g-ink);
+}
+
+/* the section forms, which hold a list of projects or jobs */
+dialog.g-dialog-wide {
+  width: min(94vw, 640px);
 }
 
 dialog.g-dialog::backdrop {
@@ -604,6 +610,17 @@ dialog.g-dialog::backdrop {
 .g-input:focus {
   border-color: var(--g-cyan);
   outline: none;
+}
+
+textarea.g-input {
+  resize: vertical;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+input[type='color'].g-input {
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* the blocks, as buttons, while editing */
