@@ -590,13 +590,20 @@ dialog.g-dialog {
   /* No bars on the prompt itself. A dialog scrolls by default, so on a short
      window it grew a bar down the side and, once that took its width, another
      along the bottom. It still scrolls if it has to, with nothing drawn. */
-  /* The panel itself never moves: whatever is inside it does the
-     scrolling. Left scrollable, a wheel over the form slid the whole
-     panel away and left empty glass behind it. */
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
   scrollbar-width: none;
+}
+
+/* The panel itself never moves: whatever is inside it does the scrolling.
+   Left scrollable, a wheel over the form slid the whole panel away and left
+   empty glass behind it.
+
+   Only while it is open. `display` is also what hides a closed dialog, and a
+   rule here outranks the browser's own, so setting it unconditionally left
+   the password box sitting in the middle of the page for everyone. */
+dialog.g-dialog[open] {
+  display: flex;
+  flex-direction: column;
 }
 
 /* the one part that scrolls, sized by what is left after the rest */
