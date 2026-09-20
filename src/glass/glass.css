@@ -590,10 +590,23 @@ dialog.g-dialog {
   /* No bars on the prompt itself. A dialog scrolls by default, so on a short
      window it grew a bar down the side and, once that took its width, another
      along the bottom. It still scrolls if it has to, with nothing drawn. */
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  /* The panel itself never moves: whatever is inside it does the
+     scrolling. Left scrollable, a wheel over the form slid the whole
+     panel away and left empty glass behind it. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   scrollbar-width: none;
+}
+
+/* the one part that scrolls, sized by what is left after the rest */
+dialog.g-dialog > * {
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+
+dialog.g-dialog > form {
+  overflow-y: auto;
 }
 
 dialog.g-dialog::-webkit-scrollbar {

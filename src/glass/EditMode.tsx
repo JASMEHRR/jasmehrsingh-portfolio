@@ -265,7 +265,7 @@ function IconButton({
       title={title}
       onClick={onClick}
       disabled={disabled}
-      className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-[color:var(--g-soft)] hover:bg-white/20 hover:text-[color:var(--g-ink)] disabled:opacity-35"
+      className="relative grid h-8 w-8 place-items-center rounded-full bg-white/10 text-[color:var(--g-soft)] hover:bg-white/20 hover:text-[color:var(--g-ink)] disabled:opacity-35"
     >
       {children}
       <span className="sr-only">{title}</span>
@@ -282,7 +282,7 @@ export function EditPencil({ card }: { card: CardName }) {
       type="button"
       onClick={() => edit.openCard(card)}
       title={`Edit ${CARDS[card].title.toLowerCase()}`}
-      className="glass glass-pill ml-3 inline-grid h-9 w-9 shrink-0 translate-y-[-2px] place-items-center align-middle"
+      className="glass glass-pill relative ml-3 inline-grid h-9 w-9 shrink-0 translate-y-[-2px] place-items-center align-middle"
     >
       <Pencil size={15} aria-hidden />
       <span className="sr-only">Edit {CARDS[card].title.toLowerCase()}</span>
@@ -586,8 +586,8 @@ function CardDialog({
 
   return (
     <dialog ref={dialog} className="g-dialog g-dialog-wide glass p-0" aria-labelledby="edit-card-title" onClose={onClose}>
-      <div className="flex max-h-[86vh] flex-col">
-        <div className="flex items-center justify-between gap-3 border-b border-white/12 px-6 py-4">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/12 px-6 py-4">
           <h2 id="edit-card-title" className="g-display text-xl font-bold">
             {spec.title}
           </h2>
@@ -596,7 +596,7 @@ function CardDialog({
           </button>
         </div>
 
-        <div className="flex flex-col gap-5 overflow-y-auto px-6 py-5">
+        <div className="relative flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-6 py-5">
           {spec.parts.map((part) => {
             const value = working[part.section];
             const template = (base as unknown as Json)[part.section];
@@ -623,7 +623,7 @@ function CardDialog({
           })}
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-white/12 px-6 py-4">
+        <div className="flex shrink-0 justify-end gap-2 border-t border-white/12 px-6 py-4">
           <button type="button" onClick={close} className="rounded-full px-4 py-2 text-sm text-[color:var(--g-soft)] hover:text-[color:var(--g-ink)]">
             Cancel
           </button>
